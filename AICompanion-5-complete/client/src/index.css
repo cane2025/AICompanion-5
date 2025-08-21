@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(210, 40%, 16%);
+  --muted: hsl(188, 20%, 95%);
+  --muted-foreground: hsl(210, 20%, 50%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(210, 40%, 16%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(210, 40%, 16%);
+  --border: hsl(188, 30%, 85%);
+  --input: hsl(188, 15%, 96%);
+  --primary: hsl(188, 100%, 42%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(188, 15%, 96%);
+  --secondary-foreground: hsl(210, 40%, 16%);
+  --accent: hsl(188, 90%, 50%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(188, 100%, 42%);
+  --radius: 0.5rem;
+  
+  /* UNGDOMS theme colors - Exact logo blue shades */
+  --ungdoms-50: hsl(188, 100%, 97%);
+  --ungdoms-100: hsl(188, 100%, 92%);
+  --ungdoms-200: hsl(188, 95%, 85%);
+  --ungdoms-300: hsl(188, 90%, 75%);
+  --ungdoms-400: hsl(188, 85%, 65%);
+  --ungdoms-500: hsl(188, 100%, 42%);
+  --ungdoms-600: hsl(188, 95%, 38%);
+  --ungdoms-700: hsl(188, 90%, 34%);
+  --ungdoms-800: hsl(188, 85%, 30%);
+  --ungdoms-900: hsl(188, 80%, 26%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  /* UNGDOMS theme header */
+  .ungdoms-header {
+    background: linear-gradient(135deg, var(--ungdoms-500) 0%, var(--ungdoms-700) 100%);
+    color: white;
+  }
+  
+  /* Dokumentation status - Clean blue theme */
+  .status-done {
+    @apply bg-green-100 text-green-700 border-green-300;
+  }
+  
+  .status-reminded {
+    @apply bg-yellow-100 text-yellow-700 border-yellow-300;
+  }
+  
+  .status-not-done {
+    @apply bg-red-100 text-red-700 border-red-300;
+  }
+  
+  /* Rapport status */
+  .status-submitted {
+    @apply bg-green-100 text-green-700 border-green-300;
+  }
+  
+  .status-late {
+    @apply bg-red-100 text-red-700 border-red-300;
+  }
+  
+  .status-not-submitted {
+    @apply bg-gray-100 text-gray-700 border-gray-300;
+  }
+  
+  /* Kvalitet status */
+  .status-approved {
+    @apply bg-green-100 text-green-700 border-green-300;
+  }
+  
+  .status-not-approved {
+    @apply bg-red-100 text-red-700 border-red-300;
+  }
+  
+  .status-pending {
+    @apply bg-yellow-100 text-yellow-700 border-yellow-300;
+  }
+  
+  /* Vimsa status */
+  .status-accepted {
+    @apply bg-green-100 text-green-700 border-green-300;
+  }
+  
+  .status-rejected {
+    @apply bg-red-100 text-red-700 border-red-300;
+  }
+  
+  .sidebar-transition {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sidebar-hidden {
+    transform: translateX(-100%);
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .table-hover tr:hover {
+    background-color: hsl(0, 0%, 12%);
+  }
+  
+  .ungdoms-bg {
+    background-color: var(--ungdoms-500);
+  }
+  
+  .ungdoms-bg-light {
+    background-color: var(--ungdoms-800);
+  }
+  
+  .ungdoms-text {
+    color: var(--ungdoms-400);
+  }
+  
+  .ungdoms-border {
+    border-color: var(--ungdoms-600);
+  }
+  
+  .ungdoms-logo-area {
+    background: radial-gradient(circle at center, var(--ungdoms-900) 0%, transparent 70%);
+  }
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-hidden {
+    transform: translateX(-100%);
+  }
+}

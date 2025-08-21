@@ -1,0 +1,32 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.validate": ["javascript", "javascriptreact"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "sonarlint.connectedMode.enabled": false,
+  "sonarlint.rules": {
+    "javascript:S1128": { "level": "on" },
+    "typescript:S1128": { "level": "on" }
+  },
+  "todo-tree.general.tags": ["TODO", "FIXME", "BUG", "NOTE", "WIP"],
+  "todo-tree.tree.expanded": true,
+  "todo-tree.general.showIconsInTree": true,
+  "todo-tree.tree.sort": true,
+  "todo-tree.general.statusBar": "total",
+  "todo-tree.filtering.excludeGlobs": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.vite/**",
+    "**/coverage/**",
+    "**/.git/**"
+  ],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "aa05033fc5b0c357cca0da0075186bc60cc0c074",
+    "projectKey": "cane2025_uppfoljningssystem"
+  }
+}

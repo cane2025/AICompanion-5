@@ -1,0 +1,726 @@
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uppföljning – Öppenvård | Vårdadministration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'medical': {
+                            50: '#E3F2FD',
+                            100: '#BBDEFB',
+                            200: '#90CAF9',
+                            300: '#64B5F6',
+                            400: '#42A5F5',
+                            500: '#2196F3',
+                            600: '#1E88E5',
+                            700: '#1976D2',
+                            800: '#1565C0',
+                            900: '#0D47A1'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .status-excellent { @apply bg-green-100 text-green-800 border-green-200; }
+        .status-good { @apply bg-blue-100 text-blue-800 border-blue-200; }
+        .status-fair { @apply bg-yellow-100 text-yellow-800 border-yellow-200; }
+        .status-poor { @apply bg-red-100 text-red-800 border-red-200; }
+        .status-unknown { @apply bg-gray-100 text-gray-800 border-gray-200; }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .table-hover tr:hover {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                    <div class="flex items-center ml-4 lg:ml-0">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-heartbeat text-medical-600 text-2xl mr-3"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-semibold text-gray-900">Uppföljning – Öppenvård</h1>
+                            <p class="text-sm text-gray-500">Vårdadministrativt system</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="hidden md:block relative">
+                        <input 
+                            type="text" 
+                            id="global-search"
+                            placeholder="Sök personal eller data..." 
+                            class="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500"
+                        >
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- Export Button -->
+                    <button class="bg-medical-600 text-white px-4 py-2 rounded-lg hover:bg-medical-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>
+                        <span class="hidden sm:inline">Exportera</span>
+                    </button>
+                    
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <i class="fas fa-user-circle text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-screen pt-16">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar-transition bg-white w-80 shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30">
+            <div class="p-6">
+                <!-- Dashboard Link -->
+                <div class="mb-6">
+                    <button id="dashboard-btn" class="w-full flex items-center px-4 py-3 text-left rounded-lg bg-medical-50 text-medical-700 border border-medical-200 hover:bg-medical-100 transition-colors">
+                        <i class="fas fa-chart-line mr-3 text-lg"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </button>
+                </div>
+                
+                <!-- Staff Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtrera personal</label>
+                    <input 
+                        type="text" 
+                        id="staff-filter" 
+                        placeholder="Sök personal..." 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500"
+                    >
+                </div>
+                
+                <!-- Staff Tabs -->
+                <div class="space-y-2" id="staff-tabs"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="p-6 fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Dashboard - Översikt</h2>
+                    <p class="text-gray-600">Sammanfattning av uppföljningsdata för öppenvård</p>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-medical-100 rounded-lg">
+                                <i class="fas fa-users text-medical-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Personal</p>
+                                <p class="text-2xl font-bold text-gray-900">35</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Slutförda Uppföljningar</p>
+                                <p class="text-2xl font-bold text-gray-900">28</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-100 rounded-lg">
+                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Väntande</p>
+                                <p class="text-2xl font-bold text-gray-900">7</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-red-100 rounded-lg">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Försenade</p>
+                                <p class="text-2xl font-bold text-gray-900">3</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Senaste Aktivitet</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 table-hover">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Senaste Uppföljning</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nästa Åtgärd</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" data-mock="true">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 bg-medical-100 rounded-full flex items-center justify-center">
+                                                <span class="text-medical-600 font-medium text-sm">AD</span>
+                                            </div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">Afif Derbas</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-15</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-excellent px-2 py-1 text-xs font-medium rounded-full border">Utmärkt</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Schemalagd för 2024-02-15</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 bg-medical-100 rounded-full flex items-center justify-center">
+                                                <span class="text-medical-600 font-medium text-sm">AA</span>
+                                            </div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">Ahmed Alrakabi</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-12</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-good px-2 py-1 text-xs font-medium rounded-full border">Bra</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Uppföljning krävs</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 bg-medical-100 rounded-full flex items-center justify-center">
+                                                <span class="text-medical-600 font-medium text-sm">AR</span>
+                                            </div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">Ahmed Ramadan</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-10</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-fair px-2 py-1 text-xs font-medium rounded-full border">Godtagbar</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Försenad uppföljning</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Staff Sections -->
+            <div id="staff-sections" class="hidden"></div>
+        </main>
+    </div>
+
+    <!-- Mobile Search Modal -->
+    <div id="mobile-search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50">
+        <div class="absolute top-0 left-0 right-0 bg-white p-4">
+            <div class="flex items-center">
+                <input 
+                    type="text" 
+                    placeholder="Sök personal eller data..." 
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-medical-500"
+                >
+                <button class="ml-3 text-gray-600" onclick="toggleMobileSearch()">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Staff data
+        const staffList = [
+            "Afif Derbas", "Ahmed Alrakabi", "Ahmed Ramadan", "Ajmen Rafiq", "Alana Salah",
+            "Alharis Albayati", "Amir Al-istarabadi", "Anjelika Bååth", "Bashdar Reza",
+            "Constanza Soto", "Deni Dulji", "Diana Gharib", "Drilon Muqkurtaj", "Heidar Farhan",
+            "Hussein Ahmed", "Ida Björkbacka", "Ikhlas Almaliki", "Intisar Almansour",
+            "Israa Touman", "Johan Wessberg", "Kaoula Channoufi", "Kim Torneus", "Lejla Kocacik",
+            "Michelle Nilsson", "Mirza Celik", "Mirza Hodzic", "Nasima Kuraishe",
+            "Nicolas Lazcano", "Omar Mezza", "Qasin Abdullahi", "Robert Ackar", "Samir Bezzina",
+            "Sebastian Holm", "Wissam Hemissi", "Yasmin Ibrahim"
+        ];
+
+        // Sample follow-up data structure
+        const sampleFollowUpData = {
+            personalInfo: {
+                name: '',
+                personnummer: '',
+                telefon: '',
+                epost: '',
+                adress: '',
+                anställningsdatum: '',
+                roll: '',
+                avdelning: ''
+            },
+            followUpData: {
+                senasteBesök: '',
+                nästaSchemalagd: '',
+                statusBedömning: 'unknown',
+                kommentarer: '',
+                åtgärder: '',
+                prioritet: 'medium'
+            }
+        };
+
+        // Initialize application
+        (() => {
+            initializeSidebar();
+            initializeDashboard();
+            initializeStaffSections();
+            initializeEventListeners();
+        })();
+
+        function initializeSidebar() {
+            const staffTabsContainer = document.getElementById('staff-tabs');
+            
+            staffList.forEach((staff, index) => {
+                const initials = staff.split(' ').map(n => n[0]).join('');
+                const tab = document.createElement('button');
+                tab.className = 'w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900';
+                tab.innerHTML = `
+                    <div class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-gray-600 font-medium text-sm">${initials}</span>
+                    </div>
+                    <span class="font-medium">${staff}</span>
+                `;
+                tab.onclick = () => showStaffSection(index, staff);
+                staffTabsContainer.appendChild(tab);
+            });
+        }
+
+        function initializeDashboard() {
+            const dashboardBtn = document.getElementById('dashboard-btn');
+            dashboardBtn.onclick = showDashboard;
+        }
+
+        function initializeStaffSections() {
+            const staffSectionsContainer = document.getElementById('staff-sections');
+            
+            staffList.forEach((staff, index) => {
+                const section = document.createElement('div');
+                section.className = 'hidden p-6 fade-in';
+                section.id = `staff-section-${index}`;
+                section.innerHTML = createStaffSectionContent(staff, index);
+                staffSectionsContainer.appendChild(section);
+            });
+        }
+
+        function createStaffSectionContent(staffName, index) {
+            const initials = staffName.split(' ').map(n => n[0]).join('');
+            
+            return `
+                <div class="mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 bg-medical-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-medical-600 font-semibold text-lg">${initials}</span>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">${staffName}</h2>
+                            <p class="text-gray-600">Personaluppföljning och administrativa data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Personal Information Form -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Personalinformation</h3>
+                        </div>
+                        <div class="p-6">
+                            <form class="space-y-4" data-staff-index="${index}">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Fullständigt namn</label>
+                                        <input type="text" value="${staffName}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="name" data-mock="true">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Personnummer</label>
+                                        <input type="text" placeholder="YYYYMMDD-XXXX" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="personnummer" data-mock="true">
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                                        <input type="tel" placeholder="+46 70 123 45 67" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="telefon" data-mock="true">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">E-post</label>
+                                        <input type="email" placeholder="namn@sjukhus.se" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="epost" data-mock="true">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Adress</label>
+                                    <input type="text" placeholder="Gatuadress, Postnummer Stad" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="adress" data-mock="true">
+                                </div>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Anställningsdatum</label>
+                                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="anställningsdatum" data-mock="true">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Roll</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="roll" data-mock="true">
+                                            <option value="">Välj roll</option>
+                                            <option value="sjuksköterska">Sjuksköterska</option>
+                                            <option value="undersköterska">Undersköterska</option>
+                                            <option value="läkare">Läkare</option>
+                                            <option value="kurator">Kurator</option>
+                                            <option value="administratör">Administratör</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Avdelning</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="avdelning" data-mock="true">
+                                        <option value="">Välj avdelning</option>
+                                        <option value="akutmottagning">Akutmottagning</option>
+                                        <option value="öppenvård">Öppenvård</option>
+                                        <option value="intensivvård">Intensivvård</option>
+                                        <option value="barnklinik">Barnklinik</option>
+                                        <option value="kirurgi">Kirurgi</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="button" class="w-full bg-medical-600 text-white py-2 px-4 rounded-lg hover:bg-medical-700 transition-colors" onclick="savePersonalInfo(${index})">
+                                    <i class="fas fa-save mr-2"></i>
+                                    Spara Personalinformation
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Follow-up Data Form -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Uppföljningsdata</h3>
+                        </div>
+                        <div class="p-6">
+                            <form class="space-y-4" data-followup-index="${index}">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Senaste besök</label>
+                                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="senasteBesök" data-mock="true">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nästa schemalagd</label>
+                                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="nästaSchemalagd" data-mock="true">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Statusbedömning</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="statusBedömning" data-mock="true">
+                                        <option value="unknown">Okänd</option>
+                                        <option value="excellent">Utmärkt</option>
+                                        <option value="good">Bra</option>
+                                        <option value="fair">Godtagbar</option>
+                                        <option value="poor">Dålig</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Prioritet</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="prioritet" data-mock="true">
+                                        <option value="low">Låg</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">Hög</option>
+                                        <option value="urgent">Akut</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kommentarer</label>
+                                    <textarea rows="4" placeholder="Skriv kommentarer och observationer..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="kommentarer" data-mock="true"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Åtgärder</label>
+                                    <textarea rows="3" placeholder="Planerade åtgärder och behandlingar..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-500 focus:border-medical-500" data-field="åtgärder" data-mock="true"></textarea>
+                                </div>
+                                
+                                <button type="button" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors" onclick="saveFollowUpData(${index})">
+                                    <i class="fas fa-save mr-2"></i>
+                                    Spara Uppföljningsdata
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Follow-up History Table -->
+                <div class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900">Uppföljningshistorik</h3>
+                        <button class="bg-medical-600 text-white px-4 py-2 rounded-lg hover:bg-medical-700 transition-colors text-sm">
+                            <i class="fas fa-plus mr-2"></i>
+                            Ny uppföljning
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 table-hover">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datum</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioritet</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kommentarer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Åtgärder</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" data-mock="true">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-15</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-excellent px-2 py-1 text-xs font-medium rounded-full border">Utmärkt</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full border border-green-200">Låg</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">Återhämtning går enligt plan</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">Fortsätt nuvarande behandling</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-01</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-good px-2 py-1 text-xs font-medium rounded-full border">Bra</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 text-xs font-medium rounded-full border border-yellow-200">Medium</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">Förbättring noterad</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">Schemalägg uppföljning</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initializeEventListeners() {
+            // Sidebar toggle for mobile
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('sidebar-hidden');
+            });
+
+            // Staff filter functionality
+            const staffFilter = document.getElementById('staff-filter');
+            staffFilter.addEventListener('input', filterStaff);
+
+            // Global search functionality
+            const globalSearch = document.getElementById('global-search');
+            if (globalSearch) {
+                globalSearch.addEventListener('input', performGlobalSearch);
+            }
+
+            // Auto-save functionality for forms
+            document.addEventListener('change', (e) => {
+                if (e.target.hasAttribute('data-field') && e.target.hasAttribute('data-mock')) {
+                    // TODO: Implement auto-save functionality
+                    console.log('Auto-saving:', e.target.dataset.field, '=', e.target.value);
+                }
+            });
+        }
+
+        function showDashboard() {
+            // Hide all staff sections
+            document.querySelectorAll('[id^="staff-section-"]').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Hide staff sections container
+            document.getElementById('staff-sections').classList.add('hidden');
+            
+            // Show dashboard
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            
+            // Update active states
+            document.querySelectorAll('#staff-tabs button').forEach(tab => {
+                tab.classList.remove('bg-medical-50', 'text-medical-700', 'border', 'border-medical-200');
+                tab.classList.add('text-gray-700', 'hover:text-gray-900');
+            });
+            
+            document.getElementById('dashboard-btn').classList.add('bg-medical-50', 'text-medical-700', 'border', 'border-medical-200');
+        }
+
+        function showStaffSection(index, staffName) {
+            // Hide dashboard
+            document.getElementById('dashboard-section').classList.add('hidden');
+            
+            // Show staff sections container
+            document.getElementById('staff-sections').classList.remove('hidden');
+            
+            // Hide all staff sections
+            document.querySelectorAll('[id^="staff-section-"]').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected staff section
+            const targetSection = document.getElementById(`staff-section-${index}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+            
+            // Update active states
+            document.getElementById('dashboard-btn').classList.remove('bg-medical-50', 'text-medical-700', 'border', 'border-medical-200');
+            
+            document.querySelectorAll('#staff-tabs button').forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('bg-medical-50', 'text-medical-700', 'border', 'border-medical-200');
+                    tab.classList.remove('text-gray-700', 'hover:text-gray-900');
+                } else {
+                    tab.classList.remove('bg-medical-50', 'text-medical-700', 'border', 'border-medical-200');
+                    tab.classList.add('text-gray-700', 'hover:text-gray-900');
+                }
+            });
+
+            // Close mobile sidebar
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('sidebar-hidden');
+            }
+        }
+
+        function filterStaff() {
+            const filter = document.getElementById('staff-filter').value.toLowerCase();
+            const tabs = document.querySelectorAll('#staff-tabs button');
+            
+            tabs.forEach((tab, index) => {
+                const staffName = staffList[index].toLowerCase();
+                if (staffName.includes(filter)) {
+                    tab.style.display = 'flex';
+                } else {
+                    tab.style.display = 'none';
+                }
+            });
+        }
+
+        function performGlobalSearch() {
+            // TODO: Implement comprehensive search across all data
+            const searchTerm = document.getElementById('global-search').value.toLowerCase();
+            console.log('Searching for:', searchTerm);
+        }
+
+        function savePersonalInfo(staffIndex) {
+            // TODO: Implement data persistence to backend/localStorage
+            const form = document.querySelector(`form[data-staff-index="${staffIndex}"]`);
+            const formData = new FormData(form);
+            console.log('Saving personal info for staff index:', staffIndex);
+            
+            // Show success feedback
+            showNotification('Personalinformation sparad framgångsrikt!', 'success');
+        }
+
+        function saveFollowUpData(staffIndex) {
+            // TODO: Implement data persistence to backend/localStorage
+            const form = document.querySelector(`form[data-followup-index="${staffIndex}"]`);
+            const formData = new FormData(form);
+            console.log('Saving follow-up data for staff index:', staffIndex);
+            
+            // Show success feedback
+            showNotification('Uppföljningsdata sparad framgångsrikt!', 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            // TODO: Implement toast notification system
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
+
+        // Export functionality
+        function exportData() {
+            // TODO: Implement data export to Excel/PDF
+            console.log('Exporting data...');
+            showNotification('Dataexport påbörjad...', 'info');
+        }
+
+        // Initialize export button
+        document.querySelector('button:has(.fa-download)').addEventListener('click', exportData);
+
+        // Close mobile sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            
+            if (window.innerWidth < 1024 && 
+                !sidebar.contains(e.target) && 
+                !sidebarToggle.contains(e.target) &&
+                !sidebar.classList.contains('sidebar-hidden')) {
+                sidebar.classList.add('sidebar-hidden');
+            }
+        });
+    </script>
+</body>
+</html>

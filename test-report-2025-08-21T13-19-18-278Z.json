@@ -1,0 +1,141 @@
+{
+  "timestamp": "2025-08-21T13:19:18.278Z",
+  "summary": {
+    "totalTests": 11,
+    "passed": 11,
+    "failed": 0,
+    "successRate": 100,
+    "totalDuration": 31
+  },
+  "createdResources": {
+    "clients": [
+      "c_adae5836-2973-456f-9a0a-81ba8fbdad5d"
+    ],
+    "carePlans": [
+      "cp_14196260-0b0a-4cd5-8afb-4e5251ccde6d"
+    ],
+    "implementationPlans": [
+      "ip_d87b3dd5-1769-40a2-8f72-9bf2a9702db8"
+    ],
+    "weeklyDocs": [
+      "wd_7fef90b1-77f6-4285-8aa7-72376cc42b11"
+    ],
+    "monthlyReports": [
+      "mr_7a56e683-055a-47f0-9e77-4d42ba60f7e6"
+    ]
+  },
+  "testResults": [
+    {
+      "name": "Server Health Check",
+      "status": "PASSED",
+      "duration": 13,
+      "data": {
+        "statusCode": 200
+      }
+    },
+    {
+      "name": "Authentication",
+      "status": "PASSED",
+      "duration": 3,
+      "data": {
+        "ok": true,
+        "user": {
+          "id": "s_demo"
+        }
+      }
+    },
+    {
+      "name": "Create Client",
+      "status": "PASSED",
+      "duration": 2,
+      "data": {
+        "clientId": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d"
+      }
+    },
+    {
+      "name": "Update Client",
+      "status": "PASSED",
+      "duration": 2,
+      "data": {
+        "id": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+        "initials": "TEST",
+        "staffId": "s_demo",
+        "status": "active",
+        "createdAt": "2025-08-21T13:19:18.263Z",
+        "updatedAt": "2025-08-21T13:19:18.265Z",
+        "name": "Updated Test Client"
+      }
+    },
+    {
+      "name": "Create Care Plan",
+      "status": "PASSED",
+      "duration": 2,
+      "data": {
+        "carePlanId": "cp_14196260-0b0a-4cd5-8afb-4e5251ccde6d"
+      }
+    },
+    {
+      "name": "Update Care Plan",
+      "status": "PASSED",
+      "duration": 1,
+      "data": {
+        "id": "cp_14196260-0b0a-4cd5-8afb-4e5251ccde6d",
+        "clientId": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+        "staffId": "s_demo",
+        "planContent": "",
+        "goals": [
+          "Mål 1",
+          "Mål 2",
+          "Mål 3"
+        ],
+        "interventions": "",
+        "status": "received",
+        "isActive": true,
+        "comment": "",
+        "createdAt": "2025-08-21T13:19:18.267Z",
+        "updatedAt": "2025-08-21T13:19:18.268Z",
+        "name": "Updated Vårdplan"
+      }
+    },
+    {
+      "name": "Create Implementation Plan",
+      "status": "PASSED",
+      "duration": 2,
+      "data": {
+        "implPlanId": "ip_d87b3dd5-1769-40a2-8f72-9bf2a9702db8"
+      }
+    },
+    {
+      "name": "Create Weekly Documentation",
+      "status": "PASSED",
+      "duration": 1,
+      "data": {
+        "weeklyDocId": "wd_7fef90b1-77f6-4285-8aa7-72376cc42b11"
+      }
+    },
+    {
+      "name": "Create Monthly Report",
+      "status": "PASSED",
+      "duration": 3,
+      "data": {
+        "reportId": "mr_7a56e683-055a-47f0-9e77-4d42ba60f7e6"
+      }
+    },
+    {
+      "name": "Care Plan Persistence",
+      "status": "PASSED",
+      "duration": 1,
+      "data": {
+        "found": true
+      }
+    },
+    {
+      "name": "404 Error Handling",
+      "status": "PASSED",
+      "duration": 1,
+      "data": {
+        "handled": true
+      }
+    }
+  ]
+}

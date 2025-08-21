@@ -1,0 +1,20 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    "mikestead.dotenv",
+    "ms-playwright.playwright",
+    "sonarsource.sonarlint-vscode",
+    "webhint.vscode-webhint",
+    "rangav.vscode-thunder-client",
+    "github.vscode-github-actions",
+    "dsznajder.es7-react-js-snippets",
+    "WallabyJs.console-ninja",
+    "Gruntfuggly.todo-tree"
+  ]
+}

@@ -1,0 +1,876 @@
+{
+  "staff": [],
+  "clients": [
+    {
+      "id": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T12:49:06.909Z",
+      "updatedAt": "2025-08-21T12:49:06.909Z"
+    },
+    {
+      "id": "c_9dbb4b89-4c6e-4519-85c3-4d3bc528ff02",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:07:44.128Z",
+      "updatedAt": "2025-08-21T13:07:44.128Z"
+    },
+    {
+      "id": "c_f1af6a55-d35e-4266-a1f1-9b0872a989b9",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:07:44.149Z",
+      "updatedAt": "2025-08-21T13:07:44.149Z"
+    },
+    {
+      "id": "c_0014e706-1952-41e0-829c-1df79fa770c5",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:08:09.941Z",
+      "updatedAt": "2025-08-21T13:08:09.941Z"
+    },
+    {
+      "id": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:08:09.959Z",
+      "updatedAt": "2025-08-21T13:08:09.959Z"
+    },
+    {
+      "id": "c_b3c7da56-5e45-4eb9-b9fb-db5a129e9df6",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:09:20.672Z",
+      "updatedAt": "2025-08-21T13:09:20.672Z"
+    },
+    {
+      "id": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:09:20.689Z",
+      "updatedAt": "2025-08-21T13:09:20.689Z"
+    },
+    {
+      "id": "c_303717eb-ce89-40a5-b521-4a6fe5086f25",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:09:44.932Z",
+      "updatedAt": "2025-08-21T13:09:44.932Z"
+    },
+    {
+      "id": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:09:44.949Z",
+      "updatedAt": "2025-08-21T13:09:44.949Z"
+    },
+    {
+      "id": "c_93040792-3bdf-4120-acf9-ff31eba32d07",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:14:28.397Z",
+      "updatedAt": "2025-08-21T13:14:28.397Z"
+    },
+    {
+      "id": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:14:28.422Z",
+      "updatedAt": "2025-08-21T13:14:28.422Z"
+    },
+    {
+      "id": "c_1ce2ac18-9ae1-4b25-a839-13ab0f7cf3a6",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:18:17.162Z",
+      "updatedAt": "2025-08-21T13:18:17.165Z",
+      "name": "Updated Test Client"
+    },
+    {
+      "id": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-08-21T13:19:18.263Z",
+      "updatedAt": "2025-08-21T13:19:18.265Z",
+      "name": "Updated Test Client"
+    }
+  ],
+  "carePlans": [
+    {
+      "id": "cp_4e9031e8-31df-4ce5-8be3-0687e862d374",
+      "clientId": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T12:49:06.913Z",
+      "updatedAt": "2025-08-21T12:49:06.916Z",
+      "name": "Updated Vårdplan",
+      "description": "Updated beskrivning"
+    },
+    {
+      "id": "cp_5d8c95db-7174-4244-ab09-29fbbcf2160e",
+      "clientId": "c_f1af6a55-d35e-4266-a1f1-9b0872a989b9",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:07:44.166Z",
+      "updatedAt": "2025-08-21T13:07:44.166Z"
+    },
+    {
+      "id": "cp_bf0343bf-4631-4381-ad5d-3a737310c27a",
+      "clientId": "c_f1af6a55-d35e-4266-a1f1-9b0872a989b9",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:07:44.183Z",
+      "updatedAt": "2025-08-21T13:07:44.193Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_6888d45a-5c7d-4e07-bc74-f85c27b72e1c",
+      "clientId": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:08:09.972Z",
+      "updatedAt": "2025-08-21T13:08:09.972Z"
+    },
+    {
+      "id": "cp_132e6925-03c1-41f4-80ef-5bd60f0fb8ba",
+      "clientId": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:08:09.987Z",
+      "updatedAt": "2025-08-21T13:08:09.996Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_3b2cbaf2-3823-4708-9312-1dd29db75e08",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": "",
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:08:10.155Z",
+      "updatedAt": "2025-08-21T13:08:10.155Z"
+    },
+    {
+      "id": "cp_8170c6d2-90a2-424c-bf40-00a8aeb090b5",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:20.703Z",
+      "updatedAt": "2025-08-21T13:09:20.703Z"
+    },
+    {
+      "id": "cp_c5442aeb-8bdf-47c0-a9cf-d5347b1145ee",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:20.719Z",
+      "updatedAt": "2025-08-21T13:09:20.728Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_23525338-d400-43bb-9b4a-19bbc4284851",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": "",
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:20.898Z",
+      "updatedAt": "2025-08-21T13:09:20.898Z"
+    },
+    {
+      "id": "cp_c8460629-c234-42e6-9264-f3a6c3ff48c5",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": "",
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:27.121Z",
+      "updatedAt": "2025-08-21T13:09:27.121Z"
+    },
+    {
+      "id": "cp_3c7c445f-a122-416b-a4b5-8550cc5684a8",
+      "clientId": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:44.963Z",
+      "updatedAt": "2025-08-21T13:09:44.963Z"
+    },
+    {
+      "id": "cp_d519f5ba-0431-4298-b5d3-add48ce2411f",
+      "clientId": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:44.980Z",
+      "updatedAt": "2025-08-21T13:09:44.989Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_5511ff23-87ef-4e5c-8ba7-208d8d68a7e9",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": "",
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:09:45.157Z",
+      "updatedAt": "2025-08-21T13:09:45.157Z"
+    },
+    {
+      "id": "cp_c43aac5b-86d7-4c20-bec0-4653c3e52b42",
+      "clientId": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:14:28.438Z",
+      "updatedAt": "2025-08-21T13:14:28.438Z"
+    },
+    {
+      "id": "cp_cf8cca66-75d6-49ac-838d-b2692c23c8c9",
+      "clientId": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:14:28.460Z",
+      "updatedAt": "2025-08-21T13:14:28.473Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_0ce25431-487c-42a8-b3ba-0a0bd7dc0827",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": "",
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:14:28.708Z",
+      "updatedAt": "2025-08-21T13:14:28.708Z"
+    },
+    {
+      "id": "cp_66b8e0c0-f955-44de-9a2a-10d06f199930",
+      "clientId": "c_1ce2ac18-9ae1-4b25-a839-13ab0f7cf3a6",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:18:17.167Z",
+      "updatedAt": "2025-08-21T13:18:17.169Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_14196260-0b0a-4cd5-8afb-4e5251ccde6d",
+      "clientId": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-21T13:19:18.267Z",
+      "updatedAt": "2025-08-21T13:19:18.268Z",
+      "name": "Updated Vårdplan"
+    }
+  ],
+  "implementationPlans": [
+    {
+      "id": "ip_d26a57b7-4115-4ad0-aa42-cbfa26dd20e7",
+      "clientId": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T12:49:06.920Z",
+      "updatedAt": "2025-08-21T12:49:06.920Z"
+    },
+    {
+      "id": "ip_b7883f0a-f89b-41d2-bf7b-22b15d8d9efe",
+      "clientId": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:08:10.022Z",
+      "updatedAt": "2025-08-21T13:08:10.022Z"
+    },
+    {
+      "id": "ip_d3c6b12f-f723-42be-b81d-e7f6f294f7ed",
+      "clientId": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "completed",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:08:10.042Z",
+      "updatedAt": "2025-08-21T13:08:10.052Z"
+    },
+    {
+      "id": "ip_aeacb30a-e308-43b2-8f3f-69c9bd31adfb",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:09:20.755Z",
+      "updatedAt": "2025-08-21T13:09:20.755Z"
+    },
+    {
+      "id": "ip_a91dde25-bc91-409e-952f-4732a3bf826b",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "completed",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:09:20.770Z",
+      "updatedAt": "2025-08-21T13:09:20.782Z"
+    },
+    {
+      "id": "ip_a8a0fb3b-a3cb-4d87-90e1-e5bbbf1c3137",
+      "clientId": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:09:45.015Z",
+      "updatedAt": "2025-08-21T13:09:45.015Z"
+    },
+    {
+      "id": "ip_ce471035-6cf5-4bca-b754-f30665bf8bbc",
+      "clientId": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "completed",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:09:45.032Z",
+      "updatedAt": "2025-08-21T13:09:45.041Z"
+    },
+    {
+      "id": "ip_64c4038e-5d40-4701-b9e8-a301377c7958",
+      "clientId": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:14:28.513Z",
+      "updatedAt": "2025-08-21T13:14:28.513Z"
+    },
+    {
+      "id": "ip_d91ed065-3825-4d46-9f3f-16d041e8c09c",
+      "clientId": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "completed",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:14:28.536Z",
+      "updatedAt": "2025-08-21T13:14:28.550Z"
+    },
+    {
+      "id": "ip_1eb0d3ed-666c-4e67-b950-abb4b0dd8672",
+      "clientId": "c_1ce2ac18-9ae1-4b25-a839-13ab0f7cf3a6",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:18:17.171Z",
+      "updatedAt": "2025-08-21T13:18:17.171Z"
+    },
+    {
+      "id": "ip_d87b3dd5-1769-40a2-8f72-9bf2a9702db8",
+      "clientId": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-08-21T13:19:18.270Z",
+      "updatedAt": "2025-08-21T13:19:18.270Z"
+    }
+  ],
+  "weeklyDocumentation": [
+    {
+      "id": "wd_247aff35-e098-4bbc-b630-433d14711729",
+      "clientId": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T12:49:06.925Z",
+      "updatedAt": "2025-08-21T12:49:06.925Z"
+    },
+    {
+      "id": "wd_537dccbc-3ccc-4a97-9012-202f01f32d32",
+      "clientId": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T13:08:10.067Z",
+      "updatedAt": "2025-08-21T13:08:10.067Z"
+    },
+    {
+      "id": "wd_5236648b-60a2-4e1a-b009-dc56b889b7a7",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T13:09:20.798Z",
+      "updatedAt": "2025-08-21T13:09:20.798Z"
+    },
+    {
+      "id": "wd_2566bd86-4b3c-4680-b066-c49f0100707b",
+      "clientId": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T13:09:45.057Z",
+      "updatedAt": "2025-08-21T13:09:45.057Z"
+    },
+    {
+      "id": "wd_43db0db4-dd29-411f-aacc-aadd9d640f06",
+      "clientId": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T13:14:28.573Z",
+      "updatedAt": "2025-08-21T13:14:28.573Z"
+    },
+    {
+      "id": "wd_27202eb6-c435-4109-b490-3d2ac691a8c7",
+      "clientId": "c_1ce2ac18-9ae1-4b25-a839-13ab0f7cf3a6",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T13:18:17.173Z",
+      "updatedAt": "2025-08-21T13:18:17.173Z"
+    },
+    {
+      "id": "wd_7fef90b1-77f6-4285-8aa7-72376cc42b11",
+      "clientId": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-21T13:19:18.271Z",
+      "updatedAt": "2025-08-21T13:19:18.271Z"
+    }
+  ],
+  "monthlyReports": [
+    {
+      "id": "mr_c0beaa2a-a860-4be4-a308-f6f4ad6ca812",
+      "clientId": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T12:49:06.929Z",
+      "updatedAt": "2025-08-21T12:49:06.929Z"
+    },
+    {
+      "id": "mr_9c4abf26-c516-4e6a-b18d-7b25d7a3f5ad",
+      "clientId": "c_373c5e65-862d-4d40-b9b3-d6fefc860b26",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T13:08:10.087Z",
+      "updatedAt": "2025-08-21T13:08:10.087Z"
+    },
+    {
+      "id": "mr_5abce3cb-8342-4676-9f0a-096f3072c8e3",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T13:09:20.819Z",
+      "updatedAt": "2025-08-21T13:09:20.819Z"
+    },
+    {
+      "id": "mr_eaa0fc25-2684-4cf6-ac1c-70ad9ded976f",
+      "clientId": "c_a74474cf-8802-4c4d-b908-79c6998597a6",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T13:09:45.077Z",
+      "updatedAt": "2025-08-21T13:09:45.077Z"
+    },
+    {
+      "id": "mr_983a9075-c366-4e20-bf09-9469a4b01499",
+      "clientId": "c_54b4ee56-ad37-44c2-8a63-95bf9119111e",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T13:14:28.602Z",
+      "updatedAt": "2025-08-21T13:14:28.602Z"
+    },
+    {
+      "id": "mr_1934684e-6f36-42ad-9536-af089d9bd6a0",
+      "clientId": "c_1ce2ac18-9ae1-4b25-a839-13ab0f7cf3a6",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T13:18:17.177Z",
+      "updatedAt": "2025-08-21T13:18:17.177Z"
+    },
+    {
+      "id": "mr_7a56e683-055a-47f0-9e77-4d42ba60f7e6",
+      "clientId": "c_adae5836-2973-456f-9a0a-81ba8fbdad5d",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-21T13:19:18.274Z",
+      "updatedAt": "2025-08-21T13:19:18.274Z"
+    }
+  ],
+  "vimsaTime": [
+    {
+      "id": "vt_3b3ab01c-0043-4077-b024-cbcc843d66a7",
+      "clientId": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "staffId": "s_demo",
+      "hoursWorked": 0,
+      "approved": false,
+      "matchesDocumentation": false,
+      "comments": "",
+      "createdAt": "2025-08-21T12:49:06.931Z",
+      "updatedAt": "2025-08-21T12:49:06.931Z"
+    }
+  ]
+}

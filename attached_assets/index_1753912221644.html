@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uppföljning – Öppenvård</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab { padding: 10px 20px; background: #ddd; border-radius: 5px; cursor: pointer; }
+    .tab.active { background: #007bff; color: white; }
+    .section { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .section.active { display: block; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f0f0f0; }
+    .status-green { background-color: #c8e6c9; }
+    .status-yellow { background-color: #fff9c4; }
+    .status-red { background-color: #ffcdd2; }
+    .status-blue { background-color: #bbdefb; }
+    .status-comment { background-color: #e3f2fd; }
+    .narrow-input { width: 40px; }
+  </style>
+</head>
+<body>
+  <h1>Uppföljning – Öppenvård</h1>
+  <div class="tabs" id="tab-controls"></div>
+  <div id="sections-container"></div>
+  <script>
+    const staffList = [
+      "Afif Derbas", "Ahmed Alrakabi", "Ahmed Ramadan", "Ajmen Rafiq", "Alana Salah",
+      "Alharis Albayati", "Amir Al-istarabadi", "Anjelika Bååth", "Bashdar Reza",
+      "Constanza Soto", "Deni Dulji", "Diana Gharib", "Drilon Muqkurtaj", "Heidar Farhan",
+      "Hussein Ahmed", "Ida Björkbacka", "Ikhlas Almaliki", "Intisar Almansour",
+      "Israa Touman", "Johan Wessberg", "Kaoula Channoufi", "Kim Torneus", "Lejla Kocacik",
+      "Michelle Nilsson", "Mirza Celik", "Mirza Hodzic", "Nasima Kuraishe",
+      "Nicolas Lazcano", "Omar Mezza", "Qasin Abdullahi", "Robert Ackar", "Samir Bezzina",
+      "Sebastian Holm", "Wissam Hemissi", "Yasmin Ibrahim"
+    ];
+
+    const tabControls = document.getElementById('tab-controls');
+    const sectionsContainer = document.getElementById('sections-container');
+
+    staffList.forEach((staff, index) => {
+      const tab = document.createElement('div');
+      tab.className = 'tab' + (index === 0 ? ' active' : '');
+      tab.textContent = staff;
+      tab.onclick = () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`staff-${index}`).classList.add('active');
+      };
+      tabControls.appendChild(tab);
+
+      const section = document.createElement('div');
+      section.className = 'section' + (index === 0 ? ' active' : '');
+      section.id = `staff-${index}`;
+      section.innerHTML = `<h2>${staff}</h2><p>Innehåll för ${staff}</p>`;
+      sectionsContainer.appendChild(section);
+    });
+  </script>
+</body>
+</html>

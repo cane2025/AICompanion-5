@@ -1,0 +1,15 @@
+{
+  "extends": ["development"],
+  "connector": {
+    "name": "local",
+    "options": {
+      "pattern": [
+        "client/**",
+        "server/**",
+        "shared/**",
+        "uppfoljningssystem/client/**",
+        "uppfoljningssystem/server/**"
+      ]
+    }
+  }
+}
