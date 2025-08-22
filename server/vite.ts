@@ -61,7 +61,9 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      const page = await vite.transformIndexHtml(url, template);
+      // Sanitize URL to prevent XSS
+      const sanitizedUrl = encodeURIComponent(url.replace(/[<>\"']/g, ''));
+      const page = await vite.transformIndexHtml(sanitizedUrl, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);

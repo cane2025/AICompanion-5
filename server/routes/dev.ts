@@ -11,11 +11,25 @@ function staffIdOf(req: any) {
 // === AUTH ===
 devRoutes.post("/auth/login", (req, res) => {
   const { username, password } = req.body;
-
+  
+  // Input validation
+  if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ error: "Invalid input data" });
+  }
+  
+  // Sanitize input
+  const sanitizedUsername = username.trim().replace(/[<>\"']/g, '');
+  const sanitizedPassword = password.trim();
+  
   // Simple demo authentication
-  if (username === "admin" && password === "admin123") {
+  if (sanitizedUsername === "admin" && sanitizedPassword === "admin123") {
     const token = "s_demo";
-    res.cookie("devToken", token, { httpOnly: false, sameSite: "lax" });
+    res.cookie("devToken", token, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
     return res.json({
       ok: true,
       user: {
@@ -29,7 +43,12 @@ devRoutes.post("/auth/login", (req, res) => {
   // Check if it's a dev token login
   const devToken = req.get("X-Dev-Token");
   if (devToken) {
-    res.cookie("devToken", devToken, { httpOnly: false, sameSite: "lax" });
+    res.cookie("devToken", devToken, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
     return res.json({ ok: true, user: { id: devToken, username: devToken } });
   }
 
