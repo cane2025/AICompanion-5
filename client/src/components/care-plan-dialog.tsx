@@ -52,9 +52,10 @@ type CarePlanFormData = z.infer<typeof carePlanSchema>;
 interface CarePlanDialogProps {
   trigger?: React.ReactNode;
   staffId?: string;
+  onViewChange?: (view: string, clientId?: string) => void;
 }
 
-export function CarePlanDialog({ trigger, staffId }: CarePlanDialogProps) {
+export function CarePlanDialog({ trigger, staffId, onViewChange }: CarePlanDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
@@ -227,11 +228,19 @@ export function CarePlanDialog({ trigger, staffId }: CarePlanDialogProps) {
       toast({
         title: "Vårdplan skapad",
         description:
-          "Vårdplanen har skapats och personal har notifierats. GFP ska göras inom 3 veckor.",
+          "Vårdplanen har skapats och personal har notifierats. Öppnar nu GFP...",
       });
 
       form.reset();
       setIsSuccess(true);
+      
+      // Auto-open Implementation Plan (GFP) for the client
+      if (onViewChange && carePlan.clientId) {
+        setTimeout(() => {
+          setIsOpen(false);
+          onViewChange("implementation-plan", carePlan.clientId);
+        }, 1500); // Small delay to show success message
+      }
 
       setTimeout(() => {
         setIsOpen(false);

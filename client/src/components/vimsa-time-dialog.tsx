@@ -41,17 +41,9 @@ const vimsaTimeSchema = z.object({
   staffId: z.string().min(1, "Personal måste väljas"),
   year: z.number().min(2024, "År krävs"),
   week: z.number().min(1).max(53, "Vecka måste vara 1-53"),
-  monday: z.number().min(0).max(24, "Måndag måste vara 0-24 timmar"),
-  tuesday: z.number().min(0).max(24, "Tisdag måste vara 0-24 timmar"),
-  wednesday: z.number().min(0).max(24, "Onsdag måste vara 0-24 timmar"),
-  thursday: z.number().min(0).max(24, "Torsdag måste vara 0-24 timmar"),
-  friday: z.number().min(0).max(24, "Fredag måste vara 0-24 timmar"),
-  saturday: z.number().min(0).max(24, "Lördag måste vara 0-24 timmar"),
-  sunday: z.number().min(0).max(24, "Söndag måste vara 0-24 timmar"),
-  status: z
-    .enum(["not_started", "in_progress", "completed"])
-    .default("not_started"),
+  hoursWorked: z.number().min(0, "Arbetade timmar måste vara 0 eller mer"),
   approved: z.boolean().default(false),
+  matchesDocumentation: z.boolean().default(false),
   comments: z.string().optional(),
 });
 
@@ -60,9 +52,16 @@ type VimsaTimeFormData = z.infer<typeof vimsaTimeSchema>;
 interface VimsaTimeDialogProps {
   trigger?: React.ReactNode;
   staffId?: string;
+  existingTimeId?: string;
+  editMode?: boolean;
 }
 
-export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
+export function VimsaTimeDialog({ 
+  trigger, 
+  staffId, 
+  existingTimeId, 
+  editMode = false 
+}: VimsaTimeDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
@@ -80,15 +79,9 @@ export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
       staffId: staffId || "",
       year: currentYear,
       week: currentWeek,
-      monday: 0,
-      tuesday: 0,
-      wednesday: 0,
-      thursday: 0,
-      friday: 0,
-      saturday: 0,
-      sunday: 0,
-      status: "not_started",
+      hoursWorked: 0,
       approved: false,
+      matchesDocumentation: false,
       comments: "",
     },
   });
@@ -112,30 +105,47 @@ export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
     enabled: !!staffId,
   });
 
-  // Create Vimsa time mutation
-  const createVimsaTimeMutation = useMutation({
-    mutationFn: async (data: VimsaTimeFormData) => {
-      const response = await fetch("/api/vimsa-time", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          totalHours:
-            data.monday +
-            data.tuesday +
-            data.wednesday +
-            data.thursday +
-            data.friday +
-            data.saturday +
-            data.sunday,
-        }),
+  // Fetch existing Vimsa time if editing
+  const { data: existingTime } = useQuery({
+    queryKey: ["/api/vimsa-time", existingTimeId],
+    queryFn: () => api.getVimsaTimeById(existingTimeId!),
+    enabled: !!existingTimeId && isOpen,
+  });
+
+  // Update form with existing data when editing
+  React.useEffect(() => {
+    if (existingTime && editMode) {
+      form.reset({
+        clientId: existingTime.clientId,
+        staffId: existingTime.staffId,
+        year: existingTime.year,
+        week: existingTime.week,
+        hoursWorked: existingTime.hoursWorked || 0,
+        approved: existingTime.approved || false,
+        matchesDocumentation: existingTime.matchesDocumentation || false,
+        comments: existingTime.comments || "",
       });
+    }
+  }, [existingTime, editMode, form]);
 
-      if (!response.ok) {
-        throw new Error("Kunde inte skapa Vimsa tid");
+  // Create/Update Vimsa time mutation
+  const saveVimsaTimeMutation = useMutation({
+    mutationFn: async (data: VimsaTimeFormData) => {
+      if (editMode && existingTimeId) {
+        return api.updateVimsaTime(existingTimeId, data);
+      } else {
+        const response = await fetch("/api/vimsa-time", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error("Kunde inte skapa Vimsa tid");
+        }
+
+        return response.json();
       }
-
-      return response.json();
     },
     onSuccess: (timeEntry) => {
       // Invalidate queries as specified in requirements
@@ -147,8 +157,10 @@ export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
       });
 
       toast({
-        title: "Vimsa tid skapad",
-        description: "Vimsa tiden har skapats.",
+        title: editMode ? "Vimsa tid uppdaterad" : "Vimsa tid skapad",
+        description: editMode 
+          ? "Vimsa tiden har uppdaterats framgångsrikt."
+          : "Vimsa tiden har skapats framgångsrikt.",
       });
 
       form.reset();
@@ -163,18 +175,39 @@ export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
     },
   });
 
+  // Delete Vimsa time mutation
+  const deleteVimsaTimeMutation = useMutation({
+    mutationFn: () => api.deleteVimsaTime(existingTimeId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/vimsa-time"],
+      });
+      toast({
+        title: "Vimsa tid borttagen",
+        description: "Vimsa tiden har tagits bort framgångsrikt.",
+      });
+      setIsOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Fel",
+        description: error.message || "Kunde inte ta bort Vimsa tid.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (data: VimsaTimeFormData) => {
-    createVimsaTimeMutation.mutate(data);
+    saveVimsaTimeMutation.mutate(data);
   };
 
-  const totalHours =
-    form.watch("monday") +
-    form.watch("tuesday") +
-    form.watch("wednesday") +
-    form.watch("thursday") +
-    form.watch("friday") +
-    form.watch("saturday") +
-    form.watch("sunday");
+  const handleDelete = () => {
+    if (confirm("Är du säker på att du vill ta bort denna Vimsa tid?")) {
+      deleteVimsaTimeMutation.mutate();
+    }
+  };
+
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -307,217 +340,79 @@ export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
               />
             </div>
 
-            {/* Weekly hours input */}
-            <div className="space-y-3">
-              <FormLabel>Timmar per dag</FormLabel>
-              <Card className="p-4 border-purple-200">
-                <div className="grid grid-cols-7 gap-3">
-                  <FormField
-                    control={form.control}
-                    name="monday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Måndag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="tuesday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Tisdag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="wednesday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Onsdag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="thursday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Torsdag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="friday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Fredag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="saturday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Lördag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="sunday"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Söndag</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="24"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? null
-                                  : parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="mt-3 p-2 bg-purple-50 rounded">
-                  <p className="text-sm font-medium text-purple-800">
-                    Totalt: {totalHours} timmar denna vecka
-                  </p>
-                </div>
-              </Card>
-            </div>
-
+            {/* Administrative fields */}
             <FormField
               control={form.control}
-              name="status"
+              name="hoursWorked"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Välj status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="not_started">Ej startad</SelectItem>
-                      <SelectItem value="in_progress">Pågående</SelectItem>
-                      <SelectItem value="completed">Slutförd</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Arbetade timmar</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      placeholder="Antal timmar"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === ""
+                            ? 0
+                            : parseFloat(e.target.value)
+                        )
+                      }
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="space-y-3">
+              <FormLabel>Status</FormLabel>
+              <div className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="approved"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="mt-1"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Godkänd</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="matchesDocumentation"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="mt-1"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Stämmer med dokumentation</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={form.control}
@@ -539,21 +434,37 @@ export function VimsaTimeDialog({ trigger, staffId }: VimsaTimeDialogProps) {
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsOpen(false)}
-              >
-                Avbryt
-              </Button>
-              <Button
-                type="submit"
-                className="bg-purple-600 hover:bg-purple-700"
-                disabled={createVimsaTimeMutation.isPending}
-              >
-                {createVimsaTimeMutation.isPending ? "Skapar..." : "Spara tid"}
-              </Button>
+            <div className="flex justify-between pt-4">
+              <div>
+                {editMode && existingTimeId && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={deleteVimsaTimeMutation.isPending}
+                  >
+                    {deleteVimsaTimeMutation.isPending ? "Tar bort..." : "Ta bort"}
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Avbryt
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-purple-600 hover:bg-purple-700"
+                  disabled={saveVimsaTimeMutation.isPending}
+                >
+                  {saveVimsaTimeMutation.isPending 
+                    ? (editMode ? "Uppdaterar..." : "Skapar...") 
+                    : (editMode ? "Uppdatera tid" : "Spara tid")}
+                </Button>
+              </div>
             </div>
           </form>
         </Form>

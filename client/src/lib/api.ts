@@ -255,6 +255,11 @@ export const getMonthlyReportsByClient = (clientId: string): Promise<any[]> =>
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
+export const getMonthlyReportById = (id: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
+
 export const createMonthlyReport = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/monthly-reports`, {
     method: "POST",
@@ -287,6 +292,11 @@ export const getVimsaTimeByClient = (clientId: string): Promise<any[]> =>
   fetch(`${API_BASE_URL}/vimsa-time/${clientId}`, {
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
+
+export const getVimsaTimeById = (id: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
 
 export const createVimsaTime = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/vimsa-time`, {

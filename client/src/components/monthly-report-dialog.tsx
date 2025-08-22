@@ -50,11 +50,15 @@ type MonthlyReportFormData = z.infer<typeof monthlyReportSchema>;
 interface MonthlyReportDialogProps {
   trigger?: React.ReactNode;
   staffId?: string;
+  existingReportId?: string;
+  editMode?: boolean;
 }
 
 export function MonthlyReportDialog({
   trigger,
   staffId,
+  existingReportId,
+  editMode = false,
 }: MonthlyReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
@@ -95,20 +99,46 @@ export function MonthlyReportDialog({
     enabled: !!staffId,
   });
 
-  // Create monthly report mutation
-  const createReportMutation = useMutation({
-    mutationFn: async (data: MonthlyReportFormData) => {
-      const response = await fetch("/api/monthly-reports", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+  // Fetch existing report if editing
+  const { data: existingReport } = useQuery({
+    queryKey: ["/api/monthly-reports", existingReportId],
+    queryFn: () => api.getMonthlyReportById(existingReportId!),
+    enabled: !!existingReportId && isOpen,
+  });
+
+  // Update form with existing data when editing
+  React.useEffect(() => {
+    if (existingReport && editMode) {
+      form.reset({
+        clientId: existingReport.clientId,
+        staffId: existingReport.staffId,
+        year: existingReport.year,
+        month: existingReport.month,
+        reportContent: existingReport.reportContent || "",
+        approved: existingReport.approved || false,
+        comments: existingReport.comments || "",
       });
+    }
+  }, [existingReport, editMode, form]);
 
-      if (!response.ok) {
-        throw new Error("Kunde inte skapa månadsrapport");
+  // Create/Update monthly report mutation
+  const saveReportMutation = useMutation({
+    mutationFn: async (data: MonthlyReportFormData) => {
+      if (editMode && existingReportId) {
+        return api.updateMonthlyReport(existingReportId, data);
+      } else {
+        const response = await fetch("/api/monthly-reports", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error("Kunde inte skapa månadsrapport");
+        }
+
+        return response.json();
       }
-
-      return response.json();
     },
     onSuccess: (report) => {
       // Invalidate queries as specified in requirements
@@ -120,8 +150,10 @@ export function MonthlyReportDialog({
       });
 
       toast({
-        title: "Månadsrapport skapad",
-        description: "Månadsrapporten har skapats.",
+        title: editMode ? "Månadsrapport uppdaterad" : "Månadsrapport skapad",
+        description: editMode 
+          ? "Månadsrapporten har uppdaterats framgångsrikt."
+          : "Månadsrapporten har skapats framgångsrikt.",
       });
 
       form.reset();
@@ -136,8 +168,36 @@ export function MonthlyReportDialog({
     },
   });
 
+  // Delete monthly report mutation
+  const deleteReportMutation = useMutation({
+    mutationFn: () => api.deleteMonthlyReport(existingReportId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/monthly-reports"],
+      });
+      toast({
+        title: "Månadsrapport borttagen",
+        description: "Månadsrapporten har tagits bort framgångsrikt.",
+      });
+      setIsOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Fel",
+        description: error.message || "Kunde inte ta bort månadsrapport.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (data: MonthlyReportFormData) => {
-    createReportMutation.mutate(data);
+    saveReportMutation.mutate(data);
+  };
+
+  const handleDelete = () => {
+    if (confirm("Är du säker på att du vill ta bort denna månadsrapport?")) {
+      deleteReportMutation.mutate();
+    }
   };
 
   const monthNames = [
@@ -373,7 +433,20 @@ export function MonthlyReportDialog({
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-between pt-4">
+              <div>
+                {editMode && existingReportId && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={deleteReportMutation.isPending}
+                  >
+                    {deleteReportMutation.isPending ? "Tar bort..." : "Ta bort"}
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -384,10 +457,13 @@ export function MonthlyReportDialog({
               <Button
                 type="submit"
                 className="bg-green-600 hover:bg-green-700"
-                disabled={createReportMutation.isPending}
+                disabled={saveReportMutation.isPending}
               >
-                {createReportMutation.isPending ? "Skapar..." : "Spara rapport"}
+                {saveReportMutation.isPending 
+                  ? (editMode ? "Uppdaterar..." : "Skapar...") 
+                  : (editMode ? "Uppdatera rapport" : "Spara rapport")}
               </Button>
+              </div>
             </div>
           </form>
         </Form>

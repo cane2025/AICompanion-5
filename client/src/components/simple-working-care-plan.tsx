@@ -88,7 +88,7 @@ export function SimpleWorkingCarePlan() {
     // Auto-save feedback - men bara för viktiga fält
     if (field === "socialWorkerName" && value.length > 2) {
       toast({
-        title: "💾 Socialsekreterare sparad",
+        title: "💾 Behandlare sparad",
         description: `${value}`,
         duration: 1000,
       });

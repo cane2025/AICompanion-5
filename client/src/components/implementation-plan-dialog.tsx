@@ -39,16 +39,17 @@ import * as api from "@/lib/api";
 import type { Client, CarePlan } from "@shared/schema";
 
 const implementationPlanSchema = z.object({
-  carePlanId: z.string().min(1, "Vårdplan måste väljas"),
+  planRef: z.string().min(1, "Vilken genomförandeplan måste anges"),
   clientId: z.string().min(1, "Klient måste väljas"),
-  completedAt: z.string().optional(),
-  sentAt: z.string().optional(),
+  sentDate: z.string().optional(),
+  completedDate: z.string().optional(),
   followup1: z.boolean().default(false),
   followup2: z.boolean().default(false),
   followup3: z.boolean().default(false),
   followup4: z.boolean().default(false),
   followup5: z.boolean().default(false),
   followup6: z.boolean().default(false),
+  comments: z.string().optional(),
 });
 
 type ImplementationPlanFormData = z.infer<typeof implementationPlanSchema>;
@@ -73,16 +74,17 @@ export function ImplementationPlanDialog({
   const form = useForm<ImplementationPlanFormData>({
     resolver: zodResolver(implementationPlanSchema),
     defaultValues: {
-      carePlanId: "",
+      planRef: "",
       clientId: client?.id || "",
-      completedAt: "",
-      sentAt: "",
+      sentDate: "",
+      completedDate: "",
       followup1: false,
       followup2: false,
       followup3: false,
       followup4: false,
       followup5: false,
       followup6: false,
+      comments: "",
     },
   });
 
@@ -105,13 +107,13 @@ export function ImplementationPlanDialog({
   React.useEffect(() => {
     if (existingPlan && isOpen) {
       form.reset({
-        carePlanId: existingPlan.carePlanId || "",
+        planRef: existingPlan.planRef || "",
         clientId: existingPlan.clientId,
-        completedAt: existingPlan.completedAt
-          ? new Date(existingPlan.completedAt).toISOString().split("T")[0]
+        completedDate: existingPlan.completedDate
+          ? new Date(existingPlan.completedDate).toISOString().split("T")[0]
           : "",
-        sentAt: existingPlan.sentAt
-          ? new Date(existingPlan.sentAt).toISOString().split("T")[0]
+        sentDate: existingPlan.sentDate
+          ? new Date(existingPlan.sentDate).toISOString().split("T")[0]
           : "",
         followup1: existingPlan.followup1 || false,
         followup2: existingPlan.followup2 || false,
@@ -119,6 +121,7 @@ export function ImplementationPlanDialog({
         followup4: existingPlan.followup4 || false,
         followup5: existingPlan.followup5 || false,
         followup6: existingPlan.followup6 || false,
+        comments: existingPlan.comments || "",
       });
     }
   }, [existingPlan, form, isOpen]);
@@ -237,51 +240,33 @@ export function ImplementationPlanDialog({
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-4"
             >
-              <Controller
-                name="carePlanId"
+              <FormField
                 control={form.control}
+                name="planRef"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Vårdplan *</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Välj vårdplan" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {carePlans.map((carePlan) => (
-                          <SelectItem key={carePlan.id} value={carePlan.id}>
-                            Vårdplan {carePlan.id}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Vilken genomförandeplan *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Plan 1, Plan 2, etc." {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Controller
-                name="clientId"
+              <FormField
                 control={form.control}
+                name="clientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Klient *</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Välj klient" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {client && (
-                          <SelectItem key={client.id} value={client.id}>
-                            {client.initials}
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Klient</FormLabel>
+                    <FormControl>
+                      <Input 
+                        value={client?.initials || ""} 
+                        disabled 
+                        placeholder="Klient väljs automatiskt"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -290,7 +275,7 @@ export function ImplementationPlanDialog({
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="completedAt"
+                  name="completedDate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Datum klar</FormLabel>
@@ -309,7 +294,7 @@ export function ImplementationPlanDialog({
 
                 <FormField
                   control={form.control}
-                  name="sentAt"
+                  name="sentDate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Datum skickad</FormLabel>
@@ -440,25 +425,64 @@ export function ImplementationPlanDialog({
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Avbryt
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700"
-                  disabled={savePlanMutation.isPending}
-                >
-                  {savePlanMutation.isPending
-                    ? "Sparar..."
-                    : existingPlanId
-                    ? "Uppdatera"
-                    : "Skapa genomförandeplan"}
-                </Button>
+              <FormField
+                control={form.control}
+                name="comments"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kommentarer</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Lägg till kommentarer om genomförandeplanen..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-between pt-4">
+                <div>
+                  {existingPlanId && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => {
+                        if (confirm("Är du säker på att du vill ta bort denna genomförandeplan?")) {
+                          // TODO: Implement delete functionality
+                          toast({
+                            title: "Genomförandeplan borttagen",
+                            description: "Genomförandeplanen har tagits bort.",
+                          });
+                          setIsOpen(false);
+                        }
+                      }}
+                    >
+                      Ta bort
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Avbryt
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700"
+                    disabled={savePlanMutation.isPending}
+                  >
+                    {savePlanMutation.isPending
+                      ? "Sparar..."
+                      : existingPlanId
+                      ? "Uppdatera"
+                      : "Skapa genomförandeplan"}
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>

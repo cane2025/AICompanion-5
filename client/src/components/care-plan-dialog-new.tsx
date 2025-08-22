@@ -34,7 +34,7 @@ import { Plus, FileText } from "lucide-react";
 import type { Staff, Client } from "@shared/schema";
 
 const carePlanSchema = z.object({
-  socialWorkerName: z.string().min(1, "Socialsekreterare måste anges"),
+  socialWorkerName: z.string().min(1, "Behandlare måste anges"),
   clientInitials: z.string().min(1, "Klientinitialer krävs"),
   planNumber: z.string().min(1, "Vårdplansnummer krävs (1, 2, 3 etc)"),
   receivedDate: z.string().min(1, "Mottagningsdatum krävs"),
@@ -694,7 +694,7 @@ export function CarePlanDialog({ trigger }: CarePlanDialogProps) {
                           </p>
                           <ul className="text-sm text-red-700 space-y-1">
                             {form.formState.errors.socialWorkerName && (
-                              <li>• Socialsekreterare</li>
+                              <li>• Behandlare</li>
                             )}
                             {form.formState.errors.clientInitials && (
                               <li>• Klientinitialer</li>
