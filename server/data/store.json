@@ -199,6 +199,14 @@
       "status": "active",
       "createdAt": "2025-08-22T20:27:04.032Z",
       "updatedAt": "2025-08-22T20:27:04.032Z"
+    },
+    {
+      "id": "c_3af11d01-60df-4c70-a2c6-fa47bed5f856",
+      "initials": "ST",
+      "staffId": "staff_572ec798-ade0-43f8-9998-a955dfb3c2f8",
+      "status": "active",
+      "createdAt": "2025-08-22T20:53:02.383Z",
+      "updatedAt": "2025-08-22T20:53:02.383Z"
     }
   ],
   "carePlans": [
@@ -547,6 +555,19 @@
       "comment": "",
       "createdAt": "2025-08-22T20:27:04.035Z",
       "updatedAt": "2025-08-22T20:27:04.035Z"
+    },
+    {
+      "id": "cp_13d8b461-395c-4c78-a168-6ccc226b657e",
+      "clientId": "c_3af11d01-60df-4c70-a2c6-fa47bed5f856",
+      "staffId": "s_demo",
+      "planContent": "Test vårdplan",
+      "goals": "Test mål",
+      "interventions": "Test interventioner",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-22T20:53:02.389Z",
+      "updatedAt": "2025-08-22T20:53:02.389Z"
     }
   ],
   "implementationPlans": [
@@ -864,6 +885,27 @@
       "isActive": true,
       "createdAt": "2025-08-22T20:27:04.038Z",
       "updatedAt": "2025-08-22T20:27:04.048Z"
+    },
+    {
+      "id": "ip_fcd8ddd2-0474-4746-96a6-d9b4692fb21c",
+      "clientId": "c_3af11d01-60df-4c70-a2c6-fa47bed5f856",
+      "staffId": "s_demo",
+      "planRef": "GFP-Test",
+      "sentDate": "2025-08-22",
+      "completedDate": null,
+      "followups": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      "comments": "Updated test comments",
+      "status": "pending",
+      "isActive": true,
+      "createdAt": "2025-08-22T20:53:02.393Z",
+      "updatedAt": "2025-08-22T20:53:02.409Z"
     }
   ],
   "weeklyDocumentation": [
@@ -1075,6 +1117,25 @@
       },
       "createdAt": "2025-08-22T20:27:04.041Z",
       "updatedAt": "2025-08-22T20:27:04.041Z"
+    },
+    {
+      "id": "wd_e4a47b8e-a457-4cc4-bd9d-c88695c1afbf",
+      "clientId": "c_3af11d01-60df-4c70-a2c6-fa47bed5f856",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "Test veckodokumentation",
+      "days": {
+        "mon": true,
+        "tue": false,
+        "wed": true,
+        "thu": false,
+        "fri": true,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-22T20:53:02.396Z",
+      "updatedAt": "2025-08-22T20:53:02.396Z"
     }
   ],
   "monthlyReports": [
@@ -1220,6 +1281,19 @@
       "quality": "pending",
       "createdAt": "2025-08-22T20:27:04.043Z",
       "updatedAt": "2025-08-22T20:27:04.051Z"
+    },
+    {
+      "id": "mr_3e6d431c-ab63-40a3-a597-38f05c1e72df",
+      "clientId": "c_3af11d01-60df-4c70-a2c6-fa47bed5f856",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "Updated test månadsrapport",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-22T20:53:02.400Z",
+      "updatedAt": "2025-08-22T20:53:02.414Z"
     }
   ],
   "vimsaTime": [
@@ -1272,6 +1346,19 @@
       "comments": "Test Vimsa tid",
       "createdAt": "2025-08-22T20:27:04.045Z",
       "updatedAt": "2025-08-22T20:27:04.053Z"
+    },
+    {
+      "id": "vt_3b3c58c8-6828-4c67-b2e6-470bb864bcad",
+      "clientId": "c_3af11d01-60df-4c70-a2c6-fa47bed5f856",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "hoursWorked": 9,
+      "approved": false,
+      "matchesDocumentation": true,
+      "comments": "Test Vimsa tid",
+      "createdAt": "2025-08-22T20:53:02.405Z",
+      "updatedAt": "2025-08-22T20:53:02.416Z"
     }
   ]
 }

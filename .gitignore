@@ -103,3 +103,18 @@ test-server.js
 # Backup files
 *.zip
 *.backup
+
+# Additional cleanup
+.out/
+.vite/
+.turbo/
+.stylelintcache
+.turborepo/
+*.map
+reports/
+pnpm-lock.yaml
+.pnpm-store/
+.yarn/
+.yarn/cache/
+.yarn/unplugged/
+*.deb
