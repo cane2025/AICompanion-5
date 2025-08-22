@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { store, persist } from "../devStorage";
 import { randomUUID } from "crypto";
+import { sanitizeInput, sanitizeJsonInput, sanitizeEmail, sanitizePhone, RateLimiter } from "../security";
 
 export const devRoutes = Router();
+
+// Rate limiting for login attempts
+const loginRateLimiter = new RateLimiter(5, 15 * 60 * 1000); // 5 attempts per 15 minutes
 
 function staffIdOf(req: any) {
   return req.cookies?.devToken || req.get("X-Dev-Token") || "s_demo";
@@ -12,14 +16,20 @@ function staffIdOf(req: any) {
 devRoutes.post("/auth/login", (req, res) => {
   const { username, password } = req.body;
   
+  // Rate limiting
+  const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+  if (!loginRateLimiter.isAllowed(clientIP)) {
+    return res.status(429).json({ error: "Too many login attempts. Please try again later." });
+  }
+  
   // Input validation
   if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
     return res.status(400).json({ error: "Invalid input data" });
   }
   
-  // Sanitize input
-  const sanitizedUsername = username.trim().replace(/[<>\"']/g, '');
-  const sanitizedPassword = password.trim();
+  // Sanitize input using security utilities
+  const sanitizedUsername = sanitizeInput(username.trim());
+  const sanitizedPassword = sanitizeInput(password.trim());
   
   // Simple demo authentication
   if (sanitizedUsername === "admin" && sanitizedPassword === "admin123") {

@@ -61,9 +61,22 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      // Sanitize URL to prevent XSS
-      const sanitizedUrl = encodeURIComponent(url.replace(/[<>\"']/g, ''));
-      const page = await vite.transformIndexHtml(sanitizedUrl, template);
+      // Comprehensive XSS protection - sanitize URL and template
+      const sanitizedUrl = url
+        .replace(/[<>\"'&]/g, '') // Remove dangerous characters
+        .replace(/javascript:/gi, '') // Remove javascript: protocol
+        .replace(/data:/gi, '') // Remove data: protocol
+        .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+        .substring(0, 1000); // Limit length to prevent buffer overflow
+      
+      // Additional template sanitization
+      const sanitizedTemplate = template
+        .replace(/<script[^>]*>.*?<\/script>/gis, '') // Remove script tags
+        .replace(/on\w+\s*=/gi, 'data-removed=') // Remove event handlers
+        .replace(/javascript:/gi, 'data-removed:') // Remove javascript protocol
+        .replace(/data:/gi, 'data-removed:'); // Remove data protocol
+      
+      const page = await vite.transformIndexHtml(sanitizedUrl, sanitizedTemplate);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
