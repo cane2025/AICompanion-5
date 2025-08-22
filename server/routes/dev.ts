@@ -1,7 +1,13 @@
 import { Router } from "express";
 import { store, persist } from "../devStorage";
 import { randomUUID } from "crypto";
-import { sanitizeInput, sanitizeJsonInput, sanitizeEmail, sanitizePhone, RateLimiter } from "../security";
+import {
+  sanitizeInput,
+  sanitizeJsonInput,
+  sanitizeEmail,
+  sanitizePhone,
+  RateLimiter,
+} from "../security";
 
 export const devRoutes = Router();
 
@@ -15,29 +21,36 @@ function staffIdOf(req: any) {
 // === AUTH ===
 devRoutes.post("/auth/login", (req, res) => {
   const { username, password } = req.body;
-  
+
   // Rate limiting
-  const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+  const clientIP = req.ip || req.connection.remoteAddress || "unknown";
   if (!loginRateLimiter.isAllowed(clientIP)) {
-    return res.status(429).json({ error: "Too many login attempts. Please try again later." });
+    return res
+      .status(429)
+      .json({ error: "Too many login attempts. Please try again later." });
   }
-  
+
   // Input validation
-  if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+  if (
+    !username ||
+    !password ||
+    typeof username !== "string" ||
+    typeof password !== "string"
+  ) {
     return res.status(400).json({ error: "Invalid input data" });
   }
-  
+
   // Sanitize input using security utilities
   const sanitizedUsername = sanitizeInput(username.trim());
   const sanitizedPassword = sanitizeInput(password.trim());
-  
+
   // Dev mode: accept any user/pass and create dev token
   const token = "s_demo_" + Date.now();
-    res.cookie("devToken", token, {
+  res.cookie("devToken", token, {
     httpOnly: false, // Need to be false for dev mode
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax", // Changed from strict for dev
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
   });
   return res.json({
     ok: true,
@@ -178,7 +191,7 @@ devRoutes.put("/care-plans/:id", (req, res) => {
   if (idx === -1) return res.status(404).json({ error: "Not found" });
   store.carePlans[idx] = {
     ...store.carePlans[idx],
-      ...req.body,
+    ...req.body,
     updatedAt: new Date().toISOString(),
   };
   persist();

@@ -110,11 +110,17 @@ export function SimpleMonthlyReportDialog({
     onSuccess: (result) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["/api/monthly-reports"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", result.clientId, "monthly-reports"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/clients", result.clientId, "monthly-reports"],
+      });
 
       toast({
-        title: existingReport ? "Månadsrapport uppdaterad" : "Månadsrapport skapad",
-        description: `Rapporten har ${existingReport ? "uppdaterats" : "skapats"}.`,
+        title: existingReport
+          ? "Månadsrapport uppdaterad"
+          : "Månadsrapport skapad",
+        description: `Rapporten har ${
+          existingReport ? "uppdaterats" : "skapats"
+        }.`,
       });
 
       form.reset();
@@ -135,8 +141,18 @@ export function SimpleMonthlyReportDialog({
   };
 
   const monthNames = [
-    "Januari", "Februari", "Mars", "April", "Maj", "Juni",
-    "Juli", "Augusti", "September", "Oktober", "November", "December"
+    "Januari",
+    "Februari",
+    "Mars",
+    "April",
+    "Maj",
+    "Juni",
+    "Juli",
+    "Augusti",
+    "September",
+    "Oktober",
+    "November",
+    "December",
   ];
 
   return (
@@ -158,7 +174,10 @@ export function SimpleMonthlyReportDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -172,7 +191,9 @@ export function SimpleMonthlyReportDialog({
                         min="2024"
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -189,14 +210,19 @@ export function SimpleMonthlyReportDialog({
                     <FormControl>
                       <Select
                         value={field.value?.toString()}
-                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        onValueChange={(value) =>
+                          field.onChange(parseInt(value))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Välj månad" />
                         </SelectTrigger>
                         <SelectContent>
                           {monthNames.map((name, index) => (
-                            <SelectItem key={index + 1} value={(index + 1).toString()}>
+                            <SelectItem
+                              key={index + 1}
+                              value={(index + 1).toString()}
+                            >
                               {name}
                             </SelectItem>
                           ))}

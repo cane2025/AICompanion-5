@@ -19,10 +19,13 @@ interface SimpleCarePlanDialogProps {
   staffId: string;
 }
 
-export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogProps) {
+export function SimpleCarePlanDialog({
+  trigger,
+  staffId,
+}: SimpleCarePlanDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
-  
+
   const [socialWorker, setSocialWorker] = useState("");
   const [clientInitials, setClientInitials] = useState("");
   const [planNumber, setPlanNumber] = useState("");
@@ -41,10 +44,10 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
           status: "active",
         }),
       });
-      
+
       if (!clientResp.ok) throw new Error("Kunde inte skapa klient");
       const client = await clientResp.json();
-      
+
       // Step 2: Create care plan
       const carePlanResp = await fetch("/api/care-plans", {
         method: "POST",
@@ -52,7 +55,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
         body: JSON.stringify({
           clientId: client.id,
           staffId: staffId,
-          receivedDate: new Date().toISOString().split('T')[0],
+          receivedDate: new Date().toISOString().split("T")[0],
           planContent: `Vårdplan ${planNumber} från socialsekreterare ${socialWorker}`,
           goals: "Genomföra vårdflöde enligt rutin",
           interventions: "Standard vårdflöde - GFP ska påbörjas inom 3 veckor",
@@ -60,10 +63,10 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
           comment: "",
         }),
       });
-      
+
       if (!carePlanResp.ok) throw new Error("Kunde inte skapa vårdplan");
       const carePlan = await carePlanResp.json();
-      
+
       // Step 3: Create implementation plan
       await fetch("/api/implementation-plans", {
         method: "POST",
@@ -80,7 +83,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
           isActive: true,
         }),
       });
-      
+
       // Step 4: Create weekly documentation
       const currentWeek = Math.max(33, Math.min(52, new Date().getWeek()));
       await fetch("/api/weekly-documentation", {
@@ -104,7 +107,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
           comments: "",
         }),
       });
-      
+
       // Step 5: Create monthly report
       await fetch("/api/monthly-reports", {
         method: "POST",
@@ -120,7 +123,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
           comment: "",
         }),
       });
-      
+
       // Step 6: Create Vimsa time
       await fetch("/api/vimsa-time", {
         method: "POST",
@@ -143,18 +146,18 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
           comments: "",
         }),
       });
-      
+
       return { client, carePlan };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
       queryClient.invalidateQueries({ queryKey: ["/api/care-plans"] });
-      
+
       toast({
         title: "Vårdplan skapad!",
         description: "Alla flöden har aktiverats automatiskt.",
       });
-      
+
       setIsOpen(false);
       setSocialWorker("");
       setClientInitials("");
@@ -178,7 +181,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
       });
       return;
     }
-    
+
     createPlan.mutate();
   };
 
@@ -196,7 +199,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
         <DialogHeader>
           <DialogTitle>Skapa Vårdplan</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 mt-4">
           <div>
             <Label htmlFor="social-worker">Behandlare *</Label>
@@ -207,7 +210,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
               placeholder="Namn på behandlare"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="client-initials">Klientinitialer *</Label>
             <Input
@@ -217,7 +220,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
               placeholder="T.ex. AB"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="plan-number">Vårdplansnummer *</Label>
             <Input
@@ -227,7 +230,7 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
               placeholder="1, 2, 3 etc"
             />
           </div>
-          
+
           <div className="bg-ungdoms-50 p-4 rounded-lg">
             <p className="text-sm text-ungdoms-700">
               När du skapar vårdplanen aktiveras automatiskt:
@@ -239,8 +242,8 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
               <li>• Vimsa Tid</li>
             </ul>
           </div>
-          
-          <Button 
+
+          <Button
             onClick={handleSubmit}
             disabled={createPlan.isPending}
             className="w-full bg-ungdoms-600 hover:bg-ungdoms-700"
@@ -260,10 +263,12 @@ declare global {
   }
 }
 
-Date.prototype.getWeek = function() {
-  const d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+Date.prototype.getWeek = function () {
+  const d = new Date(
+    Date.UTC(this.getFullYear(), this.getMonth(), this.getDate())
+  );
   const dayNum = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 };

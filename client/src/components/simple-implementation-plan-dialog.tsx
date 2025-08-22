@@ -62,7 +62,14 @@ export function SimpleImplementationPlanDialog({
       planRef: existingPlan?.planRef || "",
       sentDate: existingPlan?.sentDate || "",
       completedDate: existingPlan?.completedDate || "",
-      followups: existingPlan?.followups || [false, false, false, false, false, false],
+      followups: existingPlan?.followups || [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ],
       comments: existingPlan?.comments || "",
     },
   });
@@ -89,13 +96,23 @@ export function SimpleImplementationPlanDialog({
     },
     onSuccess: (result) => {
       // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId, "implementation-plans"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans/staff", staffId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/implementation-plans"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/clients", clientId, "implementation-plans"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/implementation-plans/staff", staffId],
+      });
 
       toast({
-        title: existingPlan ? "Genomförandeplan uppdaterad" : "Genomförandeplan skapad",
-        description: `Administrativa uppgifter har ${existingPlan ? "uppdaterats" : "sparats"}.`,
+        title: existingPlan
+          ? "Genomförandeplan uppdaterad"
+          : "Genomförandeplan skapad",
+        description: `Administrativa uppgifter har ${
+          existingPlan ? "uppdaterats" : "sparats"
+        }.`,
       });
 
       form.reset();
@@ -134,7 +151,10 @@ export function SimpleImplementationPlanDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="planRef"
@@ -142,10 +162,7 @@ export function SimpleImplementationPlanDialog({
                 <FormItem>
                   <FormLabel>Vilken genomförandeplan *</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="T.ex. GFP-1, GFP-2, etc."
-                      {...field}
-                    />
+                    <Input placeholder="T.ex. GFP-1, GFP-2, etc." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -160,10 +177,7 @@ export function SimpleImplementationPlanDialog({
                   <FormItem>
                     <FormLabel>Skickad datum</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -177,10 +191,7 @@ export function SimpleImplementationPlanDialog({
                   <FormItem>
                     <FormLabel>Klar datum</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -115,11 +115,15 @@ export function SimpleVimsaTimeDialog({
     onSuccess: (result) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["/api/vimsa-time"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", result.clientId, "vimsa-time"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/clients", result.clientId, "vimsa-time"],
+      });
 
       toast({
         title: existingEntry ? "Vimsa Tid uppdaterad" : "Vimsa Tid skapad",
-        description: `Tidrapporteringen har ${existingEntry ? "uppdaterats" : "skapats"}.`,
+        description: `Tidrapporteringen har ${
+          existingEntry ? "uppdaterats" : "skapats"
+        }.`,
       });
 
       form.reset();
@@ -158,7 +162,10 @@ export function SimpleVimsaTimeDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -172,7 +179,9 @@ export function SimpleVimsaTimeDialog({
                         min="2024"
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -193,7 +202,9 @@ export function SimpleVimsaTimeDialog({
                         max="53"
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -246,7 +257,9 @@ export function SimpleVimsaTimeDialog({
                       placeholder="0"
                       {...field}
                       value={field.value || ""}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value) || 0)
+                      }
                     />
                   </FormControl>
                   <FormMessage />

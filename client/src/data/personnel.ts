@@ -10,36 +10,36 @@ export const personnelList: Personnel[] = [
     id: "1",
     name: "Anna Andersson",
     email: "anna.andersson@ungdoms.se",
-    role: "Behandlare"
+    role: "Behandlare",
   },
   {
-    id: "2", 
+    id: "2",
     name: "Erik Eriksson",
     email: "erik.eriksson@ungdoms.se",
-    role: "Kurator"
+    role: "Kurator",
   },
   {
     id: "3",
-    name: "Maria Nilsson", 
+    name: "Maria Nilsson",
     email: "maria.nilsson@ungdoms.se",
-    role: "Behandlingsassistent"
+    role: "Behandlingsassistent",
   },
   {
     id: "4",
     name: "Johan Johansson",
-    email: "johan.johansson@ungdoms.se", 
-    role: "Behandlare"
+    email: "johan.johansson@ungdoms.se",
+    role: "Behandlare",
   },
   {
     id: "5",
     name: "Lisa Larsson",
     email: "lisa.larsson@ungdoms.se",
-    role: "Familjebehandlare"
+    role: "Familjebehandlare",
   },
   {
     id: "6",
     name: "Mikael Svensson",
     email: "mikael.svensson@ungdoms.se",
-    role: "Enhetschef"
-  }
+    role: "Enhetschef",
+  },
 ];

@@ -196,7 +196,9 @@ export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
-export const deleteImplementationPlan = (id: string): Promise<{ message: string }> =>
+export const deleteImplementationPlan = (
+  id: string
+): Promise<{ message: string }> =>
   fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
     method: "DELETE",
     credentials: "include",
@@ -223,7 +225,10 @@ export const createWeeklyDocumentation = (data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
-export const updateWeeklyDocumentation = (id: string, data: any): Promise<any> =>
+export const updateWeeklyDocumentation = (
+  id: string,
+  data: any
+): Promise<any> =>
   fetch(`${API_BASE_URL}/weekly-documentation/${id}`, {
     method: "PUT",
     headers: getAuthHeaders(),
@@ -231,7 +236,9 @@ export const updateWeeklyDocumentation = (id: string, data: any): Promise<any> =
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
-export const deleteWeeklyDocumentation = (id: string): Promise<{ message: string }> =>
+export const deleteWeeklyDocumentation = (
+  id: string
+): Promise<{ message: string }> =>
   fetch(`${API_BASE_URL}/weekly-documentation/${id}`, {
     method: "DELETE",
     credentials: "include",
