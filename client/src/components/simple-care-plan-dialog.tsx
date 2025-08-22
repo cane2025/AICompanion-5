@@ -199,12 +199,12 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
         
         <div className="space-y-4 mt-4">
           <div>
-            <Label htmlFor="social-worker">Socialsekreterare *</Label>
+            <Label htmlFor="social-worker">Behandlare *</Label>
             <Input
               id="social-worker"
               value={socialWorker}
               onChange={(e) => setSocialWorker(e.target.value)}
-              placeholder="Namn på socialsekreterare"
+              placeholder="Namn på behandlare"
             />
           </div>
           

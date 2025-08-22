@@ -9,9 +9,34 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Initialize store with all collections
+// Initialize store with all collections and default staff
 export let store: any = {
-  staff: [],
+  staff: [
+    {
+      id: "staff_default_1",
+      name: "Anna Behandlare",
+      initials: "AB",
+      roll: "behandlare",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: "staff_default_2", 
+      name: "Björn Behandlare",
+      initials: "BB",
+      roll: "behandlare", 
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: "staff_default_3",
+      name: "Carina Behandlare", 
+      initials: "CB",
+      roll: "behandlare",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ],
   clients: [],
   carePlans: [],
   implementationPlans: [],

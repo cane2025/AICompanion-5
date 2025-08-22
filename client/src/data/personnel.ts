@@ -10,7 +10,7 @@ export const personnelList: Personnel[] = [
     id: "1",
     name: "Anna Andersson",
     email: "anna.andersson@ungdoms.se",
-    role: "Socialsekreterare"
+    role: "Behandlare"
   },
   {
     id: "2", 
@@ -28,7 +28,7 @@ export const personnelList: Personnel[] = [
     id: "4",
     name: "Johan Johansson",
     email: "johan.johansson@ungdoms.se", 
-    role: "Socialsekreterare"
+    role: "Behandlare"
   },
   {
     id: "5",

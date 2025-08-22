@@ -358,17 +358,17 @@ export function CarePlanDialog({ trigger }: CarePlanDialogProps) {
                       name="socialWorkerName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Socialsekreterare</FormLabel>
+                          <FormLabel>Behandlare</FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="Namn på socialsekreterare" 
+                              placeholder="Namn på behandlare" 
                               {...field}
                               onChange={(e) => {
                                 field.onChange(e);
                                 // Auto-save when typing
                                 if (e.target.value.length > 2) {
                                   toast({
-                                    title: "Socialsekreterare sparat",
+                                    title: "Behandlare sparat",
                                     description: `Namn: ${e.target.value}`,
                                     duration: 1500,
                                   });

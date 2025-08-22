@@ -175,6 +175,22 @@
       "status": "active",
       "createdAt": "2025-08-21T13:32:47.561Z",
       "updatedAt": "2025-08-21T13:32:47.561Z"
+    },
+    {
+      "id": "c_ff904ab9-e71c-4c05-b841-9a7941d9caf1",
+      "initials": "AB",
+      "staffId": "staff_default_1",
+      "status": "active",
+      "createdAt": "2025-08-22T20:17:06.899Z",
+      "updatedAt": "2025-08-22T20:17:06.900Z"
+    },
+    {
+      "id": "c_ef4bf9ef-55ac-4af6-b721-db8e90948f51",
+      "initials": "ST",
+      "staffId": "staff_572ec798-ade0-43f8-9998-a955dfb3c2f8",
+      "status": "active",
+      "createdAt": "2025-08-22T20:22:24.312Z",
+      "updatedAt": "2025-08-22T20:22:24.312Z"
     }
   ],
   "carePlans": [
@@ -484,6 +500,32 @@
       "createdAt": "2025-08-21T13:25:23.429Z",
       "updatedAt": "2025-08-21T13:25:23.433Z",
       "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_2e8e1a28-32c2-44c4-855a-4d28d5e6483e",
+      "clientId": "c_ff904ab9-e71c-4c05-b841-9a7941d9caf1",
+      "staffId": "s_demo",
+      "planContent": "Test vårdplan",
+      "goals": "Test mål",
+      "interventions": "Test interventioner",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-22T20:17:14.524Z",
+      "updatedAt": "2025-08-22T20:17:14.524Z"
+    },
+    {
+      "id": "cp_7c095e87-26e9-4d6d-9189-34de0112d716",
+      "clientId": "c_ef4bf9ef-55ac-4af6-b721-db8e90948f51",
+      "staffId": "s_demo",
+      "planContent": "Test vårdplan",
+      "goals": "Test mål",
+      "interventions": "Test interventioner",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-08-22T20:22:24.316Z",
+      "updatedAt": "2025-08-22T20:22:24.316Z"
     }
   ],
   "implementationPlans": [
@@ -738,6 +780,48 @@
       "isActive": true,
       "createdAt": "2025-08-21T13:25:23.436Z",
       "updatedAt": "2025-08-21T13:25:23.436Z"
+    },
+    {
+      "id": "ip_e649c09a-dd8b-4b23-936b-570933a5336b",
+      "clientId": "c_ff904ab9-e71c-4c05-b841-9a7941d9caf1",
+      "staffId": "s_demo",
+      "planRef": "GFP-1",
+      "sentDate": "2025-08-22",
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "pending",
+      "isActive": true,
+      "createdAt": "2025-08-22T20:17:22.259Z",
+      "updatedAt": "2025-08-22T20:17:22.259Z"
+    },
+    {
+      "id": "ip_e3bfd81b-1217-4582-8704-8689a3c16b2a",
+      "clientId": "c_ef4bf9ef-55ac-4af6-b721-db8e90948f51",
+      "staffId": "s_demo",
+      "planRef": "GFP-Test",
+      "sentDate": "2025-08-22",
+      "completedDate": null,
+      "followups": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      "comments": "Updated test comments",
+      "status": "pending",
+      "isActive": true,
+      "createdAt": "2025-08-22T20:22:24.318Z",
+      "updatedAt": "2025-08-22T20:22:24.327Z"
     }
   ],
   "weeklyDocumentation": [
@@ -892,6 +976,44 @@
       },
       "createdAt": "2025-08-21T13:25:23.440Z",
       "updatedAt": "2025-08-21T13:25:23.440Z"
+    },
+    {
+      "id": "wd_b6e43317-2735-4ecc-81e9-c8836b5bcd05",
+      "clientId": "c_ff904ab9-e71c-4c05-b841-9a7941d9caf1",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "Test veckodokumentation",
+      "days": {
+        "mon": true,
+        "tue": false,
+        "wed": true,
+        "thu": false,
+        "fri": true,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-22T20:21:19.973Z",
+      "updatedAt": "2025-08-22T20:21:19.973Z"
+    },
+    {
+      "id": "wd_729aaa82-7d8f-431a-817a-f38d32a6f555",
+      "clientId": "c_ef4bf9ef-55ac-4af6-b721-db8e90948f51",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "Test veckodokumentation",
+      "days": {
+        "mon": true,
+        "tue": false,
+        "wed": true,
+        "thu": false,
+        "fri": true,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-22T20:22:24.320Z",
+      "updatedAt": "2025-08-22T20:22:24.320Z"
     }
   ],
   "monthlyReports": [
@@ -998,6 +1120,32 @@
       "quality": "pending",
       "createdAt": "2025-08-21T13:25:23.443Z",
       "updatedAt": "2025-08-21T13:25:23.443Z"
+    },
+    {
+      "id": "mr_fc9f5bec-f28a-4b81-82a2-9a528211ab52",
+      "clientId": "c_ff904ab9-e71c-4c05-b841-9a7941d9caf1",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "Test månadsrapport",
+      "approved": true,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-22T20:21:26.926Z",
+      "updatedAt": "2025-08-22T20:21:26.926Z"
+    },
+    {
+      "id": "mr_847d56b3-dadb-4a67-b60e-782ee6eb8c24",
+      "clientId": "c_ef4bf9ef-55ac-4af6-b721-db8e90948f51",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "Updated test månadsrapport",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-08-22T20:22:24.322Z",
+      "updatedAt": "2025-08-22T20:22:24.329Z"
     }
   ],
   "vimsaTime": [
@@ -1011,6 +1159,32 @@
       "comments": "",
       "createdAt": "2025-08-21T12:49:06.931Z",
       "updatedAt": "2025-08-21T12:49:06.931Z"
+    },
+    {
+      "id": "vt_9459ac36-9974-4fb8-99eb-8727db100059",
+      "clientId": "c_ff904ab9-e71c-4c05-b841-9a7941d9caf1",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "hoursWorked": 8.5,
+      "approved": true,
+      "matchesDocumentation": true,
+      "comments": "Test Vimsa tid",
+      "createdAt": "2025-08-22T20:21:33.517Z",
+      "updatedAt": "2025-08-22T20:21:33.517Z"
+    },
+    {
+      "id": "vt_a3f2dd11-4263-4e03-b8cf-f9d27ee33bfe",
+      "clientId": "c_ef4bf9ef-55ac-4af6-b721-db8e90948f51",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "hoursWorked": 9,
+      "approved": false,
+      "matchesDocumentation": true,
+      "comments": "Test Vimsa tid",
+      "createdAt": "2025-08-22T20:22:24.324Z",
+      "updatedAt": "2025-08-22T20:22:24.331Z"
     }
   ]
 }

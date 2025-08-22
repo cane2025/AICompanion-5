@@ -31,38 +31,22 @@ devRoutes.post("/auth/login", (req, res) => {
   const sanitizedUsername = sanitizeInput(username.trim());
   const sanitizedPassword = sanitizeInput(password.trim());
   
-  // Simple demo authentication
-  if (sanitizedUsername === "admin" && sanitizedPassword === "admin123") {
-    const token = "s_demo";
-    res.cookie("devToken", token, { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    });
-    return res.json({
-      ok: true,
-      user: {
-        id: token,
-        username: username,
-        name: "Administrator",
-      },
-    });
-  }
-
-  // Check if it's a dev token login
-  const devToken = req.get("X-Dev-Token");
-  if (devToken) {
-    res.cookie("devToken", devToken, { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    });
-    return res.json({ ok: true, user: { id: devToken, username: devToken } });
-  }
-
-  return res.status(401).json({ error: "Invalid credentials" });
+  // Dev mode: accept any user/pass and create dev token
+  const token = "s_demo_" + Date.now();
+    res.cookie("devToken", token, {
+    httpOnly: false, // Need to be false for dev mode
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: "lax", // Changed from strict for dev
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  });
+  return res.json({
+    ok: true,
+    user: {
+      id: token,
+      username: sanitizedUsername,
+      name: sanitizedUsername,
+    },
+  });
 });
 
 devRoutes.get("/auth/session", (req, res) => {
@@ -194,7 +178,7 @@ devRoutes.put("/care-plans/:id", (req, res) => {
   if (idx === -1) return res.status(404).json({ error: "Not found" });
   store.carePlans[idx] = {
     ...store.carePlans[idx],
-    ...req.body,
+      ...req.body,
     updatedAt: new Date().toISOString(),
   };
   persist();
@@ -256,6 +240,17 @@ devRoutes.put("/implementation-plans/:id", (req, res) => {
   return res.json(store.implementationPlans[idx]);
 });
 
+devRoutes.delete("/implementation-plans/:id", (req, res) => {
+  const id = req.params.id;
+  const index = store.implementationPlans.findIndex((p: any) => p.id === id);
+  if (index === -1)
+    return res.status(404).json({ error: "Genomförandeplan hittades inte" });
+
+  store.implementationPlans.splice(index, 1);
+  persist();
+  return res.status(204).send();
+});
+
 // === WEEKLY DOCS (inkl. lör/sön) ===
 devRoutes.get("/weekly-documentation/all", (_req, res) => {
   return res.json(store.weeklyDocumentation ?? []);
@@ -306,6 +301,17 @@ devRoutes.put("/weekly-documentation/:id", (req, res) => {
   };
   persist();
   return res.json(store.weeklyDocumentation[idx]);
+});
+
+devRoutes.delete("/weekly-documentation/:id", (req, res) => {
+  const id = req.params.id;
+  const index = store.weeklyDocumentation.findIndex((d: any) => d.id === id);
+  if (index === -1)
+    return res.status(404).json({ error: "Veckodokumentation hittades inte" });
+
+  store.weeklyDocumentation.splice(index, 1);
+  persist();
+  return res.status(204).send();
 });
 
 // === MONTHLY REPORTS ===

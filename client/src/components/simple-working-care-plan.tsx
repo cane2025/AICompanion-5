@@ -226,12 +226,12 @@ export function SimpleWorkingCarePlan() {
         <div className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700 flex items-center gap-1">
-              👤 Socialsekreterare <span className="text-red-500">*</span>
+              👤 Behandlare <span className="text-red-500">*</span>
             </label>
             <Input
               value={formData.socialWorkerName}
               onChange={(e) => handleInputChange("socialWorkerName", e.target.value)}
-              placeholder="Ange namn på socialsekreterare"
+              placeholder="Ange namn på behandlare"
               className="border-2 focus:border-blue-500 transition-colors"
               required
               aria-describedby={validationErrors.socialWorkerName ? createFieldErrorId("socialWorkerName") : undefined}
