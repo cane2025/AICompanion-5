@@ -8,6 +8,19 @@ import {
   sanitizePhone,
   RateLimiter,
 } from "../security";
+import {
+  db,
+  addCarePlan,
+  updateCarePlan,
+  removeCarePlan,
+  addImplementationPlan,
+  updateImplementationPlan,
+  removeImplementationPlan,
+  addWeeklyDoc,
+  addWeeklyDocEntry,
+  updateWeeklyDocEntry,
+  removeWeeklyDocEntry,
+} from "../store.js";
 
 export const devRoutes = Router();
 
@@ -143,21 +156,22 @@ devRoutes.delete("/clients/:id", (req, res) => {
 
 // === CARE PLANS ===
 devRoutes.get("/care-plans/all", (_req, res) => {
-  return res.json(store.carePlans ?? []);
+  return res.json(db.carePlans ?? []);
 });
 
 devRoutes.get("/care-plans/:id", (req, res) => {
   // Only handle care plan IDs (not client IDs)
-  const plan = (store.carePlans ?? []).find((p: any) => p.id === req.params.id);
+  const plan = (db.carePlans ?? []).find((p: any) => p.id === req.params.id);
   if (!plan) return res.status(404).json({ error: "Care plan not found" });
   return res.json(plan);
 });
 
+// Lista alla för klient (nyast först)
 devRoutes.get("/care-plans/client/:clientId", (req, res) => {
-  const list = (store.carePlans ?? []).filter(
-    (p: any) => p.clientId === req.params.clientId
-  );
-  return res.json(list);
+  const rows = (db.carePlans ?? [])
+    .filter((p) => p.clientId === req.params.clientId)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  res.json(rows);
 });
 devRoutes.get("/care-plans/staff/:staffId", (req, res) => {
   const list = (store.carePlans ?? []).filter(
@@ -165,61 +179,38 @@ devRoutes.get("/care-plans/staff/:staffId", (req, res) => {
   );
   return res.json(list);
 });
+// Create – APPEND (ingen överskrivning)
 devRoutes.post("/care-plans", (req, res) => {
-  const staffId = staffIdOf(req);
-  const body = req.body || {};
-  const item = {
-    id: "cp_" + randomUUID(),
-    clientId: body.clientId,
-    staffId,
-    planContent: body.planContent ?? "",
-    goals: body.goals ?? "",
-    interventions: body.interventions ?? "",
-    status: body.status ?? "received",
-    isActive: body.isActive ?? true,
-    comment: body.comment ?? "",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.carePlans.push(item);
-  persist();
-  return res.status(201).json(item);
+  const created = addCarePlan(req.body);
+  res.status(201).json(created);
 });
 
+// Update – via id
 devRoutes.put("/care-plans/:id", (req, res) => {
-  const idx = (store.carePlans ?? []).findIndex(
-    (p: any) => p.id === req.params.id
-  );
-  if (idx === -1) return res.status(404).json({ error: "Not found" });
-  store.carePlans[idx] = {
-    ...store.carePlans[idx],
-    ...req.body,
-    updatedAt: new Date().toISOString(),
-  };
-  persist();
-  return res.json(store.carePlans[idx]);
+  const updated = updateCarePlan(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: "Not found" });
+  res.json(updated);
 });
 
+// Delete – via id
 devRoutes.delete("/care-plans/:id", (req, res) => {
-  const idx = (store.carePlans ?? []).findIndex(
-    (p: any) => p.id === req.params.id
-  );
-  if (idx === -1) return res.status(404).json({ error: "Not found" });
-  store.carePlans.splice(idx, 1);
-  persist();
-  return res.status(204).end();
+  const ok = removeCarePlan(req.params.id);
+  return ok
+    ? res.status(204).end()
+    : res.status(404).json({ error: "Not found" });
 });
 
 // === IMPLEMENTATION PLANS (administrativ) ===
 devRoutes.get("/implementation-plans/all", (_req, res) => {
-  return res.json(store.implementationPlans ?? []);
+  return res.json(db.implementationPlans ?? []);
 });
 
-devRoutes.get("/implementation-plans/:clientId", (req, res) => {
-  const list = (store.implementationPlans ?? []).filter(
-    (p: any) => p.clientId === req.params.clientId
-  );
-  return res.json(list);
+// Lista alla för klient (nyast först)
+devRoutes.get("/implementation-plans/client/:clientId", (req, res) => {
+  const rows = (db.implementationPlans ?? [])
+    .filter((p) => p.clientId === req.params.clientId)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  res.json(rows);
 });
 devRoutes.get("/implementation-plans/staff/:staffId", (req, res) => {
   const list = (store.implementationPlans ?? []).filter(
@@ -227,50 +218,70 @@ devRoutes.get("/implementation-plans/staff/:staffId", (req, res) => {
   );
   return res.json(list);
 });
+// Create – APPEND (ingen överskrivning)
 devRoutes.post("/implementation-plans", (req, res) => {
-  const staffId = staffIdOf(req);
-  const b = req.body || {};
-  const item = {
-    id: "ip_" + randomUUID(),
-    clientId: b.clientId,
-    staffId,
-    // ADMIN fields (no goals/treatment UI):
-    planRef: b.planRef ?? "", // vilken genomförandeplan
-    sentDate: b.sentDate ?? null, // YYYY-MM-DD
-    completedDate: b.completedDate ?? null,
-    followups: b.followups ?? [false, false, false, false, false, false], // 1..6
-    // fallback: serialisera extra i comments
-    comments: b.comments ?? "",
-    status: b.status ?? "pending",
-    isActive: b.isActive ?? true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.implementationPlans.push(item);
-  persist();
-  return res.status(201).json(item);
+  const created = addImplementationPlan(req.body);
+  res.status(201).json(created);
 });
 
+// Update – via id
 devRoutes.put("/implementation-plans/:id", (req, res) => {
-  const idx = (store.implementationPlans ?? []).findIndex(
-    (p: any) => p.id === req.params.id
-  );
-  if (idx === -1) return res.status(404).json({ error: "Not found" });
-  store.implementationPlans[idx] = {
-    ...store.implementationPlans[idx],
-    ...req.body,
-    updatedAt: new Date().toISOString(),
-  };
-  persist();
-  return res.json(store.implementationPlans[idx]);
+  const updated = updateImplementationPlan(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: "Not found" });
+  res.json(updated);
 });
 
+// Delete – via id
 devRoutes.delete("/implementation-plans/:id", (req, res) => {
-  const idx = (store.implementationPlans ?? []).findIndex(
-    (p: any) => p.id === req.params.id
+  const ok = removeImplementationPlan(req.params.id);
+  return ok
+    ? res.status(204).end()
+    : res.status(404).json({ error: "Not found" });
+});
+
+// === WEEKLY DOCS 2.0 ===
+devRoutes.get("/weekly-docs/client/:clientId", (req, res) => {
+  const { week } = req.query as { week?: string };
+  let rows = (db.weeklyDocs ?? []).filter(
+    (d) => d.clientId === req.params.clientId
   );
-  if (idx === -1) return res.status(404).json({ error: "Not found" });
-  store.implementationPlans.splice(idx, 1);
+  if (week) rows = rows.filter((d) => d.weekStartISO === week);
+  rows.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  res.json(rows);
+});
+
+devRoutes.post("/weekly-docs", (req, res) => {
+  const created = addWeeklyDoc(req.body);
+  res.status(201).json(created);
+});
+
+devRoutes.post("/weekly-docs/:id/entries", (req, res) => {
+  const entry = addWeeklyDocEntry(req.params.id, req.body);
+  if (!entry) return res.status(404).json({ error: "Document not found" });
+  res.status(201).json(entry);
+});
+
+devRoutes.put("/weekly-docs/:docId/entries/:entryId", (req, res) => {
+  const entry = updateWeeklyDocEntry(
+    req.params.docId,
+    req.params.entryId,
+    req.body
+  );
+  if (!entry) return res.status(404).json({ error: "Entry not found" });
+  res.json(entry);
+});
+
+devRoutes.delete("/weekly-docs/:docId/entries/:entryId", (req, res) => {
+  const ok = removeWeeklyDocEntry(req.params.docId, req.params.entryId);
+  return ok
+    ? res.status(204).end()
+    : res.status(404).json({ error: "Entry not found" });
+});
+
+devRoutes.delete("/weekly-docs/:id", (req, res) => {
+  const idx = db.weeklyDocs.findIndex((d) => d.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Document not found" });
+  db.weeklyDocs.splice(idx, 1);
   persist();
   return res.status(204).end();
 });

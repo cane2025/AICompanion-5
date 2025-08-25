@@ -11,7 +11,8 @@
     "dev:open": "node -e \"require('child_process').exec(process.platform==='darwin'?'open http://127.0.0.1:5175':process.platform==='win32'?'start http://127.0.0.1:5175':'xdg-open http://127.0.0.1:5175')\"",
     "check": "tsc",
     "build": "vite build",
-    "start": "npm run build && npm run dev"
+    "start": "npm run build && npm run dev",
+    "migrate": "node scripts/migrate-data.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -62,6 +63,7 @@
     "html-escaper": "^3.0.3",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.453.0",
+    "nanoid": "^5.1.5",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",

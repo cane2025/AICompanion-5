@@ -3,6 +3,7 @@
 ## Snabbstart
 
 ### 1. Starta både backend och frontend
+
 ```bash
 # Starta båda servrarna samtidigt
 npm run dev:full
@@ -13,23 +14,27 @@ npm run dev:client   # Frontend på port 5175
 ```
 
 ### 2. Öppna i webbläsare
+
 - **Frontend**: http://127.0.0.1:5175
 - **Backend API**: http://127.0.0.1:3001/api
 
 ## Port-konfiguration
 
 ### Frontend (Vite)
+
 - **Port**: 5175
 - **Host**: 127.0.0.1
 - **Strict Port**: true (failar om porten är upptagen)
 
 ### Backend (Express)
+
 - **Port**: 3001
 - **Host**: 127.0.0.1
 
 ## Proxy-konfiguration
 
 Frontend proxy:ar `/api` requests till backend:
+
 ```typescript
 // vite.config.ts
 proxy: {
@@ -44,6 +49,7 @@ proxy: {
 ## Felsökning
 
 ### Port 5175 inte tillgänglig
+
 ```bash
 # Kolla vilka processer använder porten
 lsof -nP -iTCP:5175 | grep LISTEN
@@ -56,11 +62,13 @@ npm run dev:client
 ```
 
 ### Frontend laddar inte
+
 1. Verifiera att Vite körs: `curl http://127.0.0.1:5175/`
 2. Kolla terminal-output för Vite URL
 3. Prova `http://localhost:5175` istället för `127.0.0.1:5175`
 
 ### API-anrop misslyckas
+
 1. Verifiera att backend körs: `curl http://127.0.0.1:3001/api/health`
 2. Kolla proxy-konfiguration i `vite.config.ts`
 3. Verifiera att API-anrop går via frontend: `curl http://127.0.0.1:5175/api/health`
