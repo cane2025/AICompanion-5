@@ -12,7 +12,9 @@
     "check": "tsc",
     "build": "vite build",
     "start": "npm run build && npm run dev",
-    "migrate": "node scripts/migrate-data.js"
+    "migrate": "node scripts/migrate-data.js",
+    "migrate:prod": "NODE_ENV=production node scripts/migrate-prod.js",
+    "migrate:prod:dry-run": "NODE_ENV=production node scripts/migrate-prod.js --dry-run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
