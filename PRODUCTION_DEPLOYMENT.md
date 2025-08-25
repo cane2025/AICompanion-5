@@ -3,6 +3,7 @@
 ## 📋 **PRODUKTIONSFÖRBEREDELSER**
 
 ### **1. Miljövariabler (.env.production)**
+
 ```bash
 # Skapa .env.production
 NODE_ENV=production
@@ -18,6 +19,7 @@ BACKUP_PATH=/var/lib/ungdoms-oppenvard/backups
 ```
 
 ### **2. Databasuppgradering**
+
 ```bash
 # Installera PostgreSQL eller MySQL
 # Uppdatera server/db.ts för production
@@ -25,6 +27,7 @@ BACKUP_PATH=/var/lib/ungdoms-oppenvard/backups
 ```
 
 ### **3. Säkerhetsförbättringar**
+
 - [ ] Implementera riktig autentisering (inte dev-mode)
 - [ ] HTTPS/SSL-certifikat
 - [ ] Rate limiting
@@ -33,6 +36,7 @@ BACKUP_PATH=/var/lib/ungdoms-oppenvard/backups
 - [ ] XSS protection
 
 ### **4. Monitoring & Logging**
+
 - [ ] Logging (Winston/Pino)
 - [ ] Health checks
 - [ ] Metrics (Prometheus)
@@ -44,14 +48,16 @@ BACKUP_PATH=/var/lib/ungdoms-oppenvard/backups
 ## 🐳 **DOCKER DEPLOYMENT**
 
 ### **Dockerfile (redan finns)**
+
 ```dockerfile
 # Använd befintlig Dockerfile
 # Bygger React-app + Node.js server
 ```
 
 ### **Docker Compose (production)**
+
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   app:
     build: .
@@ -97,6 +103,7 @@ volumes:
 ## ☁️ **CLOUD DEPLOYMENT**
 
 ### **Vercel (Frontend)**
+
 ```bash
 # Installera Vercel CLI
 npm i -g vercel
@@ -107,6 +114,7 @@ vercel --prod
 ```
 
 ### **Railway/Render (Backend)**
+
 ```bash
 # Koppla GitHub-repo
 # Sätt miljövariabler
@@ -114,6 +122,7 @@ vercel --prod
 ```
 
 ### **AWS/GCP/Azure**
+
 ```bash
 # Använd Docker + Kubernetes
 # Eller serverless (AWS Lambda)
@@ -125,6 +134,7 @@ vercel --prod
 ## 🔧 **PRODUKTIONSKONFIGURATION**
 
 ### **Nginx Config (nginx.conf)**
+
 ```nginx
 events {
     worker_connections 1024;
@@ -164,24 +174,27 @@ http {
 ```
 
 ### **PM2 Config (ecosystem.config.js)**
+
 ```javascript
 module.exports = {
-  apps: [{
-    name: 'ungdoms-oppenvard',
-    script: 'server/index.ts',
-    interpreter: 'node',
-    interpreter_args: '-r tsx/register',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3001
+  apps: [
+    {
+      name: "ungdoms-oppenvard",
+      script: "server/index.ts",
+      interpreter: "node",
+      interpreter_args: "-r tsx/register",
+      instances: "max",
+      exec_mode: "cluster",
+      env: {
+        NODE_ENV: "production",
+        PORT: 3001,
+      },
+      error_file: "./logs/err.log",
+      out_file: "./logs/out.log",
+      log_file: "./logs/combined.log",
+      time: true,
     },
-    error_file: './logs/err.log',
-    out_file: './logs/out.log',
-    log_file: './logs/combined.log',
-    time: true
-  }]
+  ],
 };
 ```
 
@@ -190,6 +203,7 @@ module.exports = {
 ## 📊 **MONITORING & BACKUP**
 
 ### **Backup Script (backup.sh)**
+
 ```bash
 #!/bin/bash
 DATE=$(date +%Y%m%d_%H%M%S)
@@ -207,6 +221,7 @@ find $BACKUP_DIR -name "*.tar.gz" -mtime +30 -delete
 ```
 
 ### **Health Check Script (health-check.sh)**
+
 ```bash
 #!/bin/bash
 HEALTH_URL="https://your-domain.com/api/health"
@@ -226,6 +241,7 @@ fi
 ## 🚀 **DEPLOYMENT CHECKLIST**
 
 ### **Pre-Deployment**
+
 - [ ] Alla tester passerar (`npm test`)
 - [ ] Build fungerar (`npm run build`)
 - [ ] TypeScript-kompilering OK (`npm run check`)
@@ -235,6 +251,7 @@ fi
 - [ ] Backup-strategi implementerad
 
 ### **Post-Deployment**
+
 - [ ] Health check OK
 - [ ] Alla API-endpoints fungerar
 - [ ] Frontend laddar korrekt
@@ -244,6 +261,7 @@ fi
 - [ ] Backup schemalagt
 
 ### **Säkerhet**
+
 - [ ] HTTPS aktiverat
 - [ ] Rate limiting konfigurerat
 - [ ] Input validation implementerad
@@ -257,6 +275,7 @@ fi
 ## 📈 **SCALING & PERFORMANCE**
 
 ### **Performance Optimering**
+
 ```bash
 # Frontend
 - Code splitting
@@ -272,6 +291,7 @@ fi
 ```
 
 ### **Auto-scaling**
+
 ```bash
 # Kubernetes HPA
 apiVersion: autoscaling/v2
@@ -307,3 +327,5 @@ spec:
 7. **Deploya till production**
 
 **Projektet är tekniskt redo för deployment, men kräver produktionskonfiguration!**
+
+

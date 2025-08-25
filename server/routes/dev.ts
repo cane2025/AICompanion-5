@@ -54,6 +54,7 @@ devRoutes.post("/auth/login", (req, res) => {
   });
   return res.json({
     ok: true,
+    token: token, // Add token to response body
     user: {
       id: token,
       username: sanitizedUsername,
@@ -146,8 +147,9 @@ devRoutes.get("/care-plans/all", (_req, res) => {
 });
 
 devRoutes.get("/care-plans/:id", (req, res) => {
+  // Only handle care plan IDs (not client IDs)
   const plan = (store.carePlans ?? []).find((p: any) => p.id === req.params.id);
-  if (!plan) return res.status(404).json({ error: "Not found" });
+  if (!plan) return res.status(404).json({ error: "Care plan not found" });
   return res.json(plan);
 });
 
@@ -196,6 +198,16 @@ devRoutes.put("/care-plans/:id", (req, res) => {
   };
   persist();
   return res.json(store.carePlans[idx]);
+});
+
+devRoutes.delete("/care-plans/:id", (req, res) => {
+  const idx = (store.carePlans ?? []).findIndex(
+    (p: any) => p.id === req.params.id
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  store.carePlans.splice(idx, 1);
+  persist();
+  return res.status(204).end();
 });
 
 // === IMPLEMENTATION PLANS (administrativ) ===
@@ -251,6 +263,16 @@ devRoutes.put("/implementation-plans/:id", (req, res) => {
   };
   persist();
   return res.json(store.implementationPlans[idx]);
+});
+
+devRoutes.delete("/implementation-plans/:id", (req, res) => {
+  const idx = (store.implementationPlans ?? []).findIndex(
+    (p: any) => p.id === req.params.id
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  store.implementationPlans.splice(idx, 1);
+  persist();
+  return res.status(204).end();
 });
 
 devRoutes.delete("/implementation-plans/:id", (req, res) => {

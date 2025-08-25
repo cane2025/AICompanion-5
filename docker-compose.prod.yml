@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -78,3 +78,5 @@ volumes:
 networks:
   default:
     name: ungdoms-network
+
+

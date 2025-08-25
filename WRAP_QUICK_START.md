@@ -3,6 +3,7 @@
 ## ⚡ **SNABB SETUP FÖR WRAP.DEV**
 
 ### **1. Klona & Starta**
+
 ```bash
 # I Wrap.dev terminal
 git clone https://github.com/cane2025/AICompanion-5.git
@@ -12,15 +13,17 @@ npm install
 ```
 
 ### **2. Starta Servrar (2 terminaler)**
+
 ```bash
 # Terminal 1 - Backend
 PORT=3001 NODE_ENV=development npm run dev
 
-# Terminal 2 - Frontend  
+# Terminal 2 - Frontend
 npx vite --port 5175 --strictPort --host 127.0.0.1
 ```
 
 ### **3. Wrap.dev Agent URL**
+
 ```
 http://127.0.0.1:5175
 ```
@@ -30,6 +33,7 @@ http://127.0.0.1:5175
 ## 🤖 **WRAP.DEV AGENT INSTRUKTIONER**
 
 ### **Agent Task: Komplett Systemtest**
+
 ```
 URL: http://127.0.0.1:5175
 
@@ -38,7 +42,7 @@ Scenario: Testa hela vårdflödet från login till dokumentation
 Steg:
 1. INLOGGNING
    - Gå till http://127.0.0.1:5175
-   - Skriv valfritt användarnamn (t.ex. "testuser") 
+   - Skriv valfritt användarnamn (t.ex. "testuser")
    - Skriv valfritt lösenord (t.ex. "testpass")
    - Klicka "Logga in"
    - Förväntat: Behandlarlista visas till vänster
@@ -62,7 +66,7 @@ Steg:
    - Fyll i administrativa fält:
      * Vilken genomförandeplan: "Plan 1"
      * Datum skickad: Välj datum
-     * Datum klar: Välj datum  
+     * Datum klar: Välj datum
      * Bocka i några uppföljningar (1-6)
      * Kommentarer: "Test GFP"
    - Klicka "Spara"
@@ -118,6 +122,7 @@ Framgångskriterier:
 ## 🔧 **TROUBLESHOOTING FÖR WRAP.DEV**
 
 ### **Om servrar inte startar:**
+
 ```bash
 # Döda gamla processer
 pkill -f "vite" && pkill -f "tsx"
@@ -129,15 +134,17 @@ npx vite --port 5175 --strictPort --host 127.0.0.1 &
 ```
 
 ### **Om ports är upptagna:**
+
 ```bash
 # Hitta process på port 5175
 lsof -ti:5175 | xargs kill -9
 
-# Hitta process på port 3001  
+# Hitta process på port 3001
 lsof -ti:3001 | xargs kill -9
 ```
 
 ### **API Health Check:**
+
 ```bash
 curl http://127.0.0.1:3001/api/health
 # Förväntat: {"ok":true}
@@ -148,12 +155,15 @@ curl http://127.0.0.1:3001/api/health
 ## 📝 **WRAP.DEV SUCCESS METRICS**
 
 Agenten ska rapportera:
+
 - ✅ **Login Rate**: 100% (alla credentials fungerar)
 - ✅ **Navigation Success**: 100% (inga blanka sidor)
-- ✅ **Form Submission**: 100% (alla Spara-knappar fungerar)  
+- ✅ **Form Submission**: 100% (alla Spara-knappar fungerar)
 - ✅ **Auto-Navigation**: Vårdplan → GFP öppnas automatiskt
 - ✅ **CRUD Operations**: Create/Read/Update/Delete för alla entiteter
 - ✅ **Data Persistence**: Alla ändringar sparas
 - ✅ **UI Correctness**: Rätt etiketter och fält visas
 
 **🎯 Detta är ett 100% funktionellt system redo för Wrap.dev-testning!**
+
+

@@ -28,7 +28,7 @@ import {
   type Client,
 } from "@shared/schema";
 import * as api from "@/lib/api";
-import { FileCheck, Loader2 } from "lucide-react";
+import { FileCheck, Loader2, Trash2 } from "lucide-react";
 
 interface ImplementationPlanFormProps {
   client: Client;
@@ -82,14 +82,17 @@ export function ImplementationPlanForm({
 
   const savePlan = useMutation({
     mutationFn: (data: InsertImplementationPlan) => {
+      if (existingPlan?.id) {
+        return api.updateImplementationPlan(existingPlan.id, data);
+      }
       return api.createImplementationPlan(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["/api/implementation-plans"],
+        queryKey: ["implementation-plans"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["/api/implementation-plans", client.id],
+        queryKey: ["implementation-plans", client.id],
       });
       toast({
         title: "Genomförandeplan sparad",
@@ -104,6 +107,38 @@ export function ImplementationPlanForm({
       });
     },
   });
+
+  const deletePlan = useMutation({
+    mutationFn: (id: string) => api.deleteImplementationPlan(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["implementation-plans"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["implementation-plans", client.id],
+      });
+      toast({
+        title: "Genomförandeplan borttagen",
+        description: "Genomförandeplanen har tagits bort.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort genomförandeplan. Försök igen.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = () => {
+    if (
+      existingPlan?.id &&
+      confirm("Är du säker på att du vill ta bort denna genomförandeplan?")
+    ) {
+      deletePlan.mutate(existingPlan.id);
+    }
+  };
 
   const onSubmit = (data: InsertImplementationPlan) => {
     // Ensure required identifiers are always present
@@ -302,9 +337,22 @@ export function ImplementationPlanForm({
               )}
             />
 
-            <Button type="submit" disabled={savePlan.isPending}>
-              {savePlan.isPending ? "Sparar..." : "Spara genomförandeplan"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={savePlan.isPending}>
+                {savePlan.isPending ? "Sparar..." : "Spara genomförandeplan"}
+              </Button>
+              {existingPlan?.id && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={deletePlan.isPending}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {deletePlan.isPending ? "Tar bort..." : "Ta bort"}
+                </Button>
+              )}
+            </div>
           </form>
         </Form>
       </CardContent>

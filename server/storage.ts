@@ -82,6 +82,7 @@ export interface IStorage {
   // Care plan operations
   getAllCarePlans(): Promise<CarePlan[]>;
   getCarePlan(clientId: string): Promise<CarePlan | undefined>;
+  getCarePlansByClient(clientId: string): Promise<CarePlan[]>;
   createCarePlan(plan: InsertCarePlan): Promise<CarePlan>;
   updateCarePlan(
     id: string,
@@ -505,6 +506,12 @@ export class MemStorage implements IStorage {
   // Care plan operations
   async getCarePlan(clientId: string): Promise<CarePlan | undefined> {
     return Array.from(this.carePlans.values()).find(
+      (plan) => plan.clientId === clientId
+    );
+  }
+
+  async getCarePlansByClient(clientId: string): Promise<CarePlan[]> {
+    return Array.from(this.carePlans.values()).filter(
       (plan) => plan.clientId === clientId
     );
   }

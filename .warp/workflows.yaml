@@ -1,0 +1,63 @@
+workflows:
+  - name: Dev • Städa portar (3001, 5175)
+    description: Döda allt som låser dev-portarna (API/Vite)
+    command: |
+      kill -9 $(lsof -ti tcp:3001) 2>/dev/null || true
+      kill -9 $(lsof -ti tcp:5175) 2>/dev/null || true
+      pkill -f "vite|tsx|node.*server/index" 2>/dev/null || true
+      echo "✔ Portar städade"
+
+  - name: Dev • Starta API (3001)
+    description: Startar Express dev-API på 3001 och loggar till /tmp/api.log
+    command: |
+      cd "/Users/mirzacelik/Downloads/AICompanion-5"
+      npm run dev:api 2>&1 | tee /tmp/api.log
+
+  - name: Dev • Starta Frontend (5175)
+    description: Startar Vite-klienten på 127.0.0.1:5175
+    command: |
+      cd "/Users/mirzacelik/Downloads/AICompanion-5"
+      npx vite --port 5175 --strictPort --host 127.0.0.1
+
+  - name: Dev • Hälsokoll API
+    description: Snabb koll att /api/health svarar 200
+    command: |
+      curl -i http://127.0.0.1:3001/api/health
+
+  - name: Dev • API Smoke Test (s_demo)
+    description: Logga in (dev), skapa klient + planer och lista staff-scope
+    command: |
+      BASE="http://127.0.0.1:3001"
+      JAR="/tmp/cookies.jar"; rm -f "$JAR"
+
+      # 1) Login (dev) med fast dev-token så staffId= s_demo
+      curl -sS -c "$JAR" -b "$JAR" -X POST "$BASE/api/auth/login" \
+        -H "Content-Type: application/json" \
+        -H "X-Dev-Token: s_demo" \
+        --data '{"username":"admin","password":"admin123"}' >/dev/null || true
+
+      # 2) Skapa klient
+      CID=$(curl -sS -c "$JAR" -b "$JAR" -X POST "$BASE/api/clients" \
+        -H "Content-Type: application/json" \
+        --data '{"initials":"ZZ","staffId":"s_demo","status":"active"}' \
+        | sed -E 's/.*"id":"?([^",}]+)".*/\1/')
+      echo "Ny klient: $CID"
+
+      # 3) Skapa care plan
+      curl -iS -c "$JAR" -b "$JAR" -X POST "$BASE/api/care-plans" \
+        -H "Content-Type: application/json" -H "X-Dev-Token: s_demo" \
+        --data '{"clientId":"'"$CID"'","planContent":"Test care plan"}'
+
+      # 4) Skapa implementation plan
+      curl -iS -c "$JAR" -b "$JAR" -X POST "$BASE/api/implementation-plans" \
+        -H "Content-Type: application/json" -H "X-Dev-Token: s_demo" \
+        --data '{"clientId":"'"$CID"'","planContent":"Test implementation"}'
+
+      # 5) Verifiera staff-scope GET
+      echo "== Care plans (s_demo) ==" &&
+      curl -sS -c "$JAR" -b "$JAR" -H "X-Dev-Token: s_demo" \
+        "$BASE/api/care-plans/staff/s_demo" | sed 's/},{/},\n{/g'
+      echo
+      echo "== Implementation plans (s_demo) ==" &&
+      curl -sS -c "$JAR" -b "$JAR" -H "X-Dev-Token: s_demo" \
+        "$BASE/api/implementation-plans/staff/s_demo" | sed 's/},{/},\n{/g'
