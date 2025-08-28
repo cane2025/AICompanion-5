@@ -660,6 +660,68 @@
       "clientId": "c_001",
       "title": "E2E Test Vårdplan 1 - Uppdaterad",
       "goals": "Testa versioning och uppdatering"
+    },
+    {
+      "id": "MTfX_L5zt5lQuH0naJaiL",
+      "status": "active",
+      "version": 1,
+      "createdAt": "2025-08-25T12:52:16.989Z",
+      "updatedAt": "2025-08-25T12:52:16.989Z",
+      "clientId": "c_001",
+      "title": "E2E Test Vårdplan 1",
+      "goals": "Testa multi-item"
+    },
+    {
+      "id": "drd3FRk6lFTtiYKVzHe_R",
+      "status": "active",
+      "version": 1,
+      "createdAt": "2025-08-25T12:52:17.023Z",
+      "updatedAt": "2025-08-25T12:52:17.023Z",
+      "clientId": "c_001",
+      "title": "E2E Test Vårdplan 2",
+      "goals": "Testa versioning"
+    },
+    {
+      "id": "55MeYhFu9LyCoqJ-b7PiX",
+      "status": "active",
+      "version": 1,
+      "createdAt": "2025-08-25T18:48:02.313Z",
+      "updatedAt": "2025-08-25T18:48:02.313Z",
+      "clientId": "c_001",
+      "title": "Hälsoplan för motion",
+      "goals": "Förbättra fysisk hälsa genom daglig motion",
+      "comment": "Fokus på cardio och styrka"
+    },
+    {
+      "id": "cH76ZG5dAFzCboce6O2h5",
+      "status": "draft",
+      "version": 1,
+      "createdAt": "2025-08-25T18:48:10.961Z",
+      "updatedAt": "2025-08-25T18:48:10.961Z",
+      "clientId": "c_001",
+      "title": "Miljöaktiviteter plan",
+      "goals": "Öka deltagande i naturaktiviteter",
+      "comment": "Planering för utomhusaktiviteter"
+    },
+    {
+      "id": "xqqoOSIUbFKcTtCwNCa1g",
+      "status": "completed",
+      "version": 1,
+      "createdAt": "2025-08-25T18:48:19.050Z",
+      "updatedAt": "2025-08-25T18:48:19.050Z",
+      "clientId": "c_001",
+      "title": "Social utvecklingsplan",
+      "goals": "Förbättra sociala färdigheter",
+      "comment": "Fokus på kommunikation och gruppdynamik"
+    },
+    {
+      "id": "DgIMc9poUPf2dLkG2y6kW",
+      "status": "active",
+      "version": 1,
+      "createdAt": "2025-08-28T08:55:06.698Z",
+      "updatedAt": "2025-08-28T08:55:06.698Z",
+      "clientId": "c_bfd98871-ceba-4d82-9891-52fe23b4e4f8",
+      "title": "Ny vårdplan"
     }
   ],
   "implementationPlans": [
@@ -1428,6 +1490,30 @@
       "clientId": "c_001",
       "title": "E2E Test GFP 1 - Uppdaterad",
       "actions": "Testa GFP versioning och uppdatering"
+    },
+    {
+      "id": "rch9UwnVUxj-W1qW7IDs2",
+      "status": "pending",
+      "version": 1,
+      "createdAt": "2025-08-25T13:14:15.288Z",
+      "updatedAt": "2025-08-25T13:14:15.288Z",
+      "planRef": "1",
+      "clientId": "c_1b6d09e4-c5a5-4aa4-a121-7027313a1865",
+      "sentDate": "",
+      "completedDate": "",
+      "followup1": true,
+      "followup2": false,
+      "followup3": false,
+      "followup4": false,
+      "followup5": false,
+      "followup6": false,
+      "comments": "SS",
+      "staffId": "",
+      "planContent": "Administrativ genomförandeplan",
+      "goals": "",
+      "activities": "",
+      "followUpSchedule": "",
+      "isActive": true
     }
   ],
   "weeklyDocs": [
@@ -1804,6 +1890,14 @@
       "status": "active",
       "createdAt": "2025-08-25T11:24:36.849Z",
       "updatedAt": "2025-08-25T11:24:36.849Z"
+    },
+    {
+      "id": "c_bfd98871-ceba-4d82-9891-52fe23b4e4f8",
+      "initials": "KARIN",
+      "staffId": "staff_6c13f21a-f433-4339-9748-a6096786999b",
+      "status": "active",
+      "createdAt": "2025-08-27T13:32:12.963Z",
+      "updatedAt": "2025-08-27T13:32:12.963Z"
     }
   ],
   "staff": [
@@ -2529,6 +2623,45 @@
       },
       "createdAt": "2025-08-25T11:39:54.171Z",
       "updatedAt": "2025-08-25T11:39:54.171Z"
+    },
+    {
+      "id": "wd_6000a715-c28a-4701-82f6-a71297f85343",
+      "clientId": "c_bfd98871-ceba-4d82-9891-52fe23b4e4f8",
+      "staffId": "s_demo_1756325526304",
+      "year": 2025,
+      "week": 36,
+      "documentation": "Ny veckodokumentation",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-27T20:13:00.478Z",
+      "updatedAt": "2025-08-27T20:13:13.547Z",
+      "qualityAssessment": "approved"
+    },
+    {
+      "id": "wd_d2b1e06e-0544-4606-8b3e-722b124db75f",
+      "clientId": "c_bfd98871-ceba-4d82-9891-52fe23b4e4f8",
+      "staffId": "s_demo_1756325526304",
+      "year": 2025,
+      "week": 36,
+      "documentation": "Ny veckodokumentation",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-08-27T20:13:18.661Z",
+      "updatedAt": "2025-08-27T20:13:18.661Z"
     }
   ],
   "monthlyReports": [

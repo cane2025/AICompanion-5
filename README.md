@@ -1,233 +1,140 @@
-# 🏥 UNGDOMS Öppenvård - Vårdadministrationssystem
+# 🏥 AICompanion-5 - Vårdadministrationssystem
 
-Ett modernt och säkert system för vårdadministration enligt GDPR-standarder.
+Ett komplett vårdadministrationssystem byggt med modern teknologi för att hantera vårdplaner, dokumentation och rapporter.
 
 ## 🚀 Snabbstart
 
-### Förutsättningar
-- Node.js 18+ 
-- npm eller yarn
-
 ### Installation
 ```bash
-# Klona repository
-git clone <din-repo-url>
-cd AICompanion-5
-
-# Installera dependencies
 npm install
-
-# Starta utvecklingsservern
-npm run dev
 ```
 
-### Inloggning
-Öppna http://127.0.0.1:3001 i webbläsaren
-- **Användarnamn:** `admin`
-- **Lösenord:** `admin123`
+### Starta utvecklingsservrar
+```bash
+# Terminal 1: Backend
+npm run dev
 
-## 🛠️ Teknisk Stack
+# Terminal 2: Frontend
+npm run dev:client
+```
 
-### Backend
-- **Express.js** - API-server
-- **TypeScript** - Typesäker utveckling
-- **JSON-fil lagring** - Enkel datapersistens
+### Öppna applikationen
+- Frontend: http://127.0.0.1:5175
+- Backend: http://127.0.0.1:3001
+
+### Demo-konton
+- **Admin**: `admin` / `password123`
+- **Staff**: `staff` / `password123`
+
+## 🏗️ Teknisk Arkitektur
 
 ### Frontend
-- **React 18** - Användargränssnitt
-- **Vite** - Snabb utvecklingsserver
-- **Tailwind CSS** - Styling
-- **Radix UI** - Tillgängliga komponenter
-- **TanStack Query** - Datahantering
+- **React 18** med TypeScript
+- **Vite** för snabb utveckling
+- **Tailwind CSS** för styling
+- **Shadcn/ui** komponenter
+- **React Query** för state management
 
-### Autentisering
-- **Cookie-baserad sessionshantering**
-- **GDPR-kompatibel datalagring**
+### Backend
+- **Node.js** med TypeScript
+- **Express.js** framework
+- **JWT** autentisering
+- **Zod** validering
 
-## 📋 Funktioner
+## 📁 Projektstruktur
 
-### 👥 Personalhantering
-- ✅ Lägg till/redigera personal
-- ✅ Rollhantering (sjuksköterska, läkare, etc.)
-- ✅ Kontaktinformation
+```
+├── client/src/
+│   ├── components/     # UI komponenter
+│   ├── features/       # CRUD-operationer
+│   ├── hooks/          # Custom hooks
+│   ├── lib/            # Utilities
+│   ├── pages/          # Sidor
+│   └── shared/         # Delade typer/validering
+├── server/
+│   ├── auth/           # JWT autentisering
+│   ├── routes/         # API endpoints
+│   └── validation.ts   # Server-side validering
+└── docs/               # Dokumentation
+```
 
-### 👤 Klienthantering
-- ✅ Klientregistrering
-- ✅ Personlig information
-- ✅ Vårdhistorik
+## 🔧 Funktioner
 
-### 📋 Vårdplaner
-- ✅ Skapa vårdplaner
-- ✅ Redigera och uppdatera
-- ✅ Statusspårning
+### ✅ CRUD-operationer
+- **Vårdplaner**: Skapa, läsa, uppdatera, ta bort
+- **Genomförandeplaner**: Administrativa fält
+- **Veckodokumentation**: Daglig dokumentation
+- **Månadsrapporter**: Status och innehåll
+- **Vimsa tid**: Timmar och dagar
 
-### 📝 Genomförandeplaner (GFP)
-- ✅ Administrativa genomförandeplaner
-- ✅ Uppföljningspunkter
-- ✅ Deadline-hantering
+### ✅ Sök & Filtrering
+- Smart search med Fuse.js
+- Avancerad filtrering
+- Sortering A-Ö
+- Sparade sökningar
 
-### 📊 Veckodokumentation
-- ✅ Daglig dokumentation
-- ✅ Veckovisning
-- ✅ Sökbar historik
+### ✅ Autentisering
+- JWT-baserad inloggning
+- Role-based access control
+- Session management
 
-### 📈 Månadsrapporter
-- ✅ Automatiska rapporter
-- ✅ Statistik och analys
-- ✅ Export-funktioner
+### ✅ Error Handling
+- Error boundaries
+- Toast notifications
+- Graceful fallbacks
 
-### ⏰ VIMSA-tid
-- ✅ Tidsregistrering
-- ✅ Aktivitetsspårning
-- ✅ Rapportering
+## 📚 Dokumentation
 
-## 🔧 Utveckling
+- [EXPORT_README.md](docs/EXPORT_README.md) - Komplett systemarkitektur
+- [CRUD_OPERATIONS.md](docs/CRUD_OPERATIONS.md) - CRUD-implementation
+- [DASHBOARD_INTEGRATION.md](docs/DASHBOARD_INTEGRATION.md) - Dashboard & navigation
 
-### Kommandon
+## 🔐 Säkerhet
+
+- Input validation med Zod
+- JWT autentisering
+- XSS protection
+- CSRF protection
+- Security headers
+
+## 📈 Skalbarhet
+
+- React Query caching
+- Optimistic updates
+- Lazy loading
+- Pagination support
+- Offline-first architecture
+
+## 🛠️ Utveckling
+
+### Scripts
 ```bash
-npm run dev          # Starta utvecklingsserver (port 3001)
+npm run dev          # Starta backend
+npm run dev:client   # Starta frontend
 npm run build        # Bygg för produktion
-npm run check        # TypeScript-kontroll
-npm run start        # Bygg + starta
+npm run check        # TypeScript check
 ```
 
-### Projektstruktur
-```
-├── client/          # React frontend
-│   ├── src/
-│   │   ├── components/  # UI-komponenter
-│   │   ├── hooks/       # Custom hooks
-│   │   ├── lib/         # Utilities
-│   │   └── pages/       # Sidor
-├── server/          # Express backend
-│   ├── routes/      # API-endpoints
-│   ├── data/        # Datapersistens
-│   └── middleware/  # Express middleware
-├── shared/          # Delade scheman
-└── dist/            # Byggda filer
-```
-
-## 🧪 Testning
-
-### Automatiska tester
+### Miljövariabler
 ```bash
-# Kör alla tester
-./ai-agent-test.sh
-
-# Node.js test suite
-node ai-agent-test.js
+# .env
+JWT_SECRET=your-secret-key
+NODE_ENV=development
+PORT=3001
 ```
-
-### Manuell testning
-1. Starta servern: `npm run dev`
-2. Öppna http://127.0.0.1:3001
-3. Logga in med admin/admin123
-4. Testa alla funktioner
-
-## 🔒 Säkerhet
-
-- ✅ GDPR-kompatibel datalagring
-- ✅ Säker autentisering
-- ✅ Input-validering
-- ✅ XSS-skydd
-- ✅ CSRF-skydd
-
-## 📊 API Endpoints
-
-### Autentisering
-- `POST /api/auth/login` - Inloggning
-- `GET /api/auth/session` - Sessionskontroll
-
-### Personal
-- `GET /api/staff` - Hämta all personal
-- `POST /api/staff` - Lägg till personal
-- `PUT /api/staff/:id` - Uppdatera personal
-- `DELETE /api/staff/:id` - Ta bort personal
-
-### Klienter
-- `GET /api/clients/all` - Hämta alla klienter
-- `GET /api/staff/:staffId/clients` - Klienter per personal
-- `POST /api/clients` - Lägg till klient
-- `PUT /api/clients/:id` - Uppdatera klient
-- `DELETE /api/clients/:id` - Ta bort klient
-
-### Vårdplaner
-- `GET /api/care-plans/all` - Hämta alla vårdplaner
-- `GET /api/care-plans/client/:clientId` - Vårdplaner per klient
-- `POST /api/care-plans` - Skapa vårdplan
-- `PUT /api/care-plans/:id` - Uppdatera vårdplan
-- `DELETE /api/care-plans/:id` - Ta bort vårdplan
-
-### Genomförandeplaner
-- `GET /api/implementation-plans/all` - Hämta alla GFP
-- `GET /api/implementation-plans/client/:clientId` - GFP per klient
-- `POST /api/implementation-plans` - Skapa GFP
-- `PUT /api/implementation-plans/:id` - Uppdatera GFP
-- `DELETE /api/implementation-plans/:id` - Ta bort GFP
-
-### Veckodokumentation
-- `GET /api/weekly-documentation/all` - Hämta all dokumentation
-- `GET /api/weekly-documentation/client/:clientId` - Dokumentation per klient
-- `POST /api/weekly-documentation` - Skapa dokumentation
-- `PUT /api/weekly-documentation/:id` - Uppdatera dokumentation
-- `DELETE /api/weekly-documentation/:id` - Ta bort dokumentation
-
-### Månadsrapporter
-- `GET /api/monthly-reports/all` - Hämta alla rapporter
-- `GET /api/monthly-reports/client/:clientId` - Rapporter per klient
-- `POST /api/monthly-reports` - Skapa rapport
-- `PUT /api/monthly-reports/:id` - Uppdatera rapport
-
-### VIMSA-tid
-- `GET /api/vimsa-time/all` - Hämta all VIMSA-tid
-- `GET /api/vimsa-time/client/:clientId` - VIMSA-tid per klient
-- `POST /api/vimsa-time` - Registrera VIMSA-tid
-- `PUT /api/vimsa-time/:id` - Uppdatera VIMSA-tid
-
-## 🚀 Deployment
-
-### Produktionsbygg
-```bash
-npm run build
-npm start
-```
-
-### Docker (kommer snart)
-```bash
-docker build -t ungdom-oppenvard .
-docker run -p 3001:3001 ungdom-oppenvard
-```
-
-## 📝 Changelog
-
-### v2.0.0 (2025-08-21)
-- ✅ Enhetlig server (API + frontend på port 3001)
-- ✅ Vanlig användarnamn/lösenord inloggning
-- ✅ Förbättrad datapersistens
-- ✅ Omfattande testsuite
-- ✅ Debug-rapporter och dokumentation
-
-### v1.0.0 (2025-08-16)
-- 🎉 Första versionen
-- Grundläggande CRUD-funktioner
-- Dev-token autentisering
 
 ## 🤝 Bidrag
 
-1. Forka projektet
-2. Skapa en feature branch (`git checkout -b feature/AmazingFeature`)
-3. Committa ändringar (`git commit -m 'Add some AmazingFeature'`)
-4. Pusha till branchen (`git push origin feature/AmazingFeature`)
-5. Öppna en Pull Request
+1. Fork repository
+2. Skapa feature branch
+3. Commit ändringar
+4. Push till branch
+5. Skapa Pull Request
 
 ## 📄 Licens
 
-Detta projekt är licensierat under MIT-licensen - se [LICENSE](LICENSE) filen för detaljer.
-
-## 📞 Support
-
-För support eller frågor, kontakta utvecklingsteamet.
+MIT License - se [LICENSE](LICENSE) fil för detaljer.
 
 ---
 
-**UNGDOMS Öppenvård** - Säker vårdadministration för framtiden 🏥
+**Detta system är designat för att vara skalbart, säkert och underhållbart för långsiktig användning i produktionsmiljö.** 🚀
