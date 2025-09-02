@@ -175,6 +175,38 @@
       "status": "active",
       "createdAt": "2025-08-21T13:32:47.561Z",
       "updatedAt": "2025-08-21T13:32:47.561Z"
+    },
+    {
+      "id": "c_38d7a2ad-df5d-430d-8e4a-d388a78e697b",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T10:41:09.283Z",
+      "updatedAt": "2025-09-02T10:41:09.283Z"
+    },
+    {
+      "id": "c_2e793eda-9be8-4bef-bd5d-f4611ad2ac40",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T10:41:09.293Z",
+      "updatedAt": "2025-09-02T10:41:09.293Z"
+    },
+    {
+      "id": "c_743dddc9-53ad-4095-8292-17a6f54817f5",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T10:41:37.138Z",
+      "updatedAt": "2025-09-02T10:41:37.138Z"
+    },
+    {
+      "id": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T10:41:37.148Z",
+      "updatedAt": "2025-09-02T10:41:37.148Z"
     }
   ],
   "carePlans": [
@@ -484,6 +516,88 @@
       "createdAt": "2025-08-21T13:25:23.429Z",
       "updatedAt": "2025-08-21T13:25:23.433Z",
       "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_cf415efd-e8a3-4257-b189-c293071d9ae0",
+      "clientId": "c_2e793eda-9be8-4bef-bd5d-f4611ad2ac40",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T10:41:09.301Z",
+      "updatedAt": "2025-09-02T10:41:09.301Z"
+    },
+    {
+      "id": "cp_4a0d45e7-5394-4a7e-8d10-0d1e49c13012",
+      "clientId": "c_2e793eda-9be8-4bef-bd5d-f4611ad2ac40",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T10:41:09.310Z",
+      "updatedAt": "2025-09-02T10:41:09.316Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_0386f3a6-2cfd-4aa6-b330-b33ce0403154",
+      "clientId": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T10:41:37.156Z",
+      "updatedAt": "2025-09-02T10:41:37.156Z"
+    },
+    {
+      "id": "cp_469d7a60-8801-4724-8433-3b1798c8b4cb",
+      "clientId": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T10:41:37.165Z",
+      "updatedAt": "2025-09-02T10:41:37.170Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_9b9f2343-9e42-4108-a2df-8d4c30df715e",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": "",
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T10:41:37.259Z",
+      "updatedAt": "2025-09-02T10:41:37.259Z"
     }
   ],
   "implementationPlans": [
@@ -738,6 +852,48 @@
       "isActive": true,
       "createdAt": "2025-08-21T13:25:23.436Z",
       "updatedAt": "2025-08-21T13:25:23.436Z"
+    },
+    {
+      "id": "ip_cc2bdd05-b019-462b-9dd7-5919f5a047d3",
+      "clientId": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-09-02T10:41:37.184Z",
+      "updatedAt": "2025-09-02T10:41:37.184Z"
+    },
+    {
+      "id": "ip_9c2f7301-5acd-441f-ab00-96b61d8145bf",
+      "clientId": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "completed",
+      "isActive": true,
+      "createdAt": "2025-09-02T10:41:37.193Z",
+      "updatedAt": "2025-09-02T10:41:37.198Z"
     }
   ],
   "weeklyDocumentation": [
@@ -892,6 +1048,25 @@
       },
       "createdAt": "2025-08-21T13:25:23.440Z",
       "updatedAt": "2025-08-21T13:25:23.440Z"
+    },
+    {
+      "id": "wd_b66b89af-60e5-46fd-b19d-429e1ddfe79d",
+      "clientId": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 36,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-09-02T10:41:37.207Z",
+      "updatedAt": "2025-09-02T10:41:37.207Z"
     }
   ],
   "monthlyReports": [
@@ -998,6 +1173,19 @@
       "quality": "pending",
       "createdAt": "2025-08-21T13:25:23.443Z",
       "updatedAt": "2025-08-21T13:25:23.443Z"
+    },
+    {
+      "id": "mr_c8185121-0d23-45a5-8e66-3b3fb030d220",
+      "clientId": "c_11e566dd-7010-4440-a269-89b735c95c7f",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 9,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-09-02T10:41:37.217Z",
+      "updatedAt": "2025-09-02T10:41:37.217Z"
     }
   ],
   "vimsaTime": [
