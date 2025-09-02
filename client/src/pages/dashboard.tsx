@@ -9,6 +9,8 @@ import { DataOverview } from "@/components/data-overview";
 import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
 import { SimpleWorkingCarePlan } from "@/components/simple-working-care-plan";
+import { CompactCarePlanForm } from "@/components/compact-care-plan-form";
+import { isFeatureEnabled, UI_CAREPLAN_COMPACT_FLAG } from "@/lib/featureFlags";
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";
 import { VimsaTimeDialog } from "@/components/vimsa-time-dialog";
@@ -181,7 +183,11 @@ export function Dashboard() {
                 />
               </div>
             </div>
-            <SimpleWorkingCarePlan />
+            {isFeatureEnabled(UI_CAREPLAN_COMPACT_FLAG) ? (
+              <CompactCarePlanForm />
+            ) : (
+              <SimpleWorkingCarePlan />
+            )}
           </div>
         </TabsContent>
 
