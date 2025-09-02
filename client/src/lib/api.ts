@@ -157,6 +157,15 @@ export const createCarePlan = (data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
+// Update care plan (used by compact autosave flow)
+export const updateCarePlan = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
 // Implementation Plans API
 export const getImplementationPlans = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/implementation-plans`, {

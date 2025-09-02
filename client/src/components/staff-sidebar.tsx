@@ -110,7 +110,7 @@ export function StaffSidebar({
 
   return (
     <aside
-      className={`sidebar-transition bg-white w-80 shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30 ${
+      className={`sidebar-transition bg-white w-[250px] shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30 ${
         isOpen ? "" : "sidebar-hidden lg:transform-none"
       }`}
     >
@@ -175,7 +175,7 @@ export function StaffSidebar({
             onChange={(e) => setFilterTerm(e.target.value)}
           />
         </div>
-        {/* Staff Tabs */}
+        {/* Staff List - compact: initials | name | role */}
         <div className="space-y-2">
           {filteredStaff.length === 0 ? (
             <div className="text-center py-4 text-gray-500">
@@ -207,7 +207,12 @@ export function StaffSidebar({
                         {initials}
                       </span>
                     </div>
-                    <span className="font-medium">{staffMember.name}</span>
+                    <div className="flex-1 overflow-hidden text-left">
+                      <div className="font-medium truncate">{staffMember.name}</div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {staffMember.roll || ""}
+                      </div>
+                    </div>
                   </Button>
                   <div className="relative">
                     <Button
