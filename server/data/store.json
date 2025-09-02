@@ -175,6 +175,38 @@
       "status": "active",
       "createdAt": "2025-08-21T13:32:47.561Z",
       "updatedAt": "2025-08-21T13:32:47.561Z"
+    },
+    {
+      "id": "c_cad546d0-9581-4917-9c89-b825b6420b95",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T19:37:29.052Z",
+      "updatedAt": "2025-09-02T19:37:29.052Z"
+    },
+    {
+      "id": "c_6932a92a-09ad-40ea-a33e-17b1fe374f68",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T19:37:29.062Z",
+      "updatedAt": "2025-09-02T19:37:29.062Z"
+    },
+    {
+      "id": "c_7b5a07a4-a80f-45a5-8b63-c16c595063da",
+      "initials": "TEST",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T19:37:34.538Z",
+      "updatedAt": "2025-09-02T19:37:34.538Z"
+    },
+    {
+      "id": "c_c5eaec69-fcc7-4636-a922-28583bfb63fa",
+      "initials": "SMOKE",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-02T19:37:47.539Z",
+      "updatedAt": "2025-09-02T19:37:47.539Z"
     }
   ],
   "carePlans": [
@@ -484,6 +516,59 @@
       "createdAt": "2025-08-21T13:25:23.429Z",
       "updatedAt": "2025-08-21T13:25:23.433Z",
       "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_067a213c-d3a3-44a9-8e54-6e4686a56873",
+      "clientId": "c_6932a92a-09ad-40ea-a33e-17b1fe374f68",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T19:37:29.070Z",
+      "updatedAt": "2025-09-02T19:37:29.070Z"
+    },
+    {
+      "id": "cp_abfb32cf-fe12-4555-960e-36b270e8695f",
+      "clientId": "c_6932a92a-09ad-40ea-a33e-17b1fe374f68",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2",
+        "Mål 3"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T19:37:29.082Z",
+      "updatedAt": "2025-09-02T19:37:29.088Z",
+      "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_5984206b-a196-46b8-a0f4-f81d1bf43752",
+      "clientId": "c_7b5a07a4-a80f-45a5-8b63-c16c595063da",
+      "staffId": "s_demo",
+      "planContent": "",
+      "goals": [
+        "Mål 1",
+        "Mål 2"
+      ],
+      "interventions": "",
+      "status": "received",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-02T19:37:34.542Z",
+      "updatedAt": "2025-09-02T19:37:34.545Z",
+      "name": "Updated Vårdplan",
+      "description": "Updated beskrivning"
     }
   ],
   "implementationPlans": [
@@ -738,6 +823,27 @@
       "isActive": true,
       "createdAt": "2025-08-21T13:25:23.436Z",
       "updatedAt": "2025-08-21T13:25:23.436Z"
+    },
+    {
+      "id": "ip_4d52dfab-b920-453f-a450-2669536100f6",
+      "clientId": "c_7b5a07a4-a80f-45a5-8b63-c16c595063da",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "active",
+      "isActive": true,
+      "createdAt": "2025-09-02T19:37:34.547Z",
+      "updatedAt": "2025-09-02T19:37:34.547Z"
     }
   ],
   "weeklyDocumentation": [
@@ -892,6 +998,25 @@
       },
       "createdAt": "2025-08-21T13:25:23.440Z",
       "updatedAt": "2025-08-21T13:25:23.440Z"
+    },
+    {
+      "id": "wd_b97e8849-7740-48d2-b989-94aecdd50105",
+      "clientId": "c_7b5a07a4-a80f-45a5-8b63-c16c595063da",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 36,
+      "documentation": "",
+      "days": {
+        "mon": false,
+        "tue": false,
+        "wed": false,
+        "thu": false,
+        "fri": false,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-09-02T19:37:34.549Z",
+      "updatedAt": "2025-09-02T19:37:34.549Z"
     }
   ],
   "monthlyReports": [
@@ -998,6 +1123,19 @@
       "quality": "pending",
       "createdAt": "2025-08-21T13:25:23.443Z",
       "updatedAt": "2025-08-21T13:25:23.443Z"
+    },
+    {
+      "id": "mr_1264d667-f7cd-459c-abbb-8255e785d0c0",
+      "clientId": "c_7b5a07a4-a80f-45a5-8b63-c16c595063da",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 9,
+      "reportContent": "",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-09-02T19:37:34.552Z",
+      "updatedAt": "2025-09-02T19:37:34.552Z"
     }
   ],
   "vimsaTime": [
@@ -1011,6 +1149,17 @@
       "comments": "",
       "createdAt": "2025-08-21T12:49:06.931Z",
       "updatedAt": "2025-08-21T12:49:06.931Z"
+    },
+    {
+      "id": "vt_6c3fa98e-82d0-49ff-babf-9b39da0ca049",
+      "clientId": "c_7b5a07a4-a80f-45a5-8b63-c16c595063da",
+      "staffId": "s_demo",
+      "hoursWorked": 0,
+      "approved": false,
+      "matchesDocumentation": false,
+      "comments": "",
+      "createdAt": "2025-09-02T19:37:34.554Z",
+      "updatedAt": "2025-09-02T19:37:34.554Z"
     }
   ]
 }
