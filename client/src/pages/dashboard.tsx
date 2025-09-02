@@ -9,6 +9,7 @@ import { DataOverview } from "@/components/data-overview";
 import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
 import { SimpleWorkingCarePlan } from "@/components/simple-working-care-plan";
+import CompactCarePlanForm from "@/components/compact-care-plan-form";
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";
 import { VimsaTimeDialog } from "@/components/vimsa-time-dialog";
@@ -26,7 +27,11 @@ import {
 } from "lucide-react";
 import type { Staff } from "@shared/schema";
 
-export function Dashboard() {
+interface DashboardProps {
+  selectedStaffId?: string;
+}
+
+export function Dashboard({ selectedStaffId }: DashboardProps) {
   // Enable real-time synchronization
   useRealtimeSync();
 
@@ -181,7 +186,9 @@ export function Dashboard() {
                 />
               </div>
             </div>
-            <SimpleWorkingCarePlan />
+            {(window as any).__UI_CAREPLAN_COMPACT__
+              ? <CompactCarePlanForm defaultStaffId={selectedStaffId || undefined} />
+              : <SimpleWorkingCarePlan />}
           </div>
         </TabsContent>
 
