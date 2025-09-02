@@ -717,4 +717,16 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+let selectedStorage: IStorage;
+try {
+  if (process.env.DATABASE_URL) {
+    const { dbStorage } = await import("./dbStorage.js");
+    selectedStorage = dbStorage as unknown as IStorage;
+  } else {
+    selectedStorage = new MemStorage();
+  }
+} catch {
+  selectedStorage = new MemStorage();
+}
+
+export const storage = selectedStorage;

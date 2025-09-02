@@ -353,7 +353,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Care plan routes
-  app.get("/api/care-plans/all", async (req, res) => {
+  // Care plans list (for client expectations)
+  app.get("/api/care-plans", async (req, res) => {
     try {
       const carePlans = await storage.getAllCarePlans();
       res.json(carePlans);
@@ -664,7 +665,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Implementation plan routes
-  app.get("/api/implementation-plans/all", async (req, res) => {
+  // Implementation plans list (for client expectations)
+  app.get("/api/implementation-plans", async (req, res) => {
     try {
       const implementationPlans = await storage.getAllImplementationPlans();
       res.json(implementationPlans);
@@ -687,9 +689,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/implementation-plans/:id", async (req, res) => {
+  // Get plan by ID (match client getImplementationPlanById)
+  app.get("/api/implementation-plans/plan/:id", async (req, res) => {
     try {
       const plan = await storage.getImplementationPlanById(req.params.id);
+      if (!plan) {
+        return res
+          .status(404)
+          .json({ message: "Genomförandeplan hittades inte" });
+      }
+      res.json(plan);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta genomförandeplan" });
+    }
+  });
+
+  // Get plan by client (match client getImplementationPlanByClient)
+  app.get("/api/implementation-plans/:clientId", async (req, res) => {
+    try {
+      const plan = await storage.getImplementationPlan(req.params.clientId);
       if (!plan) {
         return res
           .status(404)
@@ -716,7 +734,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Weekly documentation routes
-  app.get("/api/weekly-documentation/all", async (req, res) => {
+  // Weekly documentation list (for client expectations)
+  app.get("/api/weekly-documentation", async (req, res) => {
     try {
       const weeklyDocs = await storage.getAllWeeklyDocumentation();
       res.json(weeklyDocs);
@@ -740,7 +759,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Monthly reports routes
-  app.get("/api/monthly-reports/all", async (req, res) => {
+  // Monthly reports list (for client expectations)
+  app.get("/api/monthly-reports", async (req, res) => {
     try {
       const monthlyReports = await storage.getAllMonthlyReports();
       res.json(monthlyReports);
@@ -753,7 +773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const monthlyReports = await storage.getAllMonthlyReports();
       const clientReports = monthlyReports.filter(
-        (report) => report.staffId === req.params.clientId
+        (report) => report.clientId === req.params.clientId
       );
       res.json(clientReports);
     } catch (error) {
@@ -764,7 +784,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Vimsa time routes
-  app.get("/api/vimsa-time/all", async (req, res) => {
+  // Vimsa time list (for client expectations)
+  app.get("/api/vimsa-time", async (req, res) => {
     try {
       const vimsaTimeData = await storage.getAllVimsaTime();
       res.json(vimsaTimeData);
@@ -897,6 +918,215 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(time);
     } catch (error) {
       res.status(400).json({ message: "Invalid Vimsa time data", error });
+    }
+  });
+
+  // PDF generation for a monthly report
+  app.get("/api/reports/:id/pdf", async (req, res) => {
+    try {
+      const reportId = req.params.id;
+      const all = await storage.getAllMonthlyReports();
+      const report = all.find((r) => (r as any).id === reportId);
+      if (!report) return res.status(404).json({ message: "Report not found" });
+
+      // dynamic import pdfkit so server boots without dependency
+      const { default: PDFDocument } = (await import("pdfkit")).default
+        ? (await import("pdfkit")).default
+        : (await import("pdfkit"));
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename=report_${reportId}.pdf`
+      );
+
+      const doc = new (PDFDocument as any)({ size: "A4", margin: 50 });
+      doc.pipe(res);
+      doc.fontSize(20).text("Månadsrapport", { align: "center" });
+      doc.moveDown();
+      doc.fontSize(12).text(`Klient: ${(report as any).clientId}`);
+      doc.text(`Personal: ${(report as any).staffId}`);
+      doc.text(`År: ${(report as any).year}  Månad: ${(report as any).month}`);
+      doc.moveDown();
+      doc.text(`Status: ${(report as any).status ?? "not_started"}`);
+      doc.moveDown();
+      doc.text((report as any).reportContent || (report as any).content || "Innehåll saknas");
+      doc.end();
+    } catch (error) {
+      console.error("PDF generation error", error);
+      res.status(500).json({ message: "Failed to generate PDF" });
+    }
+  });
+
+  // Email notification endpoint
+  app.post("/api/notify/email", async (req, res) => {
+    try {
+      const { to, subject, text, html } = req.body || {};
+      if (!to || !subject) {
+        return res.status(400).json({ message: "'to' and 'subject' are required" });
+      }
+
+      const smtpUrl = process.env.SMTP_URL || process.env.SMTP_CONNECTION_URL;
+      if (!smtpUrl) {
+        console.warn("SMTP_URL not configured; skipping send");
+        return res.status(501).json({ message: "Email not configured" });
+      }
+
+      const nodemailer = await import("nodemailer");
+      const transporter = (nodemailer as any).default
+        ? (nodemailer as any).default.createTransport(smtpUrl)
+        : (nodemailer as any).createTransport(smtpUrl);
+      const info = await transporter.sendMail({ from: undefined, to, subject, text, html });
+      res.json({ message: "Email sent", id: info.messageId });
+    } catch (error) {
+      console.error("Email error", error);
+      res.status(500).json({ message: "Failed to send email" });
+    }
+  });
+
+  // Calendar ICS generation for client events (care plan + implementation plan milestones)
+  app.get("/api/calendar/client/:clientId", async (req, res) => {
+    try {
+      const clientId = req.params.clientId;
+      const carePlan = await storage.getCarePlan(clientId);
+      const implPlan = await storage.getImplementationPlan(clientId);
+
+      const events: string[] = [];
+      function formatDate(date: Date) {
+        const pad = (n: number) => `${n}`.padStart(2, "0");
+        return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}00Z`;
+      }
+
+      const now = new Date();
+      const dtstamp = formatDate(now);
+
+      const lines: string[] = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//UNGDOMS//Calendar//EN",
+      ];
+
+      if (carePlan && (carePlan as any).receivedDate) {
+        const start = new Date((carePlan as any).receivedDate);
+        lines.push("BEGIN:VEVENT");
+        lines.push(`UID:cp-${(carePlan as any).id}@ungdoms`);
+        lines.push(`DTSTAMP:${dtstamp}`);
+        lines.push(`DTSTART:${formatDate(start)}`);
+        lines.push(`SUMMARY:Vårdplan mottagen (${(carePlan as any).clientId})`);
+        lines.push("END:VEVENT");
+      }
+      if (implPlan && (implPlan as any).dueDate) {
+        const start = new Date((implPlan as any).dueDate);
+        lines.push("BEGIN:VEVENT");
+        lines.push(`UID:ip-${(implPlan as any).id}@ungdoms`);
+        lines.push(`DTSTAMP:${dtstamp}`);
+        lines.push(`DTSTART:${formatDate(start)}`);
+        lines.push(`SUMMARY:GFP uppföljning (${(implPlan as any).clientId})`);
+        lines.push("END:VEVENT");
+      }
+
+      lines.push("END:VCALENDAR");
+      const ics = lines.join("\r\n");
+      res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename=client_${clientId}.ics`);
+      res.send(ics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate calendar" });
+    }
+  });
+
+  // Search & filtering across entities
+  app.get("/api/search", async (req, res) => {
+    try {
+      const entity = (req.query.entity as string) || "clients";
+      const q = ((req.query.q as string) || "").toLowerCase();
+      let data: any[] = [];
+      if (entity === "staff") data = await storage.getAllStaff();
+      else if (entity === "clients") data = await storage.getAllClients();
+      else if (entity === "carePlans") data = await storage.getAllCarePlans();
+      else if (entity === "implementationPlans") data = await storage.getAllImplementationPlans();
+      else if (entity === "weeklyDocumentation") data = await storage.getAllWeeklyDocumentation();
+      else if (entity === "monthlyReports") data = await storage.getAllMonthlyReports();
+
+      if (!q) return res.json(data);
+      const filtered = data.filter((item) => JSON.stringify(item).toLowerCase().includes(q));
+      res.json(filtered);
+    } catch (error) {
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
+  // Bulk operations
+  app.post("/api/bulk/:entity", async (req, res) => {
+    try {
+      const entity = req.params.entity;
+      const ops: Array<{ op: string; data: any; id?: string }> = req.body?.operations || [];
+      const results: any[] = [];
+      for (const operation of ops) {
+        const { op, data, id } = operation;
+        if (entity === "staff") {
+          if (op === "create") results.push(await storage.createStaff(data));
+          if (op === "update" && id) results.push(await storage.updateStaff(id, data));
+          if (op === "delete" && id) results.push(await storage.deleteStaff(id));
+        } else if (entity === "clients") {
+          if (op === "create") results.push(await storage.createClient(data));
+          if (op === "update" && id) results.push(await storage.updateClient(id, data));
+          if (op === "delete" && id) results.push(await storage.deleteClient(id));
+        } else if (entity === "carePlans") {
+          if (op === "create") results.push(await storage.createCarePlan(data));
+          if (op === "update" && id) results.push(await storage.updateCarePlan(id, data));
+          if (op === "delete" && id) results.push(await storage.deleteCarePlan(id));
+        } else if (entity === "implementationPlans") {
+          if (op === "create") results.push(await storage.createImplementationPlan(data));
+          if (op === "update" && id) results.push(await storage.updateImplementationPlan(id, data));
+        } else if (entity === "weeklyDocumentation") {
+          if (op === "create") results.push(await storage.createWeeklyDocumentation(data));
+          if (op === "update" && id) results.push(await storage.updateWeeklyDocumentation(id, data));
+        } else if (entity === "monthlyReports") {
+          if (op === "create") results.push(await storage.createMonthlyReport(data));
+          if (op === "update" && id) results.push(await storage.updateMonthlyReport(id, data));
+        }
+      }
+      res.json({ ok: true, results });
+    } catch (error) {
+      res.status(500).json({ message: "Bulk operation failed" });
+    }
+  });
+
+  // Export / Import data snapshot
+  app.get("/api/export", async (_req, res) => {
+    try {
+      const [staff, clients, carePlans, implementationPlans, weeklyDocumentation, monthlyReports, vimsa] = await Promise.all([
+        storage.getAllStaff(),
+        storage.getAllClients(),
+        storage.getAllCarePlans(),
+        storage.getAllImplementationPlans(),
+        storage.getAllWeeklyDocumentation(),
+        storage.getAllMonthlyReports(),
+        storage.getAllVimsaTime(),
+      ]);
+      res.json({ staff, clients, carePlans, implementationPlans, weeklyDocumentation, monthlyReports, vimsaTime: vimsa });
+    } catch (error) {
+      res.status(500).json({ message: "Export failed" });
+    }
+  });
+
+  app.post("/api/import", async (req, res) => {
+    try {
+      const data = req.body || {};
+      const results: Record<string, any[]> = { staff: [], clients: [], carePlans: [], implementationPlans: [], weeklyDocumentation: [], monthlyReports: [], vimsaTime: [] };
+
+      for (const s of data.staff ?? []) results.staff.push(await storage.createStaff(s));
+      for (const c of data.clients ?? []) results.clients.push(await storage.createClient(c));
+      for (const cp of data.carePlans ?? []) results.carePlans.push(await storage.createCarePlan(cp));
+      for (const ip of data.implementationPlans ?? []) results.implementationPlans.push(await storage.createImplementationPlan(ip));
+      for (const wd of data.weeklyDocumentation ?? []) results.weeklyDocumentation.push(await storage.createWeeklyDocumentation(wd));
+      for (const mr of data.monthlyReports ?? []) results.monthlyReports.push(await storage.createMonthlyReport(mr));
+      for (const vt of data.vimsaTime ?? []) results.vimsaTime.push(await storage.createVimsaTime(vt));
+
+      res.json({ ok: true, results });
+    } catch (error) {
+      res.status(500).json({ message: "Import failed" });
     }
   });
 
