@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { ChartLine, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ export function StaffSidebar({
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [mruId, setMruId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -45,9 +46,22 @@ export function StaffSidebar({
     .slice()
     .sort((a: any, b: any) => a.name.localeCompare(b.name, "sv"));
 
-  const filteredStaff = sorted.filter((s: any) =>
-    (s.name || "").toLowerCase().includes(effectiveSearchTerm.toLowerCase())
-  );
+  const filteredStaff = sorted
+    .filter((s: any) => (s.name || "").toLowerCase().includes(effectiveSearchTerm.toLowerCase()))
+    .sort((a: any, b: any) => {
+      // MRU first
+      if (mruId && (a.id === mruId || b.id === mruId)) {
+        return a.id === mruId ? -1 : b.id === mruId ? 1 : 0;
+      }
+      return 0;
+    });
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("MRU_STAFF_ID");
+      if (v) setMruId(v);
+    } catch {}
+  }, []);
 
   // Add staff mutation
   const addStaffMutation = useMutation({
@@ -110,7 +124,7 @@ export function StaffSidebar({
 
   return (
     <aside
-      className={`sidebar-transition bg-white w-80 shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30 ${
+      className={`sidebar-transition bg-white w-[250px] shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30 ${
         isOpen ? "" : "sidebar-hidden lg:transform-none"
       }`}
     >
@@ -199,6 +213,8 @@ export function StaffSidebar({
                     }`}
                     onClick={() => {
                       onViewChange("staff", staffMember.id);
+                      try { localStorage.setItem("MRU_STAFF_ID", staffMember.id); } catch {}
+                      setMruId(staffMember.id);
                       if (window.innerWidth < 1024) onClose();
                     }}
                   >
@@ -207,7 +223,7 @@ export function StaffSidebar({
                         {initials}
                       </span>
                     </div>
-                    <span className="font-medium">{staffMember.name}</span>
+                    <span className="font-medium truncate">{staffMember.name}</span>
                   </Button>
                   <div className="relative">
                     <Button
