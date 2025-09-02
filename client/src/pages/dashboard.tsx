@@ -8,11 +8,12 @@ import { StaffStatistics } from "@/components/staff-statistics";
 import { DataOverview } from "@/components/data-overview";
 import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
-import { SimpleWorkingCarePlan } from "@/components/simple-working-care-plan";
+import { CarePlanFormWrapper } from "@/components/care-plan-form-wrapper";
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";
 import { VimsaTimeDialog } from "@/components/vimsa-time-dialog";
 import { StaffManagement } from "@/components/staff-management";
+import { UIFeatureToggle } from "@/components/ui-feature-toggle";
 import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 import {
   Users,
@@ -94,6 +95,7 @@ export function Dashboard() {
             </p>
           </div>
           <div className="flex gap-2">
+            <UIFeatureToggle />
             <CarePlanDialog
               trigger={
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -181,7 +183,7 @@ export function Dashboard() {
                 />
               </div>
             </div>
-            <SimpleWorkingCarePlan />
+            <CarePlanFormWrapper />
           </div>
         </TabsContent>
 
