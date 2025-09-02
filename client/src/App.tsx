@@ -6,7 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/header";
 import { StaffSidebar } from "@/components/staff-sidebar";
+import { StaffSidebarCompact } from "@/components/staff-sidebar-compact";
 import { Dashboard } from "@/pages/dashboard";
+import { CarePlanPage } from "@/pages/care-plan-page";
 import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
 import { LoginForm } from "@/components/login-form";
@@ -21,6 +23,7 @@ function MainApp() {
   const [activeView, setActiveView] = useState("dashboard");
   const [activeStaffId, setActiveStaffId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [useCompactUI, setUseCompactUI] = useState(true); // Feature flag for compact UI
 
   const { data: staff = [], isLoading } = useQuery<Staff[]>({
     queryKey: ["/api/staff"],
@@ -121,13 +124,24 @@ function MainApp() {
       />
 
       <div className="flex h-screen pt-16">
-        <StaffSidebar
-          activeView={activeView}
-          onViewChange={handleViewChange}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          searchTerm={searchTerm}
-        />
+        {/* Use compact sidebar if enabled */}
+        {useCompactUI ? (
+          <StaffSidebarCompact
+            activeView={activeView}
+            onViewChange={handleViewChange}
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            searchTerm={searchTerm}
+          />
+        ) : (
+          <StaffSidebar
+            activeView={activeView}
+            onViewChange={handleViewChange}
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            searchTerm={searchTerm}
+          />
+        )}
 
         <main className="flex-1 overflow-y-auto bg-white">
           <div className="p-6">
@@ -142,8 +156,37 @@ function MainApp() {
               </p>
             </div>
 
+            {/* View Selection */}
+            <div className="mb-6 flex justify-center">
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setActiveView("dashboard")}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeView === "dashboard"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => setActiveView("care-plan")}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeView === "care-plan"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Vårdplan
+                </button>
+              </div>
+            </div>
+
+            {/* Content based on active view */}
             {activeView === "dashboard" ? (
               <Dashboard />
+            ) : activeView === "care-plan" ? (
+              <CarePlanPage onBackToDashboard={() => setActiveView("dashboard")} />
             ) : activeStaff ? (
               <div className="space-y-6">
                 <div className="bg-ungdoms-50 rounded-lg p-4 border border-ungdoms-200">
