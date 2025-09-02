@@ -171,7 +171,7 @@ IMPL_PLAN_DATA="{
     \"title\": \"Test Genomförandeplan\",
     \"description\": \"Automated test GFP\",
     \"startDate\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
-    \"followUpDate\": \"$(date -u -v+30d +%Y-%m-%dT%H:%M:%SZ)\",
+    \"followUpDate\": \"$(date -u -d '+30 days' +%Y-%m-%dT%H:%M:%SZ)\",
     \"status\": \"active\"
 }"
 
