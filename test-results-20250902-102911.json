@@ -1,0 +1,12 @@
+{
+  "test_run": {
+    "timestamp": "2025-09-02T10:29:11Z",
+    "total_tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "success_rate": 100
+  },
+  "results": [
+    {"test":"API Server Health Check","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Frontend Server Check","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Login with dev token","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Create new client","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Create care plan","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Update care plan","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Get all care plans","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Create implementation plan","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Update implementation plan","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Create weekly documentation","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Create monthly report","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Verify care plan persisted","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Verify implementation plan persisted","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Verify weekly documentation persisted","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Get client-specific care plans","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Get clients by staff","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Handle non-existent care plan","status":"passed","timestamp":"2025-09-02T10:29:11Z"},{"test":"Handle invalid data format gracefully","status":"passed","timestamp":"2025-09-02T10:29:11Z"}
+  ]
+}
