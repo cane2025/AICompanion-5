@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ClientDetailView } from "./client-detail-view";
-import { CarePlanDialog } from "./care-plan-dialog";
+import { CarePlanDialogWrapper as CarePlanDialog } from "./care-plan-dialog-wrapper";
 import { WeeklyDocumentationDialog } from "./weekly-documentation-dialog";
 import { MonthlyReportDialog } from "./monthly-report-dialog";
 import { VimsaTimeDialog } from "./vimsa-time-dialog";

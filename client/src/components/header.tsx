@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Download, Menu, User, Heart } from "lucide-react";
+import { Search, Download, Menu, User, Heart, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedCallback } from "@/hooks/use-debounce";
