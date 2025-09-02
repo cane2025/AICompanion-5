@@ -4,11 +4,16 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { devRoutes } from "./routes/dev";
+import { registerRoutes } from "./routes.js";
+import { devAuthMiddleware } from "./middleware/auth.js";
+import { createServer } from "http";
+import { setupVite, serveStatic } from "./vite.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const server = createServer(app);
 app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
@@ -16,16 +21,21 @@ app.use(express.json());
 // Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-// dev API
-app.use("/api", devRoutes);
+// Development auth middleware to simulate sessions
+app.use(devAuthMiddleware);
 
-// Serve static files from dist/public (built frontend)
-app.use(express.static(path.join(__dirname, "../dist/public")));
+// Register real API routes
+await registerRoutes(app);
 
-// Serve all other routes to index.html (SPA)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/public/index.html"));
-});
+// Also mount dev routes under /api/dev for compatibility/testing
+app.use("/api/dev", devRoutes);
+
+// In development, run Vite middleware; otherwise serve static build
+if (process.env.NODE_ENV !== "production") {
+  await setupVite(app, server);
+} else {
+  serveStatic(app);
+}
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log("[express] serving on port", PORT));
+server.listen(PORT, () => console.log("[express] serving on port", PORT));
