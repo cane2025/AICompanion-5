@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CarePlanDialog } from "@/components/care-plan-dialog";
+import { CarePlanDialogWrapper as CarePlanDialog } from "@/components/care-plan-dialog-wrapper";
 import type { CarePlan, Client } from "@shared/schema";
 import { Calendar, FileText, Plus, AlertCircle } from "lucide-react";
 

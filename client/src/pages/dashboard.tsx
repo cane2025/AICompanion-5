@@ -7,7 +7,7 @@ import { CareOverview } from "@/components/care-overview";
 import { StaffStatistics } from "@/components/staff-statistics";
 import { DataOverview } from "@/components/data-overview";
 import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
-import { CarePlanDialog } from "@/components/care-plan-dialog";
+import { CarePlanDialogWrapper as CarePlanDialog } from "@/components/care-plan-dialog-wrapper";
 import { SimpleWorkingCarePlan } from "@/components/simple-working-care-plan";
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";

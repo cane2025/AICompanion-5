@@ -11,6 +11,7 @@ import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
 import { LoginForm } from "@/components/login-form";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { FeatureFlagTest } from "@/pages/feature-flag-test";
 import type { Staff, User } from "@shared/schema";
 import * as api from "@/lib/api";
 
@@ -144,6 +145,8 @@ function MainApp() {
 
             {activeView === "dashboard" ? (
               <Dashboard />
+            ) : activeView === "feature-flags" ? (
+              <FeatureFlagTest />
             ) : activeStaff ? (
               <div className="space-y-6">
                 <div className="bg-ungdoms-50 rounded-lg p-4 border border-ungdoms-200">
