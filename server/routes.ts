@@ -231,9 +231,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/staff/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Check if staff has assigned clients before deletion
+      const assignedClients = await storage.getClientsByStaffId(id);
+      
+      // Delete staff (this will also reassign clients to "unassigned")
       await storage.deleteStaff(id);
+      
       broadcastUpdate("staff", { deleted: id });
-      res.json({ message: "Personal borttagen" });
+      
+      // Return information about what happened
+      if (assignedClients.length > 0) {
+        res.json({ 
+          message: "Personal borttagen", 
+          reassignedClients: assignedClients.length,
+          note: "Klienter har tilldelats status 'Oassignerad'"
+        });
+      } else {
+        res.json({ message: "Personal borttagen" });
+      }
     } catch (error) {
       console.error("Error deleting staff:", error);
       res.status(500).json({ message: "Kunde inte ta bort personal" });

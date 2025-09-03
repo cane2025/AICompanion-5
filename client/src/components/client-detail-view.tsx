@@ -50,6 +50,24 @@ import type {
   VimsaTime,
   Staff,
 } from "@shared/schema";
+import React from "react";
+
+// Custom hook for debouncing
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 interface ClientDetailViewProps {
   client: Client;
@@ -62,6 +80,84 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
   const [editReport, setEditReport] = useState<MonthlyReport | null>(null);
   const [newQuality, setNewQuality] = useState<string>("pending");
   const [markCompleted, setMarkCompleted] = useState<boolean>(false);
+  
+  // New state for editing care plans and implementation plans
+  const [editingCarePlan, setEditingCarePlan] = useState(false);
+  const [editingImplementationPlan, setEditingImplementationPlan] = useState(false);
+  const [carePlanForm, setCarePlanForm] = useState({
+    receivedDate: "",
+    enteredJournalDate: "",
+    staffNotifiedDate: "",
+    status: "received"
+  });
+  const [implementationPlanForm, setImplementationPlanForm] = useState({
+    dueDate: "",
+    completedDate: "",
+    status: "pending",
+    planContent: "",
+    goals: "",
+    activities: ""
+  });
+
+  // State for autosave indicators
+  const [carePlanAutosaved, setCarePlanAutosaved] = useState(false);
+  const [implementationPlanAutosaved, setImplementationPlanAutosaved] = useState(false);
+
+  // Debounced values for autosave
+  const debouncedCarePlanForm = useDebounce(carePlanForm, 800);
+  const debouncedImplementationPlanForm = useDebounce(implementationPlanForm, 800);
+
+  // Autosave effect for care plan
+  React.useEffect(() => {
+    if (editingCarePlan && carePlan && debouncedCarePlanForm !== carePlanForm) {
+      // Only autosave if we have changes and are in edit mode
+      const hasChanges = Object.keys(debouncedCarePlanForm).some(
+        key => debouncedCarePlanForm[key as keyof typeof debouncedCarePlanForm] !== 
+                carePlanForm[key as keyof typeof carePlanForm]
+      );
+      
+      if (hasChanges) {
+        const updates: any = {};
+        if (debouncedCarePlanForm.receivedDate) updates.receivedDate = new Date(debouncedCarePlanForm.receivedDate).toISOString();
+        if (debouncedCarePlanForm.enteredJournalDate) updates.enteredJournalDate = new Date(debouncedCarePlanForm.enteredJournalDate).toISOString();
+        if (debouncedCarePlanForm.staffNotifiedDate) updates.staffNotifiedDate = new Date(debouncedCarePlanForm.staffNotifiedDate).toISOString();
+        if (debouncedCarePlanForm.status) updates.status = debouncedCarePlanForm.status;
+        
+        if (Object.keys(updates).length > 0) {
+          updateCarePlanMutation.mutate(updates);
+          setCarePlanAutosaved(true);
+          setTimeout(() => setCarePlanAutosaved(false), 3000); // Hide after 3 seconds
+        }
+      }
+    }
+  }, [debouncedCarePlanForm, editingCarePlan, carePlan]);
+
+  // Autosave effect for implementation plan
+  React.useEffect(() => {
+    if (editingImplementationPlan && implementationPlan && debouncedImplementationPlanForm !== implementationPlanForm) {
+      // Only autosave if we have changes and are in edit mode
+      const hasChanges = Object.keys(debouncedImplementationPlanForm).some(
+        key => debouncedImplementationPlanForm[key as keyof typeof debouncedImplementationPlanForm] !== 
+                implementationPlanForm[key as keyof typeof implementationPlanForm]
+      );
+      
+      if (hasChanges) {
+        const updates: any = {};
+        if (debouncedImplementationPlanForm.dueDate) updates.dueDate = new Date(debouncedImplementationPlanForm.dueDate).toISOString();
+        if (debouncedImplementationPlanForm.completedDate) updates.completedDate = new Date(debouncedImplementationPlanForm.completedDate).toISOString();
+        if (debouncedImplementationPlanForm.status) updates.status = debouncedImplementationPlanForm.status;
+        if (debouncedImplementationPlanForm.planContent) updates.planContent = debouncedImplementationPlanForm.planContent;
+        if (debouncedImplementationPlanForm.goals) updates.goals = debouncedImplementationPlanForm.goals;
+        if (debouncedImplementationPlanForm.activities) updates.activities = debouncedImplementationPlanForm.activities;
+        
+        if (Object.keys(updates).length > 0) {
+          updateImplementationPlanMutation.mutate(updates);
+          setImplementationPlanAutosaved(true);
+          setTimeout(() => setImplementationPlanAutosaved(false), 3000); // Hide after 3 seconds
+        }
+      }
+    }
+  }, [debouncedImplementationPlanForm, editingImplementationPlan, implementationPlan]);
 
   // Fetch staff list to resolve responsible staff name
   const { data: staffList = [] } = useQuery<Staff[]>({
@@ -164,7 +260,6 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(updates),
       });
       if (!response.ok) throw new Error("Kunde inte uppdatera vimsa tid");
       return response.json();
@@ -177,6 +272,58 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
     },
     onError: () => {
       toast({ title: "Fel vid uppdatering", variant: "destructive" });
+    },
+  });
+
+  // Mutation to update care plan
+  const updateCarePlanMutation = useMutation({
+    mutationFn: async (updates: any) => {
+      if (!carePlan) throw new Error("Ingen vårdplan att uppdatera");
+      
+      const response = await fetch(`/api/care-plans/${carePlan.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error("Kunde inte uppdatera vårdplan");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Vårdplan uppdaterad" });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/care-plans", client.id],
+      });
+      setEditingCarePlan(false);
+    },
+    onError: () => {
+      toast({ title: "Fel vid uppdatering av vårdplan", variant: "destructive" });
+    },
+  });
+
+  // Mutation to update implementation plan
+  const updateImplementationPlanMutation = useMutation({
+    mutationFn: async (updates: any) => {
+      if (!implementationPlan) throw new Error("Ingen genomförandeplan att uppdatera");
+      
+      const response = await fetch(`/api/implementation-plans/${implementationPlan.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error("Kunde inte uppdatera genomförandeplan");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Genomförandeplan uppdaterad" });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/implementation-plans", client.id],
+      });
+      setEditingImplementationPlan(false);
+    },
+    onError: () => {
+      toast({ title: "Fel vid uppdatering av genomförandeplan", variant: "destructive" });
     },
   });
 
@@ -220,6 +367,56 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
       updates.status = "completed";
     }
     updateMonthlyReportMutation.mutate({ id: editReport.id, updates });
+  };
+
+  // Handlers for care plan editing
+  const startEditCarePlan = () => {
+    if (carePlan) {
+      setCarePlanForm({
+        receivedDate: carePlan.receivedDate ? new Date(carePlan.receivedDate).toISOString().split('T')[0] : "",
+        enteredJournalDate: carePlan.enteredJournalDate ? new Date(carePlan.enteredJournalDate).toISOString().split('T')[0] : "",
+        staffNotifiedDate: carePlan.staffNotifiedDate ? new Date(carePlan.staffNotifiedDate).toISOString().split('T')[0] : "",
+        status: carePlan.status || "received"
+      });
+    }
+    setEditingCarePlan(true);
+  };
+
+  const saveCarePlan = () => {
+    const updates: any = {};
+    if (carePlanForm.receivedDate) updates.receivedDate = new Date(carePlanForm.receivedDate).toISOString();
+    if (carePlanForm.enteredJournalDate) updates.enteredJournalDate = new Date(carePlanForm.enteredJournalDate).toISOString();
+    if (carePlanForm.staffNotifiedDate) updates.staffNotifiedDate = new Date(carePlanForm.staffNotifiedDate).toISOString();
+    if (carePlanForm.status) updates.status = carePlanForm.status;
+    
+    updateCarePlanMutation.mutate(updates);
+  };
+
+  // Handlers for implementation plan editing
+  const startEditImplementationPlan = () => {
+    if (implementationPlan) {
+      setImplementationPlanForm({
+        dueDate: implementationPlan.dueDate ? new Date(implementationPlan.dueDate).toISOString().split('T')[0] : "",
+        completedDate: implementationPlan.completedDate ? new Date(implementationPlan.completedDate).toISOString().split('T')[0] : "",
+        status: implementationPlan.status || "pending",
+        planContent: implementationPlan.planContent || "",
+        goals: implementationPlan.goals || "",
+        activities: implementationPlan.activities || ""
+      });
+    }
+    setEditingImplementationPlan(true);
+  };
+
+  const saveImplementationPlan = () => {
+    const updates: any = {};
+    if (implementationPlanForm.dueDate) updates.dueDate = new Date(implementationPlanForm.dueDate).toISOString();
+    if (implementationPlanForm.completedDate) updates.completedDate = new Date(implementationPlanForm.completedDate).toISOString();
+    if (implementationPlanForm.status) updates.status = implementationPlanForm.status;
+    if (implementationPlanForm.planContent) updates.planContent = implementationPlanForm.planContent;
+    if (implementationPlanForm.goals) updates.goals = implementationPlanForm.goals;
+    if (implementationPlanForm.activities) updates.activities = implementationPlanForm.activities;
+    
+    updateImplementationPlanMutation.mutate(updates);
   };
 
   // Status helpers
@@ -393,10 +590,22 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
         <TabsContent value="careplan">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Vårdplan - {client.initials}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Vårdplan - {client.initials}
+                </CardTitle>
+                {!editingCarePlan && (
+                  <Button
+                    variant="outline"
+                    onClick={startEditCarePlan}
+                    className="border-ungdoms-200 text-ungdoms-700 hover:bg-ungdoms-50"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Redigera
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -407,14 +616,10 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </label>
                     <Input
                       type="date"
-                      value={
-                        carePlan?.receivedDate
-                          ? new Date(carePlan.receivedDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
+                      value={editingCarePlan ? carePlanForm.receivedDate : (carePlan?.receivedDate ? new Date(carePlan.receivedDate).toISOString().split("T")[0] : "")}
+                      onChange={(e) => editingCarePlan && setCarePlanForm(prev => ({ ...prev, receivedDate: e.target.value }))}
                       className="mt-1"
+                      disabled={!editingCarePlan}
                     />
                   </div>
                   <div>
@@ -423,14 +628,10 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </label>
                     <Input
                       type="date"
-                      value={
-                        carePlan?.enteredJournalDate
-                          ? new Date(carePlan.enteredJournalDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
+                      value={editingCarePlan ? carePlanForm.enteredJournalDate : (carePlan?.enteredJournalDate ? new Date(carePlan.enteredJournalDate).toISOString().split("T")[0] : "")}
+                      onChange={(e) => editingCarePlan && setCarePlanForm(prev => ({ ...prev, enteredJournalDate: e.target.value }))}
                       className="mt-1"
+                      disabled={!editingCarePlan}
                     />
                   </div>
                   <div>
@@ -439,14 +640,10 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </label>
                     <Input
                       type="date"
-                      value={
-                        carePlan?.staffNotifiedDate
-                          ? new Date(carePlan.staffNotifiedDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
+                      value={editingCarePlan ? carePlanForm.staffNotifiedDate : (carePlan?.staffNotifiedDate ? new Date(carePlan.staffNotifiedDate).toISOString().split("T")[0] : "")}
+                      onChange={(e) => editingCarePlan && setCarePlanForm(prev => ({ ...prev, staffNotifiedDate: e.target.value }))}
                       className="mt-1"
+                      disabled={!editingCarePlan}
                     />
                   </div>
                 </div>
@@ -466,20 +663,63 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
 
                 <div>
                   <label className="text-sm font-medium">Status</label>
-                  <Badge
-                    className={`mt-1 ${getStatusColor(
-                      carePlan?.status || "received"
-                    )}`}
-                  >
-                    {carePlan?.status === "received" && "Mottagen"}
-                    {carePlan?.status === "entered_journal" &&
-                      "Inlagd i journal"}
-                    {carePlan?.status === "staff_notified" &&
-                      "Personal tillsagd"}
-                    {carePlan?.status === "gfp_pending" && "Väntar på GFP"}
-                    {carePlan?.status === "completed" && "Slutförd"}
-                  </Badge>
+                  {editingCarePlan ? (
+                    <Select
+                      value={carePlanForm.status}
+                      onValueChange={(value) => setCarePlanForm(prev => ({ ...prev, status: value }))}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="received">Mottagen</SelectItem>
+                        <SelectItem value="entered_journal">Inlagd i journal</SelectItem>
+                        <SelectItem value="staff_notified">Personal tillsagd</SelectItem>
+                        <SelectItem value="gfp_pending">Väntar på GFP</SelectItem>
+                        <SelectItem value="completed">Slutförd</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge
+                      className={`mt-1 ${getStatusColor(
+                        carePlan?.status || "received"
+                      )}`}
+                    >
+                      {carePlan?.status === "received" && "Mottagen"}
+                      {carePlan?.status === "entered_journal" &&
+                        "Inlagd i journal"}
+                      {carePlan?.status === "staff_notified" &&
+                        "Personal tillsagd"}
+                      {carePlan?.status === "gfp_pending" && "Väntar på GFP"}
+                      {carePlan?.status === "completed" && "Slutförd"}
+                    </Badge>
+                  )}
                 </div>
+
+                {editingCarePlan && (
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      onClick={saveCarePlan}
+                      disabled={updateCarePlanMutation.isPending}
+                      className="bg-ungdoms-600 hover:bg-ungdoms-700 text-white"
+                    >
+                      {updateCarePlanMutation.isPending ? "Sparar..." : "Spara"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setEditingCarePlan(false)}
+                      disabled={updateCarePlanMutation.isPending}
+                    >
+                      Avbryt
+                    </Button>
+                    {carePlanAutosaved && (
+                      <div className="flex items-center text-sm text-green-600">
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Autosparad
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -500,7 +740,19 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </Badge>
                   )}
                 </CardTitle>
-                <SimpleImplementationPlanDialog clientId={client.id} />
+                <div className="flex gap-2">
+                  {!editingImplementationPlan && (
+                    <Button
+                      variant="outline"
+                      onClick={startEditImplementationPlan}
+                      className="border-ungdoms-200 text-ungdoms-700 hover:bg-ungdoms-50"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Redigera
+                    </Button>
+                  )}
+                  <SimpleImplementationPlanDialog clientId={client.id} />
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -513,15 +765,10 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                       </label>
                       <Input
                         type="date"
-                        value={
-                          implementationPlan?.dueDate
-                            ? new Date(implementationPlan.dueDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
+                        value={editingImplementationPlan ? implementationPlanForm.dueDate : (implementationPlan?.dueDate ? new Date(implementationPlan.dueDate).toISOString().split("T")[0] : "")}
+                        onChange={(e) => editingImplementationPlan && setImplementationPlanForm(prev => ({ ...prev, dueDate: e.target.value }))}
                         className="mt-1"
-                        disabled
+                        disabled={!editingImplementationPlan}
                       />
                     </div>
                     <div>
@@ -530,69 +777,115 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                       </label>
                       <Input
                         type="date"
-                        value={
-                          implementationPlan?.completedDate
-                            ? new Date(implementationPlan.completedDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
+                        value={editingImplementationPlan ? implementationPlanForm.completedDate : (implementationPlan?.completedDate ? new Date(implementationPlan.completedDate).toISOString().split("T")[0] : "")}
+                        onChange={(e) => editingImplementationPlan && setImplementationPlanForm(prev => ({ ...prev, completedDate: e.target.value }))}
                         className="mt-1"
-                        disabled
+                        disabled={!editingImplementationPlan}
                       />
                     </div>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium">Status</label>
-                    <Badge
-                      className={`mt-1 ${getStatusColor(
-                        implementationPlan?.status || "pending",
-                        isGfpOverdue()
-                      )}`}
-                    >
-                      {isGfpOverdue() &&
-                        implementationPlan?.status !== "completed" &&
-                        "FÖRSENAD - "}
-                      {implementationPlan?.status === "pending" && "Väntande"}
-                      {implementationPlan?.status === "in_progress" &&
-                        "Pågående"}
-                      {implementationPlan?.status === "completed" && "Slutförd"}
-                      {implementationPlan?.status === "sent" && "Skickad"}
-                    </Badge>
+                    {editingImplementationPlan ? (
+                      <Select
+                        value={implementationPlanForm.status}
+                        onValueChange={(value) => setImplementationPlanForm(prev => ({ ...prev, status: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Väntande</SelectItem>
+                          <SelectItem value="in_progress">Pågående</SelectItem>
+                          <SelectItem value="completed">Slutförd</SelectItem>
+                          <SelectItem value="sent">Skickad</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge
+                        className={`mt-1 ${getStatusColor(
+                          implementationPlan?.status || "pending",
+                          isGfpOverdue()
+                        )}`}
+                      >
+                        {isGfpOverdue() &&
+                          implementationPlan?.status !== "completed" &&
+                          "FÖRSENAD - "}
+                        {implementationPlan?.status === "pending" && "Väntande"}
+                        {implementationPlan?.status === "in_progress" &&
+                          "Pågående"}
+                        {implementationPlan?.status === "completed" && "Slutförd"}
+                        {implementationPlan?.status === "sent" && "Skickad"}
+                      </Badge>
+                    )}
                   </div>
 
-                  {implementationPlan?.planContent && (
-                    <div>
-                      <label className="text-sm font-medium">
-                        Planinnehåll
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.planContent}
-                        </p>
+                  {editingImplementationPlan ? (
+                    <>
+                      <div>
+                        <label className="text-sm font-medium">Planinnehåll</label>
+                        <Textarea
+                          value={implementationPlanForm.planContent}
+                          onChange={(e) => setImplementationPlanForm(prev => ({ ...prev, planContent: e.target.value }))}
+                          className="mt-1"
+                          placeholder="Beskriv planinnehållet..."
+                        />
                       </div>
-                    </div>
-                  )}
+                      <div>
+                        <label className="text-sm font-medium">Mål</label>
+                        <Textarea
+                          value={implementationPlanForm.goals}
+                          onChange={(e) => setImplementationPlanForm(prev => ({ ...prev, goals: e.target.value }))}
+                          className="mt-1"
+                          placeholder="Beskriv målen..."
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Aktiviteter</label>
+                        <Textarea
+                          value={implementationPlanForm.activities}
+                          onChange={(e) => setImplementationPlanForm(prev => ({ ...prev, activities: e.target.value }))}
+                          className="mt-1"
+                          placeholder="Beskriv aktiviteterna..."
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {implementationPlan?.planContent && (
+                        <div>
+                          <label className="text-sm font-medium">
+                            Planinnehåll
+                          </label>
+                          <div className="mt-1 p-3 bg-gray-50 rounded border">
+                            <p className="text-sm">
+                              {implementationPlan.planContent}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                  {implementationPlan?.goals && (
-                    <div>
-                      <label className="text-sm font-medium">Mål</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">{implementationPlan.goals}</p>
-                      </div>
-                    </div>
-                  )}
+                      {implementationPlan?.goals && (
+                        <div>
+                          <label className="text-sm font-medium">Mål</label>
+                          <div className="mt-1 p-3 bg-gray-50 rounded border">
+                            <p className="text-sm">{implementationPlan.goals}</p>
+                          </div>
+                        </div>
+                      )}
 
-                  {implementationPlan?.activities && (
-                    <div>
-                      <label className="text-sm font-medium">Aktiviteter</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.activities}
-                        </p>
-                      </div>
-                    </div>
+                      {implementationPlan?.activities && (
+                        <div>
+                          <label className="text-sm font-medium">Aktiviteter</label>
+                          <div className="mt-1 p-3 bg-gray-50 rounded border">
+                            <p className="text-sm">
+                              {implementationPlan.activities}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {implementationPlan?.completedDate && (
@@ -601,6 +894,31 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                         <CheckCircle className="h-4 w-4" />
                         GFP slutförd och godkänd
                       </p>
+                    </div>
+                  )}
+
+                  {editingImplementationPlan && (
+                    <div className="flex gap-2 pt-4">
+                      <Button
+                        onClick={saveImplementationPlan}
+                        disabled={updateImplementationPlanMutation.isPending}
+                        className="bg-ungdoms-600 hover:bg-ungdoms-700 text-white"
+                      >
+                        {updateImplementationPlanMutation.isPending ? "Sparar..." : "Spara"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingImplementationPlan(false)}
+                        disabled={updateImplementationPlanMutation.isPending}
+                      >
+                        Avbryt
+                      </Button>
+                      {implementationPlanAutosaved && (
+                        <div className="flex items-center text-sm text-green-600">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Autosparad
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

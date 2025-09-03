@@ -74,13 +74,22 @@ export function StaffSidebar({
   // Delete staff mutation
   const deleteStaffMutation = useMutation({
     mutationFn: (id: string) => api.deleteStaff(id),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
       setDeletingId(null);
-      toast({
-        title: "🗑️ Personal raderad",
-        description: "Personalen har raderats framgångsrikt.",
-      });
+      
+      // Show enhanced success message based on server response
+      if (response.reassignedClients && response.reassignedClients > 0) {
+        toast({
+          title: "🗑️ Personal raderad",
+          description: `${response.message}. ${response.note} (${response.reassignedClients} klienter påverkades).`,
+        });
+      } else {
+        toast({
+          title: "🗑️ Personal raderad",
+          description: response.message || "Personalen har raderats framgångsrikt.",
+        });
+      }
     },
     onError: (error) => {
       setDeletingId(null);
@@ -103,8 +112,19 @@ export function StaffSidebar({
 
   // Delete staff handler
   const handleDeleteStaff = async (id: string) => {
-    if (!window.confirm("Är du säker på att du vill ta bort denna personal?"))
-      return;
+    const staffMember = staff.find((s: any) => s.id === id);
+    if (!staffMember) return;
+
+    // Check if staff has clients
+    const hasClients = false; // This will be updated when we implement client checking
+    
+    let confirmMessage = `Är du säker på att du vill ta bort ${staffMember.name}?`;
+    if (hasClients) {
+      confirmMessage += `\n\nDenna personal har tilldelade klienter som kommer att sättas till status 'Oassignerad'.`;
+    }
+
+    if (!window.confirm(confirmMessage)) return;
+    
     deleteStaffMutation.mutate(id);
   };
 
