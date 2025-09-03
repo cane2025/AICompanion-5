@@ -38,6 +38,12 @@ export function StaffSidebar({
     queryFn: () => apiRequest("GET", "/api/staff").then((r) => r.json()),
   });
 
+  // Fetch all clients to calculate simple per-staff counts
+  const { data: allClients = [] } = useQuery({
+    queryKey: ["/api/clients/all"],
+    queryFn: () => apiRequest("GET", "/api/clients/all").then((r) => r.json()),
+  });
+
   // Use global search term if provided, otherwise use local filter
   const effectiveSearchTerm = searchTerm || filterTerm;
 
@@ -188,6 +194,9 @@ export function StaffSidebar({
             filteredStaff.map((staffMember: any) => {
               const initials = getInitials(staffMember.name);
               const isActive = activeView === `staff-${staffMember.id}`;
+              const clientCount = allClients.filter((c: any) => c.staffId === staffMember.id).length;
+              // Simple status dot: working if has any clients, otherwise idle
+              const isWorking = clientCount > 0;
               return (
                 <div key={staffMember.id} className="flex items-center gap-2">
                   <Button
@@ -202,12 +211,19 @@ export function StaffSidebar({
                       if (window.innerWidth < 1024) onClose();
                     }}
                   >
-                    <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                      <span className="text-gray-600 font-medium text-sm">
-                        {initials}
-                      </span>
+                    <div className="relative h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-gray-600 font-medium text-sm">{initials}</span>
+                      <span
+                        className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ${
+                          isWorking ? "bg-green-500" : "bg-gray-300"
+                        }`}
+                        title={isWorking ? "Arbetar" : "Ledig"}
+                      />
                     </div>
-                    <span className="font-medium">{staffMember.name}</span>
+                    <div className="flex-1 text-left">
+                      <span className="font-medium block">{staffMember.name}</span>
+                      <span className="text-xs text-gray-500">{clientCount} klienter</span>
+                    </div>
                   </Button>
                   <div className="relative">
                     <Button
