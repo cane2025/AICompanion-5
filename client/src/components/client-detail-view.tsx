@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   ImplementationPlanDialog,
   SimpleImplementationPlanDialog,
@@ -72,10 +73,12 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
   // Fetch all client-related data
   const { data: carePlan } = useQuery<CarePlan>({
     queryKey: ["/api/care-plans", client.id],
+    queryFn: () => api.getCarePlanByClient(client.id),
   });
 
   const { data: implementationPlan } = useQuery<ImplementationPlan>({
     queryKey: ["/api/implementation-plans", client.id],
+    queryFn: () => api.getImplementationPlanByClient(client.id),
   });
 
   const { data: weeklyDocs = [] } = useQuery<WeeklyDocumentation[]>({
@@ -89,6 +92,80 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
   const { data: vimsaTimeData = [] } = useQuery<VimsaTime[]>({
     queryKey: ["/api/vimsa-time", client.id],
   });
+
+  // Editable drafts + autosave for Care Plan and GFP
+  const [carePlanDraft, setCarePlanDraft] = useState<any | null>(null);
+  const [gfpDraft, setGfpDraft] = useState<any | null>(null);
+  const [cpHasChanges, setCpHasChanges] = useState(false);
+  const [gfpHasChanges, setGfpHasChanges] = useState(false);
+  const cpTimer = useRef<any>(null);
+  const gfpTimer = useRef<any>(null);
+  const [cpSavedAt, setCpSavedAt] = useState<string>("");
+  const [gfpSavedAt, setGfpSavedAt] = useState<string>("");
+
+  useEffect(() => {
+    if (carePlan) {
+      setCarePlanDraft({ ...carePlan });
+      setCpHasChanges(false);
+    }
+  }, [carePlan]);
+
+  useEffect(() => {
+    if (implementationPlan) {
+      setGfpDraft({ ...implementationPlan });
+      setGfpHasChanges(false);
+    }
+  }, [implementationPlan]);
+
+  function triggerCpAutosave() {
+    if (!carePlan || !carePlanDraft) return;
+    if (cpTimer.current) clearTimeout(cpTimer.current);
+    cpTimer.current = setTimeout(async () => {
+      try {
+        await api.updateCarePlan(carePlan.id, {
+          receivedDate: carePlanDraft.receivedDate ?? null,
+          enteredJournalDate: carePlanDraft.enteredJournalDate ?? null,
+          staffNotifiedDate: carePlanDraft.staffNotifiedDate ?? null,
+          status: carePlanDraft.status ?? "received",
+          planContent: carePlanDraft.planContent ?? "",
+          goals: carePlanDraft.goals ?? "",
+          interventions: carePlanDraft.interventions ?? "",
+          comment: carePlanDraft.comment ?? "",
+        });
+        setCpHasChanges(false);
+        setCpSavedAt("Sparad nyss");
+        queryClient.invalidateQueries({ queryKey: ["/api/care-plans", client.id] });
+        toast({ title: "Vårdplan sparad" });
+      } catch {
+        toast({ title: "Fel vid autospara", variant: "destructive" });
+      }
+    }, 800);
+  }
+
+  function triggerGfpAutosave() {
+    if (!implementationPlan || !gfpDraft) return;
+    if (gfpTimer.current) clearTimeout(gfpTimer.current);
+    gfpTimer.current = setTimeout(async () => {
+      try {
+        await api.updateImplementationPlan(implementationPlan.id, {
+          planContent: gfpDraft.planContent ?? "",
+          goals: gfpDraft.goals ?? "",
+          activities: gfpDraft.activities ?? "",
+          followUpSchedule: gfpDraft.followUpSchedule ?? "",
+          status: gfpDraft.status ?? "pending",
+          completedDate: gfpDraft.completedDate || null,
+          sentDate: gfpDraft.sentDate || null,
+          comments: gfpDraft.comments ?? "",
+        });
+        setGfpHasChanges(false);
+        setGfpSavedAt("Sparad nyss");
+        queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", client.id] });
+        toast({ title: "GFP sparad" });
+      } catch {
+        toast({ title: "Fel vid autospara", variant: "destructive" });
+      }
+    }, 800);
+  }
 
   // Mutation to update client's responsible staff
   const updateClientStaffMutation = useMutation({
@@ -408,13 +485,21 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     <Input
                       type="date"
                       value={
-                        carePlan?.receivedDate
-                          ? new Date(carePlan.receivedDate)
+                        carePlanDraft?.receivedDate
+                          ? new Date(carePlanDraft.receivedDate)
                               .toISOString()
                               .split("T")[0]
                           : ""
                       }
                       className="mt-1"
+                      onChange={(e) => {
+                        setCarePlanDraft((d: any) => ({
+                          ...d,
+                          receivedDate: e.target.value || null,
+                        }));
+                        setCpHasChanges(true);
+                        triggerCpAutosave();
+                      }}
                     />
                   </div>
                   <div>
@@ -424,13 +509,21 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     <Input
                       type="date"
                       value={
-                        carePlan?.enteredJournalDate
-                          ? new Date(carePlan.enteredJournalDate)
+                        carePlanDraft?.enteredJournalDate
+                          ? new Date(carePlanDraft.enteredJournalDate)
                               .toISOString()
                               .split("T")[0]
                           : ""
                       }
                       className="mt-1"
+                      onChange={(e) => {
+                        setCarePlanDraft((d: any) => ({
+                          ...d,
+                          enteredJournalDate: e.target.value || null,
+                        }));
+                        setCpHasChanges(true);
+                        triggerCpAutosave();
+                      }}
                     />
                   </div>
                   <div>
@@ -440,13 +533,21 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     <Input
                       type="date"
                       value={
-                        carePlan?.staffNotifiedDate
-                          ? new Date(carePlan.staffNotifiedDate)
+                        carePlanDraft?.staffNotifiedDate
+                          ? new Date(carePlanDraft.staffNotifiedDate)
                               .toISOString()
                               .split("T")[0]
                           : ""
                       }
                       className="mt-1"
+                      onChange={(e) => {
+                        setCarePlanDraft((d: any) => ({
+                          ...d,
+                          staffNotifiedDate: e.target.value || null,
+                        }));
+                        setCpHasChanges(true);
+                        triggerCpAutosave();
+                      }}
                     />
                   </div>
                 </div>
@@ -468,17 +569,81 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                   <label className="text-sm font-medium">Status</label>
                   <Badge
                     className={`mt-1 ${getStatusColor(
-                      carePlan?.status || "received"
+                      (carePlanDraft?.status as any) || "received"
                     )}`}
                   >
-                    {carePlan?.status === "received" && "Mottagen"}
-                    {carePlan?.status === "entered_journal" &&
+                    {carePlanDraft?.status === "received" && "Mottagen"}
+                    {carePlanDraft?.status === "entered_journal" &&
                       "Inlagd i journal"}
-                    {carePlan?.status === "staff_notified" &&
+                    {carePlanDraft?.status === "staff_notified" &&
                       "Personal tillsagd"}
-                    {carePlan?.status === "gfp_pending" && "Väntar på GFP"}
-                    {carePlan?.status === "completed" && "Slutförd"}
+                    {carePlanDraft?.status === "gfp_pending" && "Väntar på GFP"}
+                    {carePlanDraft?.status === "completed" && "Slutförd"}
                   </Badge>
+                  <div className="mt-2 flex items-center gap-3 flex-wrap">
+                    {cpHasChanges && (
+                      <span className="text-xs text-muted-foreground">Sparar...</span>
+                    )}
+                    {cpSavedAt && !cpHasChanges && (
+                      <span className="text-xs text-muted-foreground">{cpSavedAt}</span>
+                    )}
+                    {carePlan && (
+                      <Button
+                        size="sm"
+                        className="text-xs"
+                        onClick={async () => {
+                          try {
+                            await api.updateCarePlan(carePlan.id, {
+                              receivedDate: carePlanDraft?.receivedDate ?? null,
+                              enteredJournalDate:
+                                carePlanDraft?.enteredJournalDate ?? null,
+                              staffNotifiedDate:
+                                carePlanDraft?.staffNotifiedDate ?? null,
+                              status: carePlanDraft?.status ?? "received",
+                              planContent: carePlanDraft?.planContent ?? "",
+                              goals: carePlanDraft?.goals ?? "",
+                              interventions: carePlanDraft?.interventions ?? "",
+                              comment: carePlanDraft?.comment ?? "",
+                            });
+                            setCpHasChanges(false);
+                            setCpSavedAt("Sparad nyss");
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/care-plans", client.id],
+                            });
+                            toast({ title: "Vårdplan sparad" });
+                          } catch {
+                            toast({
+                              title: "Fel vid sparande",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
+                        Spara
+                      </Button>
+                    )}
+                    {carePlan && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs text-red-600"
+                        onClick={async () => {
+                          if (!window.confirm("Ta bort vårdplanen?")) return;
+                          try {
+                            await api.deleteCarePlan(carePlan.id);
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/care-plans", client.id],
+                            });
+                            toast({ title: "Vårdplan raderad" });
+                          } catch {
+                            toast({ title: "Fel vid radering", variant: "destructive" });
+                          }
+                        }}
+                      >
+                        Ta bort
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -514,14 +679,18 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                       <Input
                         type="date"
                         value={
-                          implementationPlan?.dueDate
-                            ? new Date(implementationPlan.dueDate)
+                          gfpDraft?.dueDate
+                            ? new Date(gfpDraft.dueDate)
                                 .toISOString()
                                 .split("T")[0]
                             : ""
                         }
                         className="mt-1"
-                        disabled
+                        onChange={(e) => {
+                          setGfpDraft((d: any) => ({ ...d, dueDate: e.target.value || null }));
+                          setGfpHasChanges(true);
+                          triggerGfpAutosave();
+                        }}
                       />
                     </div>
                     <div>
@@ -531,14 +700,18 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                       <Input
                         type="date"
                         value={
-                          implementationPlan?.completedDate
-                            ? new Date(implementationPlan.completedDate)
+                          gfpDraft?.completedDate
+                            ? new Date(gfpDraft.completedDate)
                                 .toISOString()
                                 .split("T")[0]
                             : ""
                         }
                         className="mt-1"
-                        disabled
+                        onChange={(e) => {
+                          setGfpDraft((d: any) => ({ ...d, completedDate: e.target.value || null }));
+                          setGfpHasChanges(true);
+                          triggerGfpAutosave();
+                        }}
                       />
                     </div>
                   </div>
@@ -547,55 +720,69 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     <label className="text-sm font-medium">Status</label>
                     <Badge
                       className={`mt-1 ${getStatusColor(
-                        implementationPlan?.status || "pending",
+                        (gfpDraft?.status as any) || "pending",
                         isGfpOverdue()
                       )}`}
                     >
                       {isGfpOverdue() &&
-                        implementationPlan?.status !== "completed" &&
+                        gfpDraft?.status !== "completed" &&
                         "FÖRSENAD - "}
-                      {implementationPlan?.status === "pending" && "Väntande"}
-                      {implementationPlan?.status === "in_progress" &&
+                      {gfpDraft?.status === "pending" && "Väntande"}
+                      {gfpDraft?.status === "in_progress" &&
                         "Pågående"}
-                      {implementationPlan?.status === "completed" && "Slutförd"}
-                      {implementationPlan?.status === "sent" && "Skickad"}
+                      {gfpDraft?.status === "completed" && "Slutförd"}
+                      {gfpDraft?.status === "sent" && "Skickad"}
                     </Badge>
                   </div>
 
-                  {implementationPlan?.planContent && (
+                  {gfpDraft && (
                     <div>
                       <label className="text-sm font-medium">
                         Planinnehåll
                       </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.planContent}
-                        </p>
-                      </div>
+                      <Textarea
+                        className="mt-1"
+                        value={gfpDraft.planContent || ""}
+                        onChange={(e) => {
+                          setGfpDraft((d: any) => ({ ...d, planContent: e.target.value }));
+                          setGfpHasChanges(true);
+                          triggerGfpAutosave();
+                        }}
+                      />
                     </div>
                   )}
 
-                  {implementationPlan?.goals && (
+                  {gfpDraft && (
                     <div>
                       <label className="text-sm font-medium">Mål</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">{implementationPlan.goals}</p>
-                      </div>
+                      <Textarea
+                        className="mt-1"
+                        value={gfpDraft.goals || ""}
+                        onChange={(e) => {
+                          setGfpDraft((d: any) => ({ ...d, goals: e.target.value }));
+                          setGfpHasChanges(true);
+                          triggerGfpAutosave();
+                        }}
+                      />
                     </div>
                   )}
 
-                  {implementationPlan?.activities && (
+                  {gfpDraft && (
                     <div>
                       <label className="text-sm font-medium">Aktiviteter</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.activities}
-                        </p>
-                      </div>
+                      <Textarea
+                        className="mt-1"
+                        value={gfpDraft.activities || ""}
+                        onChange={(e) => {
+                          setGfpDraft((d: any) => ({ ...d, activities: e.target.value }));
+                          setGfpHasChanges(true);
+                          triggerGfpAutosave();
+                        }}
+                      />
                     </div>
                   )}
 
-                  {implementationPlan?.completedDate && (
+                  {gfpDraft?.completedDate && (
                     <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                       <p className="text-sm text-green-800 flex items-center gap-2">
                         <CheckCircle className="h-4 w-4" />
@@ -603,6 +790,81 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                       </p>
                     </div>
                   )}
+
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {gfpHasChanges && (
+                      <span className="text-xs text-muted-foreground">Sparar...</span>
+                    )}
+                    {gfpSavedAt && !gfpHasChanges && (
+                      <span className="text-xs text-muted-foreground">{gfpSavedAt}</span>
+                    )}
+                    {implementationPlan && (
+                      <>
+                        <Button
+                          size="sm"
+                          className="text-xs"
+                          onClick={async () => {
+                            try {
+                              await api.updateImplementationPlan(
+                                implementationPlan.id,
+                                {
+                                  planContent: gfpDraft?.planContent ?? "",
+                                  goals: gfpDraft?.goals ?? "",
+                                  activities: gfpDraft?.activities ?? "",
+                                  followUpSchedule:
+                                    gfpDraft?.followUpSchedule ?? "",
+                                  status: gfpDraft?.status ?? "pending",
+                                  completedDate: gfpDraft?.completedDate || null,
+                                  sentDate: gfpDraft?.sentDate || null,
+                                  comments: gfpDraft?.comments ?? "",
+                                }
+                              );
+                              setGfpHasChanges(false);
+                              setGfpSavedAt("Sparad nyss");
+                              queryClient.invalidateQueries({
+                                queryKey: ["/api/implementation-plans", client.id],
+                              });
+                              toast({ title: "GFP sparad" });
+                            } catch {
+                              toast({
+                                title: "Fel vid sparande",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Spara
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs text-red-600"
+                          onClick={async () => {
+                            if (!window.confirm("Ta bort GFP?")) return;
+                            try {
+                              await api.deleteImplementationPlan(
+                                implementationPlan.id
+                              );
+                              queryClient.invalidateQueries({
+                                queryKey: [
+                                  "/api/implementation-plans",
+                                  client.id,
+                                ],
+                              });
+                              toast({ title: "GFP raderad" });
+                            } catch {
+                              toast({
+                                title: "Fel vid radering",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Radera
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
