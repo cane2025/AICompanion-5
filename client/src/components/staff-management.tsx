@@ -266,100 +266,102 @@ export function StaffManagement() {
   }
 
   return (
-    <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Personalhantering</CardTitle>
-              <CardDescription>
-                Lägg till, redigera och hantera personal i systemet.
-              </CardDescription>
+    <>
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Personalhantering</CardTitle>
+                <CardDescription>
+                  Lägg till, redigera och hantera personal i systemet.
+                </CardDescription>
+              </div>
+              <DialogTrigger asChild>
+                <Button onClick={handleAddNew}>
+                  <UserPlus className="mr-2 h-4 w-4" /> Lägg till ny personal
+                </Button>
+              </DialogTrigger>
             </div>
-            <DialogTrigger asChild>
-              <Button onClick={handleAddNew}>
-                <UserPlus className="mr-2 h-4 w-4" /> Lägg till ny personal
-              </Button>
-            </DialogTrigger>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <h3 className="text-lg font-semibold mb-2">
-            Personal ({staff?.length || 0})
-          </h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Namn</TableHead>
-                <TableHead>Initialer</TableHead>
-                <TableHead className="text-right">Åtgärder</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {staff?.map((staffMember) => (
-                <TableRow key={staffMember.id}>
-                  <TableCell className="font-medium">
-                    {staffMember.name}
-                  </TableCell>
-                  <TableCell>{staffMember.initials}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(staffMember)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteClick(staffMember)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
+          </CardHeader>
+          <CardContent>
+            <h3 className="text-lg font-semibold mb-2">
+              Personal ({staff?.length || 0})
+            </h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Namn</TableHead>
+                  <TableHead>Initialer</TableHead>
+                  <TableHead className="text-right">Åtgärder</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {selectedStaff ? "Redigera personal" : "Skapa ny personal"}
-          </DialogTitle>
-        </DialogHeader>
-        <StaffForm
-          staffMember={selectedStaff}
-          onClose={() => setIsFormOpen(false)}
-        />
-      </DialogContent>
-    </Dialog>
+              </TableHeader>
+              <TableBody>
+                {staff?.map((staffMember) => (
+                  <TableRow key={staffMember.id}>
+                    <TableCell className="font-medium">
+                      {staffMember.name}
+                    </TableCell>
+                    <TableCell>{staffMember.initials}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(staffMember)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClick(staffMember)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedStaff ? "Redigera personal" : "Skapa ny personal"}
+            </DialogTitle>
+          </DialogHeader>
+          <StaffForm
+            staffMember={selectedStaff}
+            onClose={() => setIsFormOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
-    <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
-          <AlertDialogDescription>
-            Är du säker på att du vill ta bort <strong>{staffToDelete?.name}</strong>?
-            {staff && staff.some(s => s.id === staffToDelete?.id) && (
-              <>
-                <br /><br />
-                <strong>OBS:</strong> Om denna personal är ansvarig för klienter eller planer, 
-                kommer de att sättas som "Oassignerad" efter borttagning.
-              </>
-            )}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Avbryt</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDeleteConfirm}>
-            Ta bort
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+            <AlertDialogDescription>
+              Är du säker på att du vill ta bort <strong>{staffToDelete?.name}</strong>?
+              {staff && staff.some(s => s.id === staffToDelete?.id) && (
+                <>
+                  <br /><br />
+                  <strong>OBS:</strong> Om denna personal är ansvarig för klienter eller planer, 
+                  kommer de att sättas som "Oassignerad" efter borttagning.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
