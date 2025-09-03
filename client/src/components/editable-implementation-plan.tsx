@@ -39,6 +39,7 @@ import { Calendar, Save, Trash2, Edit, X, Check, AlertTriangle } from "lucide-re
 import * as api from "@/lib/api";
 import { ImplementationPlan, Staff } from "@shared/schema";
 import { useDebounce } from "@/hooks/use-debounce";
+import { IMPLEMENTATION_PLAN_STATUSES, type ImplementationPlanStatus } from "@/types/status";
 
 const implementationPlanSchema = z.object({
   planContent: z.string().optional(),
@@ -105,7 +106,7 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as ImplementationPlanStatus) || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
         dueDate: implementationPlan.dueDate || "",
@@ -239,7 +240,7 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as ImplementationPlanStatus) || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
         dueDate: implementationPlan.dueDate || "",
