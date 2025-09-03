@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/header";
 import { StaffSidebar } from "@/components/staff-sidebar";
 import { Dashboard } from "@/pages/dashboard";
+import { ModernDashboard } from "@/pages/modern-dashboard";
 import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
 import { LoginForm } from "@/components/login-form";
@@ -143,7 +144,7 @@ function MainApp() {
             </div>
 
             {activeView === "dashboard" ? (
-              <Dashboard />
+              <ModernDashboard />
             ) : activeStaff ? (
               <div className="space-y-6">
                 <div className="bg-ungdoms-50 rounded-lg p-4 border border-ungdoms-200">
