@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
-import { useSaveData } from "@/hooks/use-save-data";
+import { Calendar, CheckCircle, AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import * as api from "@/lib/api";
 import type { Client, ImplementationPlan } from "@shared/schema";
 
 interface FunctionalGfpFormProps {
@@ -21,7 +22,8 @@ interface FunctionalGfpFormProps {
 }
 
 export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
-  const { saveData, isLoading: isSaving } = useSaveData("gfp-endpoint");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -53,6 +55,37 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
         return response.json();
       },
     });
+
+  // Save mutation
+  const saveGfpMutation = useMutation({
+    mutationFn: async (data: any) => {
+      if (implementationPlan?.id) {
+        return api.updateImplementationPlan(implementationPlan.id, data);
+      } else {
+        return api.createImplementationPlan({ ...data, clientId: client.id, staffId: client.staffId });
+      }
+    },
+    onSuccess: () => {
+      toast({ title: "✅ GFP sparad", description: "Genomförandeplanen har uppdaterats framgångsrikt." });
+      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", client.id] });
+      setHasChanges(false);
+    },
+    onError: (error) => {
+      toast({ title: "❌ Fel vid sparning", description: `Kunde inte spara GFP: ${error.message}`, variant: "destructive" });
+    },
+  });
+
+  // Delete mutation
+  const deleteGfpMutation = useMutation({
+    mutationFn: (id: string) => api.deleteImplementationPlan(id),
+    onSuccess: () => {
+      toast({ title: "🗑️ GFP raderad", description: "Genomförandeplanen har raderats framgångsrikt." });
+      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", client.id] });
+    },
+    onError: (error) => {
+      toast({ title: "❌ Fel vid radering", description: `Kunde inte radera GFP: ${error.message}`, variant: "destructive" });
+    },
+  });
 
   // Update form when data loads
   useEffect(() => {
@@ -103,7 +136,11 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
   const handleSave = () => {
     const errors = validateForm();
     if (errors.length > 0) {
-      alert("Valideringsfel:\n" + errors.join("\n"));
+      toast({
+        title: "⚠️ Kontrollera formuläret",
+        description: "Alla obligatoriska fält måste fyllas i korrekt: " + errors.join(", "),
+        variant: "destructive",
+      });
       return;
     }
 
@@ -117,10 +154,14 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
       sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
     };
 
-    // Persist via generic save hook (simplified; real implementation might differentiate POST/PUT)
-    saveData(dataToSave);
+    saveGfpMutation.mutate(dataToSave);
+  };
 
-    setHasChanges(false);
+  // Delete function
+  const handleDelete = () => {
+    if (!implementationPlan?.id) return;
+    if (!window.confirm("Är du säker på att du vill ta bort genomförandeplanen?")) return;
+    deleteGfpMutation.mutate(implementationPlan.id);
   };
 
   // Status color helper
@@ -153,15 +194,45 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Genomförandeplan (GFP) - {client.initials}
-          {hasChanges && (
-            <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-              Osparade ändringar
-            </Badge>
-          )}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Genomförandeplan (GFP) - {client.initials}
+            {hasChanges && (
+              <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                Osparade ändringar
+              </Badge>
+            )}
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSave}
+              disabled={saveGfpMutation.isPending || !hasChanges}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {saveGfpMutation.isPending ? "Sparar..." : "Spara"}
+            </Button>
+            {implementationPlan && (
+              <Button
+                onClick={handleDelete}
+                disabled={deleteGfpMutation.isPending}
+                variant="destructive"
+              >
+                {deleteGfpMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Raderar...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Radera
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -304,21 +375,7 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
             </div>
           </div>
 
-          {/* Save Button */}
-          <Button
-            onClick={handleSave}
-            disabled={isSaving || !hasChanges}
-            className="w-full"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Sparar...
-              </>
-            ) : (
-              "Spara genomförandeplan"
-            )}
-          </Button>
+
 
           {/* Success Message */}
           {formData.status === "completed" && (

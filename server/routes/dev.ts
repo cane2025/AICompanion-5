@@ -60,6 +60,27 @@ devRoutes.post("/staff", (req, res) => {
   return res.status(201).json(item);
 });
 
+devRoutes.delete("/staff/:id", (req, res) => {
+  const idx = (store.staff ?? []).findIndex(
+    (s: any) => s.id === req.params.id
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  
+  // Check for related clients and update them
+  if (store.clients) {
+    store.clients.forEach((client: any) => {
+      if (client.staffId === req.params.id) {
+        client.staffId = "unassigned";
+        client.updatedAt = new Date().toISOString();
+      }
+    });
+  }
+  
+  store.staff.splice(idx, 1);
+  persist();
+  return res.status(204).end();
+});
+
 // === CLIENTS ===
 devRoutes.get("/clients/all", (_req, res) => {
   return res.json(store.clients ?? []);
@@ -172,6 +193,16 @@ devRoutes.put("/care-plans/:id", (req, res) => {
   return res.json(store.carePlans[idx]);
 });
 
+devRoutes.delete("/care-plans/:id", (req, res) => {
+  const idx = (store.carePlans ?? []).findIndex(
+    (p: any) => p.id === req.params.id
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  store.carePlans.splice(idx, 1);
+  persist();
+  return res.status(204).end();
+});
+
 // === IMPLEMENTATION PLANS (administrativ) ===
 devRoutes.get("/implementation-plans/all", (_req, res) => {
   return res.json(store.implementationPlans ?? []);
@@ -225,6 +256,16 @@ devRoutes.put("/implementation-plans/:id", (req, res) => {
   };
   persist();
   return res.json(store.implementationPlans[idx]);
+});
+
+devRoutes.delete("/implementation-plans/:id", (req, res) => {
+  const idx = (store.implementationPlans ?? []).findIndex(
+    (p: any) => p.id === req.params.id
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  store.implementationPlans.splice(idx, 1);
+  persist();
+  return res.status(204).end();
 });
 
 // === WEEKLY DOCS (inkl. lör/sön) ===
