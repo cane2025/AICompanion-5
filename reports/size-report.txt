@@ -1,0 +1,126 @@
+=== UNGDOMS Öppenvård - Repo Size Analysis ===
+Date: Fri Aug 22 22:45:01 CEST 2025
+
+=== TOTAL PROJECT SIZE (excluding node_modules/.git) ===
+1.8G	.
+=== TOTAL PROJECT SIZE (excluding node_modules/.git) ===
+1.8G	.
+
+=== TOP-LEVEL DIRECTORIES ===
+  0B	./debug-staff.js
+4.0K	./build.sh
+4.0K	./cloudflared
+4.0K	./components.json
+4.0K	./cookies.txt
+4.0K	./create-admin.js
+4.0K	./debug-script.sh
+4.0K	./deploy.json
+4.0K	./deploy.sh
+4.0K	./DEPLOYMENT.md
+4.0K	./Dockerfile
+4.0K	./drizzle.config.ts
+4.0K	./eslint.config.js
+4.0K	./INSTALLATION.md
+4.0K	./package.json
+4.0K	./postcss.config.js
+4.0K	./PR_DESCRIPTION_TO_COPY.md
+4.0K	./replit.toml
+4.0K	./reports
+4.0K	./SECURITY_REPORT.md
+4.0K	./server.log
+4.0K	./start-dev.sh
+4.0K	./tailwind.config.ts
+4.0K	./test-report-2025-08-21T13-18-17-182Z.json
+4.0K	./test-report-2025-08-21T13-19-18-278Z.json
+4.0K	./test-report-2025-08-21T13-25-23-449Z.json
+4.0K	./test-results-20250821-150809.json
+4.0K	./test-results-20250821-150920.json
+4.0K	./test-results-20250821-150944.json
+4.0K	./test-results-20250821-151428.json
+4.0K	./test-server.js
+4.0K	./tsconfig.json
+4.0K	./tsconfig.server.json
+4.0K	./vite.config.ts
+4.0K	./vitest.config.ts
+4.0K	./wrap-agent-config.md
+8.0K	./FINAL_REPORT.md
+8.0K	./FIX_REPORT.md
+8.0K	./PR_DESCRIPTION.md
+8.0K	./README.md
+8.0K	./replit.md
+8.0K	./scripts
+8.0K	./test-smoke.js
+8.0K	./TROUBLESHOOTING.md
+ 12K	./ai-agent-test.sh
+ 12K	./src
+ 12K	./test-api-comprehensive.js
+ 12K	./UI_FIX_REPORT.md
+ 16K	./ai-agent-test.js
+ 16K	./AICompanion-5-Complete.html
+ 16K	./debug-report.txt
+ 16K	./shared
+ 28K	./tests
+100K	./attached_assets
+200K	./server
+288K	./package-lock.json
+388K	./hint-report
+1.0M	./client
+3.1M	./dist
+ 19M	./cloudflared.deb
+460M	./uppfoljningssystem
+566M	./AICompanion-5-complete
+
+=== 50 LARGEST FILES ===
+-rw-r--r--@ 1 mirzacelik  staff   4.3M Aug  8 15:37 ./uppfoljningssystem/node_modules/tailwindcss/peers/index.js
+-rw-r--r--  1 mirzacelik  staff   4.9M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/react-icons/si/index.js
+-rw-r--r--  1 mirzacelik  staff   4.9M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/react-icons/si/index.mjs
+-rw-r--r--@ 1 mirzacelik  staff   4.9M Aug  8 15:37 ./uppfoljningssystem/node_modules/react-icons/si/index.js
+-rw-r--r--@ 1 mirzacelik  staff   4.9M Aug  8 15:37 ./uppfoljningssystem/node_modules/react-icons/si/index.mjs
+-rw-r--r--  1 mirzacelik  staff   5.4M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/react-icons/pi/index.mjs
+-rw-r--r--@ 1 mirzacelik  staff   5.4M Aug  8 15:37 ./uppfoljningssystem/node_modules/react-icons/pi/index.mjs
+-rw-r--r--  1 mirzacelik  staff   5.6M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/react-icons/pi/index.js
+-rw-r--r--@ 1 mirzacelik  staff   5.6M Aug  8 15:37 ./uppfoljningssystem/node_modules/react-icons/pi/index.js
+-rw-r--r--  1 mirzacelik  staff   5.8M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/typescript/lib/tsc.js
+-rw-r--r--@ 1 mirzacelik  staff   5.8M Aug  7 13:07 ./uppfoljningssystem/uppfoljningssystem-backup.zip
+-rw-r--r--@ 1 mirzacelik  staff   5.8M Aug  8 15:37 ./uppfoljningssystem/node_modules/typescript/lib/tsc.js
+-rw-r--r--  1 mirzacelik  staff   6.6M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/react-icons/gi/index.mjs
+-rw-r--r--@ 1 mirzacelik  staff   6.6M Aug  8 15:37 ./uppfoljningssystem/node_modules/react-icons/gi/index.mjs
+-rw-r--r--  1 mirzacelik  staff   6.7M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/react-icons/gi/index.js
+-rw-r--r--@ 1 mirzacelik  staff   6.7M Aug  8 15:37 ./uppfoljningssystem/node_modules/react-icons/gi/index.js
+-rw-r--r--  1 mirzacelik  staff   7.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/lightningcss-darwin-arm64/lightningcss.darwin-arm64.node
+-rw-r--r--@ 1 mirzacelik  staff   7.3M Aug  8 15:37 ./uppfoljningssystem/node_modules/lightningcss-darwin-arm64/lightningcss.darwin-arm64.node
+-rw-r--r--  1 mirzacelik  staff   8.5M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/typescript/lib/typescript.js
+-rw-r--r--@ 1 mirzacelik  staff   8.5M Aug  8 15:37 ./uppfoljningssystem/node_modules/typescript/lib/typescript.js
+-rwxr-xr-x  1 mirzacelik  staff   9.1M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/@esbuild-kit/core-utils/node_modules/.bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.1M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.1M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/@esbuild-kit/core-utils/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.1M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/tsx/node_modules/.bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.1M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/tsx/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.1M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/tsx/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.1M Aug  8 15:37 ./uppfoljningssystem/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.1M Aug  8 15:37 ./uppfoljningssystem/node_modules/@esbuild-kit/core-utils/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.1M Aug  8 15:37 ./uppfoljningssystem/node_modules/tsx/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.1M Aug  8 15:37 ./uppfoljningssystem/node_modules/tsx/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/.bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/drizzle-kit/node_modules/.bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/drizzle-kit/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/drizzle-kit/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.3M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.3M Aug  8 15:37 ./uppfoljningssystem/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.3M Aug  8 15:37 ./uppfoljningssystem/node_modules/drizzle-kit/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.3M Aug  8 15:37 ./uppfoljningssystem/node_modules/drizzle-kit/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.3M Aug  8 15:37 ./uppfoljningssystem/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.4M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/vite/node_modules/.bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.4M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/vite/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x  1 mirzacelik  staff   9.4M Aug  8 15:37 ./AICompanion-5-complete/uppfoljningssystem/node_modules/vite/node_modules/esbuild/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.4M Aug  8 15:37 ./uppfoljningssystem/node_modules/vite/node_modules/@esbuild/darwin-arm64/bin/esbuild
+-rwxr-xr-x@ 2 mirzacelik  staff   9.4M Aug  8 15:37 ./uppfoljningssystem/node_modules/vite/node_modules/esbuild/bin/esbuild
+-rw-r--r--  1 mirzacelik  staff    15M Aug 16 19:23 ./uppfoljningssystem/uppfoljningssystem-review.zip
+-r--r--r--  1 mirzacelik  staff    16M Aug  8 00:28 ./AICompanion-5-complete/uppfoljningssystem/.git/objects/pack/pack-c7efdf1ab4cbfdf0ce233eb6e81bd88ab542b8a1.pack
+-r--r--r--@ 1 mirzacelik  staff    16M Aug  8 00:28 ./uppfoljningssystem/.git/objects/pack/pack-c7efdf1ab4cbfdf0ce233eb6e81bd88ab542b8a1.pack
+-rw-r--r--@ 1 mirzacelik  staff    19M Aug 21 11:39 ./AICompanion-5-complete/cloudflared.deb
+-rw-r--r--@ 1 mirzacelik  staff    19M Aug 21 11:39 ./cloudflared.deb
+=== FINAL SIZE AFTER CLEANUP ===
+708M	.
+

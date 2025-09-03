@@ -8,11 +8,13 @@ import { StaffStatistics } from "@/components/staff-statistics";
 import { DataOverview } from "@/components/data-overview";
 import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
-import { SimpleWorkingCarePlan } from "@/components/simple-working-care-plan";
+// Removed form-centric quickstart from dashboard in favor of overview widgets
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";
 import { VimsaTimeDialog } from "@/components/vimsa-time-dialog";
 import { StaffManagement } from "@/components/staff-management";
+import { TodaysFocus } from "@/components/todays-focus";
+import { RecentActivity } from "@/components/recent-activity";
 import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 import {
   Users,
@@ -94,38 +96,10 @@ export function Dashboard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <CarePlanDialog
-              trigger={
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Skapa Vårdplan
-                </Button>
-              }
-            />
-            <WeeklyDocumentationDialog
-              trigger={
-                <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Veckodokumentation
-                </Button>
-              }
-            />
-            <MonthlyReportDialog
-              trigger={
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Månadsrapport
-                </Button>
-              }
-            />
-            <VimsaTimeDialog
-              trigger={
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  <Clock className="h-4 w-4 mr-2" />
-                  Vimsa Tid
-                </Button>
-              }
-            />
+            <CarePlanDialog trigger={<Button className="bg-blue-600 hover:bg-blue-700 text-white"><FileText className="h-4 w-4 mr-2" />Skapa Vårdplan</Button>} />
+            <WeeklyDocumentationDialog trigger={<Button className="bg-orange-600 hover:bg-orange-700 text-white"><FileText className="h-4 w-4 mr-2" />Veckodokumentation</Button>} />
+            <MonthlyReportDialog trigger={<Button className="bg-green-600 hover:bg-green-700 text-white"><Calendar className="h-4 w-4 mr-2" />Månadsrapport</Button>} />
+            <VimsaTimeDialog trigger={<Button className="bg-purple-600 hover:bg-purple-700 text-white"><Clock className="h-4 w-4 mr-2" />Vimsa Tid</Button>} />
           </div>
         </div>
       </div>
@@ -142,46 +116,10 @@ export function Dashboard() {
 
         <TabsContent value="vardplan">
           <div className="py-8">
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-ungdoms-800 mb-4">
-                Vårdplan - Snabbstart
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <CarePlanDialog
-                  trigger={
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-20 flex flex-col items-center justify-center">
-                      <FileText className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Skapa Vårdplan</span>
-                    </Button>
-                  }
-                />
-                <WeeklyDocumentationDialog
-                  trigger={
-                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white h-20 flex flex-col items-center justify-center">
-                      <FileText className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Veckodokumentation</span>
-                    </Button>
-                  }
-                />
-                <MonthlyReportDialog
-                  trigger={
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white h-20 flex flex-col items-center justify-center">
-                      <Calendar className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Månadsrapport</span>
-                    </Button>
-                  }
-                />
-                <VimsaTimeDialog
-                  trigger={
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white h-20 flex flex-col items-center justify-center">
-                      <Clock className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Vimsa Tid</span>
-                    </Button>
-                  }
-                />
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TodaysFocus staff={staff} />
+              <RecentActivity />
             </div>
-            <SimpleWorkingCarePlan />
           </div>
         </TabsContent>
 

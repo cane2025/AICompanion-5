@@ -67,6 +67,10 @@ export function Header({ onSidebarToggle, onExport, searchTerm, onSearchChange }
               />
               <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
+            {/* Feature flag indicator (runtime) */}
+            <span className="hidden text-xs text-gray-400" title="UI flag">
+              {(window as any).__UI_CAREPLAN_COMPACT__ ? "Compact" : "Classic"}
+            </span>
             
             {/* Export Button */}
             <Button 

@@ -36,6 +36,22 @@ import type { Staff, Client } from "@shared/schema";
 import React from "react";
 import * as api from "@/lib/api";
 
+// Utility function for consistent numeric input validation
+const validateNumericInput = (
+  value: string,
+  min: number,
+  max: number
+): number | null => {
+  if (value === "" || isNaN(parseInt(value))) {
+    return null;
+  }
+  const numValue = parseInt(value);
+  if (numValue >= min && numValue <= max) {
+    return numValue;
+  }
+  return null;
+};
+
 const vimsaTimeSchema = z.object({
   clientId: z.string().min(1, "Klient måste väljas"),
   staffId: z.string().min(1, "Personal måste väljas"),

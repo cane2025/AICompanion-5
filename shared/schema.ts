@@ -1,11 +1,20 @@
-import { pgTable, varchar, text, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  varchar,
+  text,
+  integer,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Users table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   username: varchar("username").notNull().unique(),
   email: varchar("email").notNull().unique(),
   passwordHash: varchar("password_hash").notNull(),
@@ -17,8 +26,16 @@ export const users = pgTable("users", {
 
 // Staff table
 export const staff = pgTable("staff", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+<<<<<<< Current (Your changes)
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
+=======
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(), // Display name (exactly as shown in UI)
+  fullName: varchar("full_name"), // Internal name for logic (trimmed)
+>>>>>>> Incoming (Background Agent changes)
   initials: varchar("initials").notNull(),
   personnummer: varchar("personnummer").default(""),
   telefon: varchar("telefon").default(""),
@@ -34,7 +51,9 @@ export const staff = pgTable("staff", {
 
 // Clients table
 export const clients = pgTable("clients", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   initials: varchar("initials").notNull(),
   staffId: varchar("staff_id").notNull(),
   personalNumber: varchar("personal_number").default(""),
@@ -47,7 +66,9 @@ export const clients = pgTable("clients", {
 
 // Weekly documentation
 export const weeklyDocumentation = pgTable("weekly_documentation", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").notNull(),
   staffId: varchar("staff_id").notNull(),
   year: integer("year").notNull(),
@@ -77,7 +98,9 @@ export const weeklyDocumentation = pgTable("weekly_documentation", {
 
 // Monthly reports
 export const monthlyReports = pgTable("monthly_reports", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").notNull(),
   staffId: varchar("staff_id").notNull(),
   year: integer("year").notNull(),
@@ -94,7 +117,9 @@ export const monthlyReports = pgTable("monthly_reports", {
 
 // Care plans
 export const carePlans = pgTable("care_plans", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").notNull(),
   staffId: varchar("staff_id").notNull(),
   responsibleId: varchar("responsible_id"), // optional responsible staff separate from creator
@@ -114,7 +139,9 @@ export const carePlans = pgTable("care_plans", {
 
 // Implementation plans (GFP)
 export const implementationPlans = pgTable("implementation_plans", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").notNull(),
   staffId: varchar("staff_id").notNull(),
   carePlanId: varchar("care_plan_id"),
@@ -139,7 +166,9 @@ export const implementationPlans = pgTable("implementation_plans", {
 
 // Vimsa time tracking
 export const vimsaTime = pgTable("vimsa_time", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").notNull(),
   staffId: varchar("staff_id").notNull(),
   year: integer("year").notNull(),
@@ -185,13 +214,17 @@ export const insertClientSchema = createInsertSchema(clients).omit({
   updatedAt: true,
 });
 
-export const insertWeeklyDocumentationSchema = createInsertSchema(weeklyDocumentation).omit({
+export const insertWeeklyDocumentationSchema = createInsertSchema(
+  weeklyDocumentation
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertMonthlyReportSchema = createInsertSchema(monthlyReports).omit({
+export const insertMonthlyReportSchema = createInsertSchema(
+  monthlyReports
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -203,7 +236,9 @@ export const insertCarePlanSchema = createInsertSchema(carePlans).omit({
   updatedAt: true,
 });
 
-export const insertImplementationPlanSchema = createInsertSchema(implementationPlans).omit({
+export const insertImplementationPlanSchema = createInsertSchema(
+  implementationPlans
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -218,10 +253,12 @@ export const insertVimsaTimeSchema = createInsertSchema(vimsaTime).omit({
 // Update schemas
 export const updateStaffSchema = insertStaffSchema.partial();
 export const updateClientSchema = insertClientSchema.partial();
-export const updateWeeklyDocumentationSchema = insertWeeklyDocumentationSchema.partial();
+export const updateWeeklyDocumentationSchema =
+  insertWeeklyDocumentationSchema.partial();
 export const updateMonthlyReportSchema = insertMonthlyReportSchema.partial();
 export const updateCarePlanSchema = insertCarePlanSchema.partial();
-export const updateImplementationPlanSchema = insertImplementationPlanSchema.partial();
+export const updateImplementationPlanSchema =
+  insertImplementationPlanSchema.partial();
 export const updateVimsaTimeSchema = insertVimsaTimeSchema.partial();
 
 // Type exports
@@ -238,8 +275,12 @@ export type InsertClient = z.infer<typeof insertClientSchema>;
 export type UpdateClient = z.infer<typeof updateClientSchema>;
 
 export type WeeklyDocumentation = typeof weeklyDocumentation.$inferSelect;
-export type InsertWeeklyDocumentation = z.infer<typeof insertWeeklyDocumentationSchema>;
-export type UpdateWeeklyDocumentation = z.infer<typeof updateWeeklyDocumentationSchema>;
+export type InsertWeeklyDocumentation = z.infer<
+  typeof insertWeeklyDocumentationSchema
+>;
+export type UpdateWeeklyDocumentation = z.infer<
+  typeof updateWeeklyDocumentationSchema
+>;
 
 export type MonthlyReport = typeof monthlyReports.$inferSelect;
 export type InsertMonthlyReport = z.infer<typeof insertMonthlyReportSchema>;
@@ -250,8 +291,12 @@ export type InsertCarePlan = z.infer<typeof insertCarePlanSchema>;
 export type UpdateCarePlan = z.infer<typeof updateCarePlanSchema>;
 
 export type ImplementationPlan = typeof implementationPlans.$inferSelect;
-export type InsertImplementationPlan = z.infer<typeof insertImplementationPlanSchema>;
-export type UpdateImplementationPlan = z.infer<typeof updateImplementationPlanSchema>;
+export type InsertImplementationPlan = z.infer<
+  typeof insertImplementationPlanSchema
+>;
+export type UpdateImplementationPlan = z.infer<
+  typeof updateImplementationPlanSchema
+>;
 
 export type VimsaTime = typeof vimsaTime.$inferSelect;
 export type InsertVimsaTime = z.infer<typeof insertVimsaTimeSchema>;

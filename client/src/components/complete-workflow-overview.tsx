@@ -22,6 +22,7 @@ import {
 import { Calendar, FileText, Plus, Users, Clock, X } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { getStatusColor as getGlobalStatusColor } from "@/lib/status-utils";
 import type { Staff, Client } from "@shared/schema";
 
 export function CompleteWorkflowOverview() {
@@ -182,16 +183,7 @@ export function CompleteWorkflowOverview() {
 
   // Utility functions
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "done":
-        return "bg-green-500";
-      case "reminded":
-        return "bg-yellow-500";
-      case "not_done":
-        return "bg-red-500";
-      default:
-        return "bg-gray-300";
-    }
+    return getGlobalStatusColor(status, "weekly");
   };
 
   const toggleDayStatusAndSave = (weekKey: string, day: string) => {

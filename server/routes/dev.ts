@@ -60,6 +60,76 @@ devRoutes.post("/staff", (req, res) => {
   return res.status(201).json(item);
 });
 
+devRoutes.put("/staff/:id", (req, res) => {
+  const id = req.params.id;
+  const updates = req.body || {};
+  const index = store.staff.findIndex((s: any) => s.id === id);
+  if (index === -1)
+    return res.status(404).json({ error: "Personal hittades inte" });
+
+  store.staff[index] = {
+    ...store.staff[index],
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
+  persist();
+  return res.json(store.staff[index]);
+});
+
+devRoutes.delete("/staff/:id", (req, res) => {
+  const id = req.params.id;
+  const index = store.staff.findIndex((s: any) => s.id === id);
+  if (index === -1)
+    return res.status(404).json({ error: "Personal hittades inte" });
+
+  // Update all clients that have this staff member assigned
+  if (store.clients) {
+    store.clients = store.clients.map((client: any) => {
+      if (client.staffId === id) {
+        return {
+          ...client,
+          staffId: 'unassigned',
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return client;
+    });
+  }
+
+  // Update all care plans
+  if (store.carePlans) {
+    store.carePlans = store.carePlans.map((plan: any) => {
+      if (plan.staffId === id || plan.responsibleId === id) {
+        return {
+          ...plan,
+          staffId: plan.staffId === id ? 'unassigned' : plan.staffId,
+          responsibleId: plan.responsibleId === id ? 'unassigned' : plan.responsibleId,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return plan;
+    });
+  }
+
+  // Update all implementation plans
+  if (store.implementationPlans) {
+    store.implementationPlans = store.implementationPlans.map((plan: any) => {
+      if (plan.staffId === id) {
+        return {
+          ...plan,
+          staffId: 'unassigned',
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return plan;
+    });
+  }
+
+  store.staff.splice(index, 1);
+  persist();
+  return res.json({ message: "Personal borttagen" });
+});
+
 // === CLIENTS ===
 devRoutes.get("/clients/all", (_req, res) => {
   return res.json(store.clients ?? []);
@@ -172,6 +242,17 @@ devRoutes.put("/care-plans/:id", (req, res) => {
   return res.json(store.carePlans[idx]);
 });
 
+devRoutes.delete("/care-plans/:id", (req, res) => {
+  const id = req.params.id;
+  const index = store.carePlans.findIndex((p: any) => p.id === id);
+  if (index === -1)
+    return res.status(404).json({ error: "Vårdplan hittades inte" });
+
+  store.carePlans.splice(index, 1);
+  persist();
+  return res.json({ message: "Vårdplan borttagen" });
+});
+
 // === IMPLEMENTATION PLANS (administrativ) ===
 devRoutes.get("/implementation-plans/all", (_req, res) => {
   return res.json(store.implementationPlans ?? []);
@@ -225,6 +306,17 @@ devRoutes.put("/implementation-plans/:id", (req, res) => {
   };
   persist();
   return res.json(store.implementationPlans[idx]);
+});
+
+devRoutes.delete("/implementation-plans/:id", (req, res) => {
+  const id = req.params.id;
+  const index = store.implementationPlans.findIndex((p: any) => p.id === id);
+  if (index === -1)
+    return res.status(404).json({ error: "Genomförandeplan hittades inte" });
+
+  store.implementationPlans.splice(index, 1);
+  persist();
+  return res.json({ message: "Genomförandeplan borttagen" });
 });
 
 // === WEEKLY DOCS (inkl. lör/sön) ===

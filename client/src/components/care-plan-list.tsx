@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
 import type { CarePlan, Client } from "@shared/schema";
 import { Calendar, FileText, Plus, AlertCircle } from "lucide-react";
+import { getCarePlanStatus } from "@/lib/status-utils";
 
 interface CarePlanListProps {
   clients: Client[];
@@ -27,22 +28,7 @@ export function CarePlanList({ clients }: CarePlanListProps) {
   });
 
   const getStatusBadge = (status: string) => {
-    const statusMap = {
-      received: { label: "Mottagen", variant: "secondary" as const },
-      staff_notified: {
-        label: "Personal meddelad",
-        variant: "default" as const,
-      },
-      in_progress: { label: "Pågående", variant: "default" as const },
-      completed: { label: "Klar", variant: "default" as const },
-    };
-
-    return (
-      statusMap[status as keyof typeof statusMap] || {
-        label: status,
-        variant: "secondary" as const,
-      }
-    );
+    return getCarePlanStatus(status);
   };
 
   const getClientInitials = (clientId: string) => {

@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { ChartLine, Trash2, Plus } from "lucide-react";
+import {
+  ChartLine,
+  Trash2,
+  Plus,
+  Circle,
+  CircleDot,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getInitials } from "@/lib/staff-data";
@@ -110,7 +117,7 @@ export function StaffSidebar({
 
   return (
     <aside
-      className={`sidebar-transition bg-white w-80 shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30 ${
+      className={`sidebar-transition bg-white w-[250px] shadow-lg border-r border-gray-200 overflow-y-auto fixed lg:static inset-y-0 left-0 z-30 ${
         isOpen ? "" : "sidebar-hidden lg:transform-none"
       }`}
     >
@@ -166,7 +173,7 @@ export function StaffSidebar({
         {/* Staff Filter */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filtrera personal
+            Personal (sök och status)
           </label>
           <Input
             type="text"
@@ -174,8 +181,20 @@ export function StaffSidebar({
             value={filterTerm}
             onChange={(e) => setFilterTerm(e.target.value)}
           />
+          <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <CircleDot className="h-3 w-3 text-green-500" /> Arbetar
+            </span>
+            <span className="flex items-center gap-1">
+              <Circle className="h-3 w-3 text-gray-400" /> Ledig
+            </span>
+            <span className="flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3 text-red-500" /> Överbelastad
+            </span>
+            <span className="ml-auto">(DEMO-status)</span>
+          </div>
         </div>
-        {/* Staff Tabs */}
+        {/* Staff List - compact: initials | name | role */}
         <div className="space-y-2">
           {filteredStaff.length === 0 ? (
             <div className="text-center py-4 text-gray-500">
@@ -188,6 +207,14 @@ export function StaffSidebar({
             filteredStaff.map((staffMember: any) => {
               const initials = getInitials(staffMember.name);
               const isActive = activeView === `staff-${staffMember.id}`;
+              // Simple load heuristic for demo: alternating status by name hash
+              const hash = Array.from(staffMember.name).reduce(
+                (a: number, c: string) => a + c.charCodeAt(0),
+                0
+              ) as number;
+              const isWorking = hash % 3 !== 0;
+              const isOverloaded = hash % 7 === 0;
+
               return (
                 <div key={staffMember.id} className="flex items-center gap-2">
                   <Button
@@ -207,7 +234,16 @@ export function StaffSidebar({
                         {initials}
                       </span>
                     </div>
-                    <span className="font-medium">{staffMember.name}</span>
+                    <span className="font-medium flex-1 text-left">
+                      {staffMember.name}
+                    </span>
+                    {isOverloaded ? (
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                    ) : isWorking ? (
+                      <CircleDot className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-gray-400" />
+                    )}
                   </Button>
                   <div className="relative">
                     <Button

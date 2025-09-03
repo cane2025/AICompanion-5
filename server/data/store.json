@@ -1,55 +1,292 @@
 {
   "staff": [
     {
-      "id": "staff_572ec798-ade0-43f8-9998-a955dfb3c2f8",
-      "name": "Demo Personal",
-      "initials": "DP",
-      "personnummer": "19900101-0000",
-      "telefon": "070-123456",
-      "epost": "demo@example.com",
-      "roll": "sjuksköterska",
-      "avdelning": "demo",
-      "createdAt": "2025-08-21T13:24:46.372Z",
-      "updatedAt": "2025-08-21T13:24:46.373Z"
+      "id": "staff_e348aa72-4a64-4ea2-8c58-ade3907c64e8",
+      "name": "Afif Derbas-",
+      "fullName": "Afif Derbas",
+      "initials": "AD",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.950Z",
+      "updatedAt": "2025-09-03T14:05:18.955Z"
     },
     {
-      "id": "staff_0ceafd36-56c9-4b65-a9f4-a0fbc0bc2175",
-      "name": "Anna Andersson",
+      "id": "staff_cc1e957e-93cc-404c-bd33-c5da7ef89859",
+      "name": "Ahmed Alrakabi",
+      "fullName": "Ahmed Alrakabi",
       "initials": "AA",
-      "personnummer": "19850615-0000",
-      "telefon": "070-111111",
-      "epost": "anna.andersson@example.com",
-      "roll": "sjuksköterska",
-      "avdelning": "demo",
-      "createdAt": "2025-08-21T13:24:53.580Z",
-      "updatedAt": "2025-08-21T13:24:53.580Z"
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.955Z",
+      "updatedAt": "2025-09-03T14:05:18.955Z"
     },
     {
-      "id": "staff_2668405b-7a2c-46b8-8374-8cc2197ca751",
-      "name": "Erik Eriksson",
-      "initials": "EE",
-      "personnummer": "19920320-0000",
-      "telefon": "070-222222",
-      "epost": "erik.eriksson@example.com",
-      "roll": "sjuksköterska",
-      "avdelning": "demo",
-      "createdAt": "2025-08-21T13:24:59.192Z",
-      "updatedAt": "2025-08-21T13:24:59.192Z"
+      "id": "staff_8664d908-e6c0-4958-b2e1-ed7f6e2ce1bf",
+      "name": "Ahmed Ramadan –",
+      "fullName": "Ahmed Ramadan",
+      "initials": "AR",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.955Z",
+      "updatedAt": "2025-09-03T14:05:18.955Z"
     },
     {
-      "id": "staff_d680114f-dad2-4c86-87e3-13fc86dbd833",
-      "name": "Test Staff",
-      "initials": "TS",
-      "roll": "sjuksköterska",
-      "createdAt": "2025-08-21T13:25:29.550Z",
-      "updatedAt": "2025-08-21T13:25:29.550Z"
+      "id": "staff_a6d2bc53-d428-4bbb-97ad-8fab8df74f18",
+      "name": "Ajmen Rafiq-",
+      "fullName": "Ajmen Rafiq",
+      "initials": "AR",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.955Z",
+      "updatedAt": "2025-09-03T14:05:18.955Z"
     },
     {
-      "id": "staff_6c13f21a-f433-4339-9748-a6096786999b",
-      "name": "afif derbas",
-      "initials": "ad",
-      "createdAt": "2025-08-21T13:32:38.912Z",
-      "updatedAt": "2025-08-21T13:32:38.912Z"
+      "id": "staff_902231b7-7243-4d3b-80e7-813418041f84",
+      "name": "Alana Salah-",
+      "fullName": "Alana Salah",
+      "initials": "AS",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_badcd5b8-c93b-4156-b11a-3476419a47b2",
+      "name": "Alharis Albayati",
+      "fullName": "Alharis Albayati",
+      "initials": "AA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_ca7eeaa2-9b67-45ad-86e8-f372627ba469",
+      "name": "Amir Al-Istarabadi  -",
+      "fullName": "Amir Al-Istarabadi",
+      "initials": "AA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_1768fa0c-8baf-48aa-a5a0-5086504e0593",
+      "name": "Anjelika Bååth-",
+      "fullName": "Anjelika Bååth",
+      "initials": "AB",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_c87ba7d4-eb51-4a66-a3df-a17f7d4972ce",
+      "name": "Bashdar Reza –",
+      "fullName": "Bashdar Reza",
+      "initials": "BR",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_8bcf3033-f7db-4a5e-8ebc-478cefd373b5",
+      "name": "Constanza Soto",
+      "fullName": "Constanza Soto",
+      "initials": "CS",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_ac2e30ac-46e3-4fc9-9ff9-d8fb67fbcebb",
+      "name": "Deni Dulji",
+      "fullName": "Deni Dulji",
+      "initials": "DD",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_57e696c5-ae77-476e-8bee-9a0855d01a0d",
+      "name": "Diana Gharib",
+      "fullName": "Diana Gharib",
+      "initials": "DG",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_d7bdf9cb-f59f-49c7-88e2-aaaed21f95da",
+      "name": "Drilon Muqkurtaj",
+      "fullName": "Drilon Muqkurtaj",
+      "initials": "DM",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_dfc61210-8609-4b4e-9c2a-934b654efe34",
+      "name": "Heidar Farhan",
+      "fullName": "Heidar Farhan",
+      "initials": "HF",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_7118bc92-9ff7-4f47-83ce-65c45c75edc4",
+      "name": "Hussein Ahmed",
+      "fullName": "Hussein Ahmed",
+      "initials": "HA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_c65c9846-f4e0-4084-9a82-5c2eb045e3db",
+      "name": "Ida Björkbacka",
+      "fullName": "Ida Björkbacka",
+      "initials": "IB",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_10b93965-ee82-4222-b06b-73162f7cc68e",
+      "name": "Ikhlas Almaliki",
+      "fullName": "Ikhlas Almaliki",
+      "initials": "IA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_21de7b3d-24b7-4799-a625-34b01736c99e",
+      "name": "Intisar Almansour",
+      "fullName": "Intisar Almansour",
+      "initials": "IA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_5bb803a6-f4c8-4eae-8433-af3f9e3ebe04",
+      "name": "Israa Touman",
+      "fullName": "Israa Touman",
+      "initials": "IT",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_6f64e439-c299-4f1a-87aa-65e3fc57c9ed",
+      "name": "Johan Wessberg",
+      "fullName": "Johan Wessberg",
+      "initials": "JW",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_ec455aca-b2bf-4549-b1df-7361070f4df2",
+      "name": "Kim Torneus",
+      "fullName": "Kim Torneus",
+      "initials": "KT",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_3aef0248-8926-48de-9fda-386b146be8c5",
+      "name": "Lejla Kocacik",
+      "fullName": "Lejla Kocacik",
+      "initials": "LK",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_ef7bc6c9-ee21-4210-943d-152895dc306e",
+      "name": "Mirza Celik",
+      "fullName": "Mirza Celik",
+      "initials": "MC",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_496133f4-17cf-4695-add4-10ff6c48de8f",
+      "name": "Mirza Hodzic",
+      "fullName": "Mirza Hodzic",
+      "initials": "MH",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_2242b2f0-eefc-4abd-847f-f057f2318d08",
+      "name": "Nasima Kuraishe",
+      "fullName": "Nasima Kuraishe",
+      "initials": "NK",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_4ee3de66-3326-4021-80aa-01594ac9ef17",
+      "name": "Nicolas Lazcano",
+      "fullName": "Nicolas Lazcano",
+      "initials": "NL",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_87bf5049-ee7c-48a1-a76f-f46335e8cb99",
+      "name": "Omar Mezza",
+      "fullName": "Omar Mezza",
+      "initials": "OM",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_1a8bc801-6067-4179-abc2-240af4fdecb5",
+      "name": "Qasin Abdullahi",
+      "fullName": "Qasin Abdullahi",
+      "initials": "QA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_111e7125-30eb-49c9-9609-7775d2d54fbd",
+      "name": "Robert Ackar",
+      "fullName": "Robert Ackar",
+      "initials": "RA",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_8674e8aa-dbe3-4ebf-afeb-e82d29809d2a",
+      "name": "Samir Bezzina",
+      "fullName": "Samir Bezzina",
+      "initials": "SB",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_3e6967f9-88dd-4be4-9db6-cbd372d2fba7",
+      "name": "Sebastian Holm",
+      "fullName": "Sebastian Holm",
+      "initials": "SH",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
+    },
+    {
+      "id": "staff_17da8302-2eae-4e87-b8ac-1b26257f0dcb",
+      "name": "Yasmin Ibrahim",
+      "fullName": "Yasmin Ibrahim",
+      "initials": "YI",
+      "roll": "personal",
+      "createdAt": "2025-09-03T14:05:18.956Z",
+      "updatedAt": "2025-09-03T14:05:18.956Z"
     }
   ],
   "clients": [
@@ -484,6 +721,19 @@
       "createdAt": "2025-08-21T13:25:23.429Z",
       "updatedAt": "2025-08-21T13:25:23.433Z",
       "name": "Updated Vårdplan"
+    },
+    {
+      "id": "cp_419e604a-d66f-4677-a337-51cc728ef4eb",
+      "clientId": "test-client-1",
+      "staffId": "s_demo",
+      "planContent": "Uppdaterat vårdplan innehåll",
+      "goals": "Uppdaterade mål",
+      "interventions": "",
+      "status": "staff_notified",
+      "isActive": true,
+      "comment": "",
+      "createdAt": "2025-09-03T13:43:54.735Z",
+      "updatedAt": "2025-09-03T13:44:07.088Z"
     }
   ],
   "implementationPlans": [
@@ -738,6 +988,27 @@
       "isActive": true,
       "createdAt": "2025-08-21T13:25:23.436Z",
       "updatedAt": "2025-08-21T13:25:23.436Z"
+    },
+    {
+      "id": "ip_82ad911e-18ef-490c-975a-32a97d48a9d9",
+      "clientId": "test-client-2",
+      "staffId": "s_demo",
+      "planRef": "",
+      "sentDate": null,
+      "completedDate": null,
+      "followups": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "comments": "",
+      "status": "pending",
+      "isActive": true,
+      "createdAt": "2025-09-03T13:44:44.182Z",
+      "updatedAt": "2025-09-03T13:44:44.182Z"
     }
   ],
   "weeklyDocumentation": [

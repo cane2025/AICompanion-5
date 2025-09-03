@@ -1,9 +1,4 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import ws from "ws";
 import * as schema from "../shared/schema.js";
-
-neonConfig.webSocketConstructor = ws;
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -11,5 +6,28 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+// Check if using SQLite or PostgreSQL
+const databaseUrl = process.env.DATABASE_URL;
+
+let db: any;
+let pool: any = null;
+
+if (databaseUrl.startsWith("sqlite:")) {
+  // SQLite configuration
+  const { drizzle } = await import("drizzle-orm/better-sqlite3");
+  const Database = (await import("better-sqlite3")).default;
+  const dbPath = databaseUrl.replace("sqlite:", "");
+  const sqlite = new Database(dbPath);
+  db = drizzle(sqlite, { schema });
+} else {
+  // PostgreSQL/Neon configuration
+  const { Pool, neonConfig } = await import("@neondatabase/serverless");
+  const { drizzle } = await import("drizzle-orm/neon-serverless");
+  const ws = (await import("ws")).default;
+
+  neonConfig.webSocketConstructor = ws;
+  pool = new Pool({ connectionString: databaseUrl });
+  db = drizzle({ client: pool, schema });
+}
+
+export { db, pool };

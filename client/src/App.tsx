@@ -143,7 +143,7 @@ function MainApp() {
             </div>
 
             {activeView === "dashboard" ? (
-              <Dashboard />
+              <Dashboard selectedStaffId={activeStaffId || undefined} />
             ) : activeStaff ? (
               <div className="space-y-6">
                 <div className="bg-ungdoms-50 rounded-lg p-4 border border-ungdoms-200">
