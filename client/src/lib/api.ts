@@ -97,6 +97,56 @@ export const restoreClient = (id: string): Promise<Client> =>
     credentials: "include",
   }).then((res) => handleResponse<Client>(res));
 
+// Care Plan API
+export const getCarePlan = (clientId: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans/${clientId}`, { credentials: "include" }).then(
+    (res) => handleResponse<any>(res)
+  );
+export const createCarePlan = (data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const updateCarePlan = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const deleteCarePlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
+// Implementation Plan API
+export const getImplementationPlan = (clientId: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, { 
+    credentials: "include" 
+  }).then((res) => handleResponse<any>(res));
+export const createImplementationPlan = (data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/implementation-plans`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const deleteImplementationPlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
 // Auth API
 export const login = async (data: LoginData): Promise<User> => {
   const headers: Record<string, string> = {

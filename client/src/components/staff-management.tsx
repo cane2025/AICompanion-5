@@ -20,6 +20,7 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,6 +46,16 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Staff, insertStaffSchema } from "@shared/schema";
 import * as api from "@/lib/api";
@@ -164,6 +175,8 @@ export function StaffManagement() {
   const [selectedStaff, setSelectedStaff] = useState<Staff | undefined>(
     undefined
   );
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
   const { toast } = useToast();
 
   const {
@@ -182,6 +195,7 @@ export function StaffManagement() {
     mutationFn: (id: string) => api.deleteStaff(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/clients/all"] });
       toast({
         title: "🗑️ Personal raderad",
         description: "Personalen har raderats.",
@@ -192,6 +206,8 @@ export function StaffManagement() {
         entityId: id,
         details: "Staff deleted",
       });
+      setDeleteConfirmOpen(false);
+      setStaffToDelete(null);
     },
     onError: (error) => {
       toast({
@@ -210,6 +226,17 @@ export function StaffManagement() {
   const handleEdit = (staffMember: Staff) => {
     setSelectedStaff(staffMember);
     setIsFormOpen(true);
+  };
+
+  const handleDeleteClick = (staffMember: Staff) => {
+    setStaffToDelete(staffMember);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (staffToDelete) {
+      deleteMutation.mutate(staffToDelete.id);
+    }
   };
 
   if (isLoading) {
@@ -286,7 +313,7 @@ export function StaffManagement() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => deleteMutation.mutate(staffMember.id)}
+                      onClick={() => handleDeleteClick(staffMember)}
                       disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -310,5 +337,29 @@ export function StaffManagement() {
         />
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+          <AlertDialogDescription>
+            Är du säker på att du vill ta bort <strong>{staffToDelete?.name}</strong>?
+            {staff && staff.some(s => s.id === staffToDelete?.id) && (
+              <>
+                <br /><br />
+                <strong>OBS:</strong> Om denna personal är ansvarig för klienter eller planer, 
+                kommer de att sättas som "Oassignerad" efter borttagning.
+              </>
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Avbryt</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteConfirm}>
+            Ta bort
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

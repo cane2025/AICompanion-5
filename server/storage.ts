@@ -101,6 +101,7 @@ export interface IStorage {
     id: string,
     updates: UpdateImplementationPlan
   ): Promise<ImplementationPlan | undefined>;
+  deleteImplementationPlan(id: string): Promise<boolean>;
 
   // Vimsa time operations
   getAllVimsaTime(): Promise<VimsaTime[]>;
@@ -312,6 +313,46 @@ export class MemStorage implements IStorage {
   }
 
   async deleteStaff(id: string): Promise<boolean> {
+    // Update all clients that have this staff member assigned
+    const allClients = Array.from(this.clients.values());
+    for (const client of allClients) {
+      if (client.staffId === id) {
+        const updated = {
+          ...client,
+          staffId: 'unassigned',
+          updatedAt: new Date().toISOString()
+        };
+        this.clients.set(client.id, updated);
+      }
+    }
+    
+    // Update all care plans that have this staff member as responsible
+    const allCarePlans = Array.from(this.carePlans.values());
+    for (const plan of allCarePlans) {
+      if (plan.staffId === id || plan.responsibleId === id) {
+        const updated = {
+          ...plan,
+          staffId: plan.staffId === id ? 'unassigned' : plan.staffId,
+          responsibleId: plan.responsibleId === id ? 'unassigned' : plan.responsibleId,
+          updatedAt: new Date().toISOString()
+        };
+        this.carePlans.set(plan.id, updated);
+      }
+    }
+    
+    // Update all implementation plans
+    const allImplPlans = Array.from(this.implementationPlans.values());
+    for (const plan of allImplPlans) {
+      if (plan.staffId === id) {
+        const updated = {
+          ...plan,
+          staffId: 'unassigned',
+          updatedAt: new Date().toISOString()
+        };
+        this.implementationPlans.set(plan.id, updated);
+      }
+    }
+    
     return this.staff.delete(id);
   }
 
@@ -616,6 +657,10 @@ export class MemStorage implements IStorage {
     };
     this.implementationPlans.set(id, updated);
     return updated;
+  }
+
+  async deleteImplementationPlan(id: string): Promise<boolean> {
+    return this.implementationPlans.delete(id);
   }
 
   // Vimsa time operations
