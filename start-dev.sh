@@ -1,4 +1,5 @@
 #!/bin/bash
 echo "Startar utvecklingsservern..."
-cd /Users/mirzacelik/Downloads/AICompanion-5
-npm run dev
+cd /workspace || exit 1
+# Start the dev server and mirror logs to server.log
+npm run dev 2>&1 | tee /workspace/server.log
