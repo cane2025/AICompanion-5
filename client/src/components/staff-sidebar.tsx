@@ -163,16 +163,19 @@ export function StaffSidebar({
             Dashboard
           </Button>
         </div>
-        {/* Staff Filter */}
+        {/* Staff Filter with Header */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filtrera personal
-          </label>
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-semibold text-gray-700">
+              PERSONAL ({staff.length})
+            </label>
+          </div>
           <Input
             type="text"
-            placeholder="Sök personal..."
+            placeholder="🔍 Sök..."
             value={filterTerm}
             onChange={(e) => setFilterTerm(e.target.value)}
+            className="mb-3"
           />
         </div>
         {/* Staff Tabs */}
@@ -188,6 +191,30 @@ export function StaffSidebar({
             filteredStaff.map((staffMember: any) => {
               const initials = getInitials(staffMember.name);
               const isActive = activeView === `staff-${staffMember.id}`;
+              
+              // Mock status data - in real implementation, this would come from API
+              const getStaffStatus = (name: string) => {
+                if (name.includes("Mirza")) return { status: "working", clients: "2/5 klienter idag" };
+                if (name.includes("Anna")) return { status: "overloaded", clients: "5/3 klienter idag" };
+                if (name.includes("Erik")) return { status: "working", clients: "1/4 klienter idag" };
+                if (name.includes("Afif")) return { status: "available", clients: "Ledig" };
+                return { status: "available", clients: "Ledig" };
+              };
+              
+              const staffStatus = getStaffStatus(staffMember.name);
+              const getStatusDisplay = (status: string) => {
+                switch (status) {
+                  case "working":
+                    return { icon: "●", color: "text-green-600" };
+                  case "overloaded":
+                    return { icon: "⚠", color: "text-red-600" };
+                  default:
+                    return { icon: "○", color: "text-gray-400" };
+                }
+              };
+              
+              const statusDisplay = getStatusDisplay(staffStatus.status);
+              
               return (
                 <div key={staffMember.id} className="flex items-center gap-2">
                   <Button
@@ -207,7 +234,15 @@ export function StaffSidebar({
                         {initials}
                       </span>
                     </div>
-                    <span className="font-medium">{staffMember.name}</span>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center">
+                        <span className={`mr-2 ${statusDisplay.color} font-bold`}>{statusDisplay.icon}</span>
+                        <span className="font-medium">{staffMember.name}</span>
+                      </div>
+                      <div className={`text-xs mt-1 ${staffStatus.status === 'overloaded' ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                        {staffStatus.clients}
+                      </div>
+                    </div>
                   </Button>
                   <div className="relative">
                     <Button
@@ -224,10 +259,25 @@ export function StaffSidebar({
                       <span className="text-[1.5em] leading-none">⋮</span>
                     </Button>
                     {deletingId === staffMember.id && (
-                      <div className="absolute right-0 z-10 mt-2 w-32 bg-white border rounded shadow-lg">
+                      <div className="absolute right-0 z-10 mt-2 w-48 bg-white border rounded shadow-lg p-1">
                         <Button
                           variant="ghost"
-                          className="w-full text-red-600 justify-start"
+                          className="w-full text-left justify-start text-sm hover:bg-gray-50"
+                          onClick={() => {/* TODO: Implement edit */}}
+                        >
+                          Redigera
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full text-left justify-start text-sm hover:bg-gray-50"
+                          onClick={() => {/* TODO: Implement duplicate */}}
+                        >
+                          Duplicera
+                        </Button>
+                        <hr className="my-1" />
+                        <Button
+                          variant="ghost"
+                          className="w-full text-red-600 justify-start text-sm hover:bg-red-50"
                           onClick={() => handleDeleteStaff(staffMember.id)}
                           disabled={deleteStaffMutation.isPending}
                         >
@@ -242,6 +292,24 @@ export function StaffSidebar({
               );
             })
           )}
+        </div>
+        
+        {/* Status Legend */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="text-xs text-gray-500 space-y-1">
+            <div className="flex items-center">
+              <span className="text-green-600 mr-2">●</span>
+              <span>Arbetar</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-gray-400 mr-2">○</span>
+              <span>Ledig</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-red-600 mr-2">⚠</span>
+              <span>Överbelastad</span>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
