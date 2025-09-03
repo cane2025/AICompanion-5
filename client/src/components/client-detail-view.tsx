@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +62,34 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
   const [editReport, setEditReport] = useState<MonthlyReport | null>(null);
   const [newQuality, setNewQuality] = useState<string>("pending");
   const [markCompleted, setMarkCompleted] = useState<boolean>(false);
+  
+  // Care plan form state
+  const [carePlanForm, setCarePlanForm] = useState({
+    receivedDate: "",
+    enteredJournalDate: "",
+    staffNotifiedDate: "",
+    planContent: "",
+    goals: "",
+    interventions: "",
+    comment: "",
+    status: "received",
+  });
+  
+  // GFP form state
+  const [gfpForm, setGfpForm] = useState({
+    planContent: "",
+    goals: "",
+    activities: "",
+    followUpSchedule: "",
+    status: "pending",
+    planType: "1",
+    comments: "",
+    completedDate: "",
+    sentDate: "",
+  });
+  
+  const [hasCarePlanChanges, setHasCarePlanChanges] = useState(false);
+  const [hasGfpChanges, setHasGfpChanges] = useState(false);
 
   // Fetch staff list to resolve responsible staff name
   const { data: staffList = [] } = useQuery<Staff[]>({
@@ -199,6 +227,161 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
       toast({ title: "Fel vid radering", variant: "destructive" });
     },
   });
+
+  // Care plan mutations
+  const saveCarePlanMutation = useMutation({
+    mutationFn: async (data: any) => {
+      if (carePlan?.id) {
+        return api.updateCarePlan(carePlan.id, data);
+      } else {
+        return api.createCarePlan({ ...data, clientId: client.id, staffId: client.staffId });
+      }
+    },
+    onSuccess: () => {
+      toast({ title: "✅ Vårdplan sparad", description: "Vårdplanen har uppdaterats framgångsrikt." });
+      queryClient.invalidateQueries({ queryKey: ["/api/care-plans", client.id] });
+      setHasCarePlanChanges(false);
+    },
+    onError: (error) => {
+      toast({ title: "❌ Fel vid sparning", description: `Kunde inte spara vårdplan: ${error.message}`, variant: "destructive" });
+    },
+  });
+
+  const deleteCarePlanMutation = useMutation({
+    mutationFn: (id: string) => api.deleteCarePlan(id),
+    onSuccess: () => {
+      toast({ title: "🗑️ Vårdplan raderad", description: "Vårdplanen har raderats framgångsrikt." });
+      queryClient.invalidateQueries({ queryKey: ["/api/care-plans", client.id] });
+    },
+    onError: (error) => {
+      toast({ title: "❌ Fel vid radering", description: `Kunde inte radera vårdplan: ${error.message}`, variant: "destructive" });
+    },
+  });
+
+  // GFP mutations
+  const saveGfpMutation = useMutation({
+    mutationFn: async (data: any) => {
+      if (implementationPlan?.id) {
+        return api.updateImplementationPlan(implementationPlan.id, data);
+      } else {
+        return api.createImplementationPlan({ ...data, clientId: client.id, staffId: client.staffId });
+      }
+    },
+    onSuccess: () => {
+      toast({ title: "✅ GFP sparad", description: "Genomförandeplanen har uppdaterats framgångsrikt." });
+      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", client.id] });
+      setHasGfpChanges(false);
+    },
+    onError: (error) => {
+      toast({ title: "❌ Fel vid sparning", description: `Kunde inte spara GFP: ${error.message}`, variant: "destructive" });
+    },
+  });
+
+  const deleteGfpMutation = useMutation({
+    mutationFn: (id: string) => api.deleteImplementationPlan(id),
+    onSuccess: () => {
+      toast({ title: "🗑️ GFP raderad", description: "Genomförandeplanen har raderats framgångsrikt." });
+      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", client.id] });
+    },
+    onError: (error) => {
+      toast({ title: "❌ Fel vid radering", description: `Kunde inte radera GFP: ${error.message}`, variant: "destructive" });
+    },
+  });
+
+  // Initialize forms when data loads
+  useEffect(() => {
+    if (carePlan) {
+      setCarePlanForm({
+        receivedDate: carePlan.receivedDate ? new Date(carePlan.receivedDate).toISOString().split("T")[0] : "",
+        enteredJournalDate: carePlan.enteredJournalDate ? new Date(carePlan.enteredJournalDate).toISOString().split("T")[0] : "",
+        staffNotifiedDate: carePlan.staffNotifiedDate ? new Date(carePlan.staffNotifiedDate).toISOString().split("T")[0] : "",
+        planContent: carePlan.planContent || "",
+        goals: carePlan.goals || "",
+        interventions: carePlan.interventions || "",
+        comment: carePlan.comment || "",
+        status: carePlan.status || "received",
+      });
+      setHasCarePlanChanges(false);
+    }
+  }, [carePlan]);
+
+  useEffect(() => {
+    if (implementationPlan) {
+      setGfpForm({
+        planContent: implementationPlan.planContent || "",
+        goals: implementationPlan.goals || "",
+        activities: implementationPlan.activities || "",
+        followUpSchedule: implementationPlan.followUpSchedule || "",
+        status: implementationPlan.status || "pending",
+        planType: implementationPlan.planType || "1",
+        comments: implementationPlan.comments || "",
+        completedDate: implementationPlan.completedDate ? new Date(implementationPlan.completedDate).toISOString().split("T")[0] : "",
+        sentDate: implementationPlan.sentDate ? new Date(implementationPlan.sentDate).toISOString().split("T")[0] : "",
+      });
+      setHasGfpChanges(false);
+    }
+  }, [implementationPlan]);
+
+  // Track changes in care plan form
+  useEffect(() => {
+    if (carePlan) {
+      const original = {
+        receivedDate: carePlan.receivedDate ? new Date(carePlan.receivedDate).toISOString().split("T")[0] : "",
+        enteredJournalDate: carePlan.enteredJournalDate ? new Date(carePlan.enteredJournalDate).toISOString().split("T")[0] : "",
+        staffNotifiedDate: carePlan.staffNotifiedDate ? new Date(carePlan.staffNotifiedDate).toISOString().split("T")[0] : "",
+        planContent: carePlan.planContent || "",
+        goals: carePlan.goals || "",
+        interventions: carePlan.interventions || "",
+        comment: carePlan.comment || "",
+        status: carePlan.status || "received",
+      };
+      setHasCarePlanChanges(JSON.stringify(carePlanForm) !== JSON.stringify(original));
+    }
+  }, [carePlanForm, carePlan]);
+
+  // Track changes in GFP form
+  useEffect(() => {
+    if (implementationPlan) {
+      const original = {
+        planContent: implementationPlan.planContent || "",
+        goals: implementationPlan.goals || "",
+        activities: implementationPlan.activities || "",
+        followUpSchedule: implementationPlan.followUpSchedule || "",
+        status: implementationPlan.status || "pending",
+        planType: implementationPlan.planType || "1",
+        comments: implementationPlan.comments || "",
+        completedDate: implementationPlan.completedDate ? new Date(implementationPlan.completedDate).toISOString().split("T")[0] : "",
+        sentDate: implementationPlan.sentDate ? new Date(implementationPlan.sentDate).toISOString().split("T")[0] : "",
+      };
+      setHasGfpChanges(JSON.stringify(gfpForm) !== JSON.stringify(original));
+    }
+  }, [gfpForm, implementationPlan]);
+
+  // Handlers for care plan operations
+  const handleSaveCarePlan = () => {
+    const dataToSave = { ...carePlanForm };
+    saveCarePlanMutation.mutate(dataToSave);
+  };
+
+  const handleDeleteCarePlan = (id: string) => {
+    if (!window.confirm("Är du säker på att du vill ta bort vårdplanen?")) return;
+    deleteCarePlanMutation.mutate(id);
+  };
+
+  // Handlers for GFP operations
+  const handleSaveGfp = () => {
+    const dataToSave = { 
+      ...gfpForm,
+      completedDate: gfpForm.completedDate ? new Date(gfpForm.completedDate) : null,
+      sentDate: gfpForm.sentDate ? new Date(gfpForm.sentDate) : null,
+    };
+    saveGfpMutation.mutate(dataToSave);
+  };
+
+  const handleDeleteGfp = (id: string) => {
+    if (!window.confirm("Är du säker på att du vill ta bort genomförandeplanen?")) return;
+    deleteGfpMutation.mutate(id);
+  };
 
   // Handlers for monthly report operations
   const handleDeleteReport = async (id: string) => {
@@ -393,10 +576,30 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
         <TabsContent value="careplan">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Vårdplan - {client.initials}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Vårdplan - {client.initials}
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleSaveCarePlan()}
+                    disabled={saveCarePlanMutation.isPending}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {saveCarePlanMutation.isPending ? "Sparar..." : "Spara"}
+                  </Button>
+                  {carePlan && (
+                    <Button
+                      onClick={() => handleDeleteCarePlan(carePlan.id)}
+                      disabled={deleteCarePlanMutation.isPending}
+                      variant="destructive"
+                    >
+                      {deleteCarePlanMutation.isPending ? "Raderar..." : "Radera"}
+                    </Button>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -407,13 +610,11 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </label>
                     <Input
                       type="date"
-                      value={
-                        carePlan?.receivedDate
-                          ? new Date(carePlan.receivedDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
+                      value={carePlanForm.receivedDate}
+                      onChange={(e) => setCarePlanForm(prev => ({
+                        ...prev,
+                        receivedDate: e.target.value
+                      }))}
                       className="mt-1"
                     />
                   </div>
@@ -423,13 +624,11 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </label>
                     <Input
                       type="date"
-                      value={
-                        carePlan?.enteredJournalDate
-                          ? new Date(carePlan.enteredJournalDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
+                      value={carePlanForm.enteredJournalDate}
+                      onChange={(e) => setCarePlanForm(prev => ({
+                        ...prev,
+                        enteredJournalDate: e.target.value
+                      }))}
                       className="mt-1"
                     />
                   </div>
@@ -439,24 +638,97 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </label>
                     <Input
                       type="date"
-                      value={
-                        carePlan?.staffNotifiedDate
-                          ? new Date(carePlan.staffNotifiedDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
+                      value={carePlanForm.staffNotifiedDate}
+                      onChange={(e) => setCarePlanForm(prev => ({
+                        ...prev,
+                        staffNotifiedDate: e.target.value
+                      }))}
                       className="mt-1"
                     />
                   </div>
                 </div>
 
-                {carePlan?.staffNotifiedDate && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Planinnehåll</label>
+                    <Textarea
+                      value={carePlanForm.planContent}
+                      onChange={(e) => setCarePlanForm(prev => ({
+                        ...prev,
+                        planContent: e.target.value
+                      }))}
+                      className="mt-1"
+                      placeholder="Beskriv vårdplanen..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Mål</label>
+                    <Textarea
+                      value={carePlanForm.goals}
+                      onChange={(e) => setCarePlanForm(prev => ({
+                        ...prev,
+                        goals: e.target.value
+                      }))}
+                      className="mt-1"
+                      placeholder="Ange mål för vårdplanen..."
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Interventioner</label>
+                  <Textarea
+                    value={carePlanForm.interventions}
+                    onChange={(e) => setCarePlanForm(prev => ({
+                      ...prev,
+                      interventions: e.target.value
+                    }))}
+                    className="mt-1"
+                    placeholder="Beskriv planerade interventioner..."
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Kommentarer</label>
+                  <Textarea
+                    value={carePlanForm.comment}
+                    onChange={(e) => setCarePlanForm(prev => ({
+                      ...prev,
+                      comment: e.target.value
+                    }))}
+                    className="mt-1"
+                    placeholder="Ytterligare kommentarer..."
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <Select
+                    value={carePlanForm.status}
+                    onValueChange={(value) => setCarePlanForm(prev => ({
+                      ...prev,
+                      status: value
+                    }))}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Välj status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="received">Mottagen</SelectItem>
+                      <SelectItem value="entered_journal">Inlagd i journal</SelectItem>
+                      <SelectItem value="staff_notified">Personal tillsagd</SelectItem>
+                      <SelectItem value="gfp_pending">Väntar på GFP</SelectItem>
+                      <SelectItem value="completed">Slutförd</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {carePlanForm.staffNotifiedDate && (
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
                       <strong>GFP ska vara inlämnad senast:</strong>{" "}
                       {new Date(
-                        new Date(carePlan.staffNotifiedDate).getTime() +
+                        new Date(carePlanForm.staffNotifiedDate).getTime() +
                           21 * 24 * 60 * 60 * 1000
                       ).toLocaleDateString("sv-SE")}{" "}
                       (3 veckor från tillsägning)
@@ -464,21 +736,19 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                   </div>
                 )}
 
-                <div>
-                  <label className="text-sm font-medium">Status</label>
-                  <Badge
-                    className={`mt-1 ${getStatusColor(
-                      carePlan?.status || "received"
-                    )}`}
-                  >
-                    {carePlan?.status === "received" && "Mottagen"}
-                    {carePlan?.status === "entered_journal" &&
-                      "Inlagd i journal"}
-                    {carePlan?.status === "staff_notified" &&
-                      "Personal tillsagd"}
-                    {carePlan?.status === "gfp_pending" && "Väntar på GFP"}
-                    {carePlan?.status === "completed" && "Slutförd"}
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <Badge className={getStatusColor(carePlanForm.status)}>
+                    {carePlanForm.status === "received" && "Mottagen"}
+                    {carePlanForm.status === "entered_journal" && "Inlagd i journal"}
+                    {carePlanForm.status === "staff_notified" && "Personal tillsagd"}
+                    {carePlanForm.status === "gfp_pending" && "Väntar på GFP"}
+                    {carePlanForm.status === "completed" && "Slutförd"}
                   </Badge>
+                  {hasCarePlanChanges && (
+                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                      Osparade ändringar
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -500,127 +770,167 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                     </Badge>
                   )}
                 </CardTitle>
-                <SimpleImplementationPlanDialog clientId={client.id} />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleSaveGfp()}
+                    disabled={saveGfpMutation.isPending}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {saveGfpMutation.isPending ? "Sparar..." : "Spara"}
+                  </Button>
+                  {implementationPlan && (
+                    <Button
+                      onClick={() => handleDeleteGfp(implementationPlan.id)}
+                      disabled={deleteGfpMutation.isPending}
+                      variant="destructive"
+                    >
+                      {deleteGfpMutation.isPending ? "Raderar..." : "Radera"}
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
-              {implementationPlan ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">
-                        Förfallodatum
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          implementationPlan?.dueDate
-                            ? new Date(implementationPlan.dueDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
-                        className="mt-1"
-                        disabled
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        Slutförd datum
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          implementationPlan?.completedDate
-                            ? new Date(implementationPlan.completedDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
-                        className="mt-1"
-                        disabled
-                      />
-                    </div>
-                  </div>
-
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Status</label>
-                    <Badge
-                      className={`mt-1 ${getStatusColor(
-                        implementationPlan?.status || "pending",
-                        isGfpOverdue()
-                      )}`}
-                    >
-                      {isGfpOverdue() &&
-                        implementationPlan?.status !== "completed" &&
-                        "FÖRSENAD - "}
-                      {implementationPlan?.status === "pending" && "Väntande"}
-                      {implementationPlan?.status === "in_progress" &&
-                        "Pågående"}
-                      {implementationPlan?.status === "completed" && "Slutförd"}
-                      {implementationPlan?.status === "sent" && "Skickad"}
-                    </Badge>
+                    <label className="text-sm font-medium">Planinnehåll</label>
+                    <Textarea
+                      value={gfpForm.planContent}
+                      onChange={(e) => setGfpForm(prev => ({
+                        ...prev,
+                        planContent: e.target.value
+                      }))}
+                      className="mt-1"
+                      placeholder="Beskriv genomförandeplanen..."
+                    />
                   </div>
-
-                  {implementationPlan?.planContent && (
-                    <div>
-                      <label className="text-sm font-medium">
-                        Planinnehåll
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.planContent}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {implementationPlan?.goals && (
-                    <div>
-                      <label className="text-sm font-medium">Mål</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">{implementationPlan.goals}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {implementationPlan?.activities && (
-                    <div>
-                      <label className="text-sm font-medium">Aktiviteter</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.activities}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {implementationPlan?.completedDate && (
-                    <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm text-green-800 flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" />
-                        GFP slutförd och godkänd
-                      </p>
-                    </div>
-                  )}
+                  <div>
+                    <label className="text-sm font-medium">Mål</label>
+                    <Textarea
+                      value={gfpForm.goals}
+                      onChange={(e) => setGfpForm(prev => ({
+                        ...prev,
+                        goals: e.target.value
+                      }))}
+                      className="mt-1"
+                      placeholder="Ange mål för genomförandet..."
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">
-                    Ingen genomförandeplan skapad än
-                  </p>
-                  <ImplementationPlanDialog
-                    trigger={
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Skapa genomförandeplan
-                      </Button>
-                    }
-                    client={client}
+
+                <div>
+                  <label className="text-sm font-medium">Aktiviteter</label>
+                  <Textarea
+                    value={gfpForm.activities}
+                    onChange={(e) => setGfpForm(prev => ({
+                      ...prev,
+                      activities: e.target.value
+                    }))}
+                    className="mt-1"
+                    placeholder="Ange planerade aktiviteter..."
                   />
                 </div>
-              )}
+
+                <div>
+                  <label className="text-sm font-medium">Uppföljningsschema</label>
+                  <Textarea
+                    value={gfpForm.followUpSchedule}
+                    onChange={(e) => setGfpForm(prev => ({
+                      ...prev,
+                      followUpSchedule: e.target.value
+                    }))}
+                    className="mt-1"
+                    placeholder="Beskriv schema för uppföljning..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Status</label>
+                    <Select
+                      value={gfpForm.status}
+                      onValueChange={(value) => setGfpForm(prev => ({
+                        ...prev,
+                        status: value
+                      }))}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Välj status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Väntande</SelectItem>
+                        <SelectItem value="in_progress">Pågående</SelectItem>
+                        <SelectItem value="completed">Slutförd</SelectItem>
+                        <SelectItem value="sent">Skickad</SelectItem>
+                        <SelectItem value="overdue">Försenad</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Slutförd datum</label>
+                    <Input
+                      type="date"
+                      value={gfpForm.completedDate}
+                      onChange={(e) => setGfpForm(prev => ({
+                        ...prev,
+                        completedDate: e.target.value
+                      }))}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Skickad datum</label>
+                    <Input
+                      type="date"
+                      value={gfpForm.sentDate}
+                      onChange={(e) => setGfpForm(prev => ({
+                        ...prev,
+                        sentDate: e.target.value
+                      }))}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Kommentarer</label>
+                  <Textarea
+                    value={gfpForm.comments}
+                    onChange={(e) => setGfpForm(prev => ({
+                      ...prev,
+                      comments: e.target.value
+                    }))}
+                    className="mt-1"
+                    placeholder="Lägg till kommentarer..."
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <Badge className={getStatusColor(gfpForm.status, isGfpOverdue())}>
+                    {isGfpOverdue() && gfpForm.status !== "completed" && "FÖRSENAD - "}
+                    {gfpForm.status === "pending" && "Väntande"}
+                    {gfpForm.status === "in_progress" && "Pågående"}
+                    {gfpForm.status === "completed" && "Slutförd"}
+                    {gfpForm.status === "sent" && "Skickad"}
+                    {gfpForm.status === "overdue" && "Försenad"}
+                  </Badge>
+                  {hasGfpChanges && (
+                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                      Osparade ändringar
+                    </Badge>
+                  )}
+                </div>
+
+                {gfpForm.status === "completed" && (
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-sm text-green-800 flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      GFP slutförd och godkänd
+                    </p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

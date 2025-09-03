@@ -101,6 +101,8 @@ export interface IStorage {
     id: string,
     updates: UpdateImplementationPlan
   ): Promise<ImplementationPlan | undefined>;
+  deleteImplementationPlan(id: string): Promise<boolean>;
+  getImplementationPlanById(id: string): Promise<ImplementationPlan | undefined>;
 
   // Vimsa time operations
   getAllVimsaTime(): Promise<VimsaTime[]>;
@@ -312,6 +314,23 @@ export class MemStorage implements IStorage {
   }
 
   async deleteStaff(id: string): Promise<boolean> {
+    // Check if staff has assigned clients
+    const relatedClients = Array.from(this.clients.values()).filter(
+      client => client.staffId === id
+    );
+    
+    if (relatedClients.length > 0) {
+      // Set all related clients to unassigned (or a default staff ID)
+      for (const client of relatedClients) {
+        const updated = {
+          ...client,
+          staffId: "unassigned",
+          updatedAt: new Date(),
+        };
+        this.clients.set(client.id, updated);
+      }
+    }
+    
     return this.staff.delete(id);
   }
 
@@ -616,6 +635,14 @@ export class MemStorage implements IStorage {
     };
     this.implementationPlans.set(id, updated);
     return updated;
+  }
+
+  async deleteImplementationPlan(id: string): Promise<boolean> {
+    return this.implementationPlans.delete(id);
+  }
+
+  async getImplementationPlanById(id: string): Promise<ImplementationPlan | undefined> {
+    return this.implementationPlans.get(id);
   }
 
   // Vimsa time operations

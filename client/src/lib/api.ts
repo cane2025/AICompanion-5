@@ -196,6 +196,26 @@ export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
+export const deleteImplementationPlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
+export const updateCarePlan = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+export const deleteCarePlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
 // Weekly Documentation API
 export const getWeeklyDocumentation = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/weekly-documentation`, {

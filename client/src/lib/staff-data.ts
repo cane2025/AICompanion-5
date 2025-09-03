@@ -1,16 +1,22 @@
 export const staffList = [
   "Afif Derbas", "Ahmed Alrakabi", "Ahmed Ramadan", "Ajmen Rafiq", "Alana Salah",
-  "Alharis Albayati", "Amir Al-istarabadi", "Anjelika Bååth", "Bashdar Reza",
+  "Alharis Albayati", "Amir Al-Istarabadi", "Anjelika Bååth", "Bashdar Reza",
   "Constanza Soto", "Deni Dulji", "Diana Gharib", "Drilon Muqkurtaj", "Heidar Farhan",
   "Hussein Ahmed", "Ida Björkbacka", "Ikhlas Almaliki", "Intisar Almansour",
-  "Israa Touman", "Johan Wessberg", "Kaoula Channoufi", "Kim Torneus", "Lejla Kocacik",
-  "Michelle Nilsson", "Mirza Celik", "Mirza Hodzic", "Nasima Kuraishe",
+  "Israa Touman", "Johan Wessberg", "Kim Torneus", "Lejla Kocacik",
+  "Mirza Celik", "Mirza Hodzic", "Nasima Kuraishe",
   "Nicolas Lazcano", "Omar Mezza", "Qasin Abdullahi", "Robert Ackar", "Samir Bezzina",
   "Sebastian Holm", "Wissam Hemissi", "Yasmin Ibrahim"
 ];
 
 export function getInitials(name: string): string {
-  return name.split(' ').map(n => n[0]).join('');
+  // Clean the name by removing trailing dashes and extra spaces
+  const cleanName = name.replace(/[-–]\s*$/, '').trim();
+  return cleanName.split(' ')
+    .map(n => n.trim())
+    .filter(n => n.length > 0)
+    .map(n => n[0].toUpperCase())
+    .join('');
 }
 
 export function getStatusColor(status: string): string {

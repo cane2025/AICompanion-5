@@ -231,9 +231,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/staff/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      await storage.deleteStaff(id);
+      const success = await storage.deleteStaff(id);
+      if (!success) {
+        return res.status(404).json({ message: "Personal hittades inte" });
+      }
       broadcastUpdate("staff", { deleted: id });
-      res.json({ message: "Personal borttagen" });
+      res.status(204).end();
     } catch (error) {
       console.error("Error deleting staff:", error);
       res.status(500).json({ message: "Kunde inte ta bort personal" });
@@ -349,28 +352,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting client:", error);
       res.status(500).json({ message: "Kunde inte ta bort klient" });
-    }
-  });
-
-  // Care plan routes
-  app.get("/api/care-plans/all", async (req, res) => {
-    try {
-      const carePlans = await storage.getAllCarePlans();
-      res.json(carePlans);
-    } catch (error) {
-      console.error("Error getting care plans:", error);
-      res.status(500).json({ message: "Kunde inte hämta vårdplaner" });
-    }
-  });
-
-  app.post("/api/care-plans", async (req, res) => {
-    try {
-      const carePlanData = req.body;
-      const carePlan = await storage.createCarePlan(carePlanData);
-      res.json(carePlan);
-    } catch (error) {
-      console.error("Error creating care plan:", error);
-      res.status(500).json({ message: "Kunde inte skapa vårdplan" });
     }
   });
 
@@ -602,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Care plan routes
+  // Care plan routes - ordered from most specific to least specific
   app.get("/api/care-plans/all", async (req, res) => {
     try {
       const carePlans = await storage.getAllCarePlans();
@@ -612,40 +593,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/care-plans/:clientId", async (req, res) => {
+  app.get("/api/care-plans/client/:clientId", async (req, res) => {
     try {
-      const plan = await storage.getCarePlan(req.params.clientId);
-      if (!plan) {
-        return res.status(404).json({ message: "Vårdplan hittades inte" });
-      }
-      res.json(plan);
+      const carePlans = await storage.getAllCarePlans();
+      const clientCarePlans = carePlans.filter(
+        (cp) => cp.clientId === req.params.clientId
+      );
+      res.json(clientCarePlans);
     } catch (error) {
-      res.status(500).json({ message: "Kunde inte hämta vårdplan" });
-    }
-  });
-
-  app.post("/api/care-plans", async (req, res) => {
-    try {
-      const validated = insertCarePlanSchema.parse(req.body);
-      const carePlan = await storage.createCarePlan(validated);
-
-      // Implementation plan will be created separately when needed
-
-      res.status(201).json(carePlan);
-    } catch (error) {
-      res.status(400).json({ message: "Kunde inte skapa vårdplan" });
-    }
-  });
-
-  app.delete("/api/care-plans/:id", async (req, res) => {
-    try {
-      const success = await storage.deleteCarePlan(req.params.id);
-      if (!success) {
-        return res.status(404).json({ message: "Vårdplan hittades inte" });
-      }
-      res.json({ message: "Vårdplan borttagen" });
-    } catch (error) {
-      res.status(500).json({ message: "Kunde inte ta bort vårdplan" });
+      res.status(500).json({ message: "Kunde inte hämta vårdplaner för klient" });
     }
   });
 
@@ -660,6 +616,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res
         .status(500)
         .json({ message: "Kunde inte hämta vårdplaner för personal" });
+    }
+  });
+
+  app.post("/api/care-plans", async (req, res) => {
+    try {
+      const validated = insertCarePlanSchema.parse(req.body);
+      const carePlan = await storage.createCarePlan(validated);
+      res.status(201).json(carePlan);
+    } catch (error) {
+      res.status(400).json({ message: "Kunde inte skapa vårdplan" });
+    }
+  });
+
+  app.put("/api/care-plans/:id", async (req, res) => {
+    try {
+      const validatedData = updateCarePlanSchema.parse(req.body);
+      const plan = await storage.updateCarePlan(req.params.id, validatedData);
+      if (!plan) {
+        return res.status(404).json({ message: "Care plan not found" });
+      }
+      broadcastUpdate("carePlans", plan);
+      res.json(plan);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid care plan data", error });
+    }
+  });
+
+  app.delete("/api/care-plans/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteCarePlan(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Vårdplan hittades inte" });
+      }
+      broadcastUpdate("carePlans", { deleted: req.params.id });
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte ta bort vårdplan" });
     }
   });
 
@@ -787,30 +780,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/care-plans", async (req, res) => {
-    try {
-      const validatedData = insertCarePlanSchema.parse(req.body);
-      const plan = await storage.createCarePlan(validatedData);
-      broadcastUpdate("carePlans", plan);
-      res.status(201).json(plan);
-    } catch (error) {
-      res.status(400).json({ message: "Ogiltig vårdplan data", error });
-    }
-  });
-
-  app.put("/api/care-plans/:id", async (req, res) => {
-    try {
-      const validatedData = updateCarePlanSchema.parse(req.body);
-      const plan = await storage.updateCarePlan(req.params.id, validatedData);
-      if (!plan) {
-        return res.status(404).json({ message: "Care plan not found" });
-      }
-      res.json(plan);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid care plan data", error });
-    }
-  });
-
   // Implementation plan routes
   app.get("/api/clients/:clientId/implementation-plan", async (req, res) => {
     try {
@@ -851,11 +820,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .status(404)
           .json({ message: "Implementation plan not found" });
       }
+      broadcastUpdate("implementationPlans", plan);
       res.json(plan);
     } catch (error) {
       res
         .status(400)
         .json({ message: "Invalid implementation plan data", error });
+    }
+  });
+
+  app.delete("/api/implementation-plans/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteImplementationPlan(id);
+      if (!success) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      broadcastUpdate("implementationPlans", { deleted: id });
+      res.status(204).end();
+    } catch (error) {
+      console.error("Error deleting implementation plan:", error);
+      res.status(500).json({ message: "Kunde inte ta bort genomförandeplan" });
     }
   });
 
