@@ -1,29 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardStats } from "@/components/dashboard-stats";
-import { CareOverview } from "@/components/care-overview";
-import { StaffStatistics } from "@/components/staff-statistics";
-import { DataOverview } from "@/components/data-overview";
-import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
+import { DashboardOverview } from "@/components/dashboard-overview";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
-import { SimpleWorkingCarePlan } from "@/components/simple-working-care-plan";
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";
 import { VimsaTimeDialog } from "@/components/vimsa-time-dialog";
+import { TodayFocus } from "@/components/today-focus";
+import { RecentActivity } from "@/components/recent-activity";
 import { StaffManagement } from "@/components/staff-management";
 import { useRealtimeSync } from "@/hooks/use-realtime-sync";
-import {
-  Users,
-  FileText,
-  Calendar,
-  TrendingUp,
-  BarChart3,
-  Heart,
-  Clock,
-  Plus,
-} from "lucide-react";
+import { FileText, Calendar, Clock } from "lucide-react";
 import type { Staff } from "@shared/schema";
 
 export function Dashboard() {
@@ -85,13 +72,8 @@ export function Dashboard() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-ungdoms-800 mb-2">
-              Dashboard - UNGDOMS Öppenvård
-            </h2>
-            <p className="text-ungdoms-600">
-              Överskådlig sammanfattning av vårdplaner, genomförandeplaner och
-              personalstatistik
-            </p>
+            <h2 className="text-2xl font-bold text-ungdoms-800 mb-2">Dashboard - UNGDOMS Öppenvård</h2>
+            <p className="text-ungdoms-600">Översikt och snabb åtkomst – inga dubletter</p>
           </div>
           <div className="flex gap-2">
             <CarePlanDialog
@@ -130,134 +112,16 @@ export function Dashboard() {
         </div>
       </div>
 
-      <Tabs defaultValue="vardplan" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="vardplan">📋 Vårdplan</TabsTrigger>
-          <TabsTrigger value="workflow">🔄 Vårdflöde</TabsTrigger>
-          <TabsTrigger value="overview">📊 Översikt</TabsTrigger>
-          <TabsTrigger value="care-plans">📁 Vårdplaner & GFP</TabsTrigger>
-          <TabsTrigger value="statistics">👥 Personal</TabsTrigger>
-          <TabsTrigger value="data-overview">💾 Sparad Data</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="vardplan">
-          <div className="py-8">
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-ungdoms-800 mb-4">
-                Vårdplan - Snabbstart
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <CarePlanDialog
-                  trigger={
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-20 flex flex-col items-center justify-center">
-                      <FileText className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Skapa Vårdplan</span>
-                    </Button>
-                  }
-                />
-                <WeeklyDocumentationDialog
-                  trigger={
-                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white h-20 flex flex-col items-center justify-center">
-                      <FileText className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Veckodokumentation</span>
-                    </Button>
-                  }
-                />
-                <MonthlyReportDialog
-                  trigger={
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white h-20 flex flex-col items-center justify-center">
-                      <Calendar className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Månadsrapport</span>
-                    </Button>
-                  }
-                />
-                <VimsaTimeDialog
-                  trigger={
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white h-20 flex flex-col items-center justify-center">
-                      <Clock className="h-6 w-6 mb-2" />
-                      <span className="text-sm">Vimsa Tid</span>
-                    </Button>
-                  }
-                />
-              </div>
-            </div>
-            <SimpleWorkingCarePlan />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="workflow">
-          <CompleteWorkflowOverview />
-        </TabsContent>
-
-        <TabsContent value="overview">
-          <DashboardStats staff={staff} />
-
-          {/* Quick Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            <Card className="shadow-sm border border-ungdoms-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-ungdoms-700">
-                  Aktiv Personal
-                </CardTitle>
-                <Users className="h-4 w-4 text-ungdoms-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-ungdoms-800">
-                  {staff.length}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  registrerade vårdpersonal
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border border-ungdoms-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-ungdoms-700">
-                  Vårdprocesser
-                </CardTitle>
-                <Heart className="h-4 w-4 text-ungdoms-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-ungdoms-800">5</div>
-                <p className="text-xs text-muted-foreground">
-                  steg i vårdprocessen
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border border-ungdoms-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-ungdoms-700">
-                  Statistik & Grafer
-                </CardTitle>
-                <BarChart3 className="h-4 w-4 text-ungdoms-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-ungdoms-800">📊</div>
-                <p className="text-xs text-muted-foreground">
-                  detaljerad prestationsanalys
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="care-plans">
-          <CareOverview staff={staff} />
-        </TabsContent>
-
-        <TabsContent value="statistics">
-          <div className="space-y-6">
-            <StaffManagement />
-            <StaffStatistics staff={staff} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="data-overview">
-          <DataOverview />
-        </TabsContent>
-      </Tabs>
+      {/* Overview panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <TodayFocus />
+          <RecentActivity />
+        </div>
+        <div className="lg:col-span-1">
+          <DashboardOverview staff={staff} />
+        </div>
+      </div>
     </div>
   );
 }
