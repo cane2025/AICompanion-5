@@ -192,24 +192,33 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  private getInitials(name: string): string {
-    return name
-      .split(" ")
+  /**
+   * Generate initials from a displayName.
+   *
+   * The displayName may contain a trailing hyphen or en-dash ("-" / "–") that
+   * should not be included. We trim that as well as surrounding whitespace
+   * before splitting into parts and taking the first character of each part.
+   */
+  private getInitials(displayName: string): string {
+    const fullName = displayName.replace(/[–-]\s*$/, "").trim();
+    return fullName
+      .split(/\s+/)
+      .filter(Boolean)
       .map((n) => n[0])
       .join("");
   }
 
   private initializeDefaultStaff() {
     const defaultStaffNames = [
-      "Afif Derbas",
+      "Afif Derbas-",
       "Ahmed Alrakabi",
-      "Ahmed Ramadan",
-      "Ajmen Rafiq",
-      "Alana Salah",
+      "Ahmed Ramadan –", // en-dash per original
+      "Ajmen Rafiq-",
+      "Alana Salah-",
       "Alharis Albayati",
-      "Amir Al-istarabadi",
-      "Anjelika Bååth",
-      "Bashdar Reza",
+      "Amir Al-Istarabadi  -",
+      "Anjelika Bååth-",
+      "Bashdar Reza –",
       "Constanza Soto",
       "Deni Dulji",
       "Diana Gharib",
@@ -221,10 +230,8 @@ export class MemStorage implements IStorage {
       "Intisar Almansour",
       "Israa Touman",
       "Johan Wessberg",
-      "Kaoula Channoufi",
       "Kim Torneus",
       "Lejla Kocacik",
-      "Michelle Nilsson",
       "Mirza Celik",
       "Mirza Hodzic",
       "Nasima Kuraishe",
@@ -311,8 +318,57 @@ export class MemStorage implements IStorage {
     return updated;
   }
 
+  /**
+   * Delete a staff member.
+   *
+   * Side-effects:
+   *   • Any clients, care plans or implementation plans that reference the staff
+   *     will be updated so that their staffId / responsibleId becomes an empty
+   *     string ("unassigned"). This prevents frontend queries from breaking and
+   *     fulfils the requirement that the objects remain but are marked
+   *     "Oassignerad" in the UI.
+   *   • Returns true if the staff row existed and was removed, otherwise false.
+   */
   async deleteStaff(id: string): Promise<boolean> {
-    return this.staff.delete(id);
+    const existed = this.staff.delete(id);
+
+    if (!existed) return false;
+
+    // Unassign staff from related clients
+    for (const [cid, client] of this.clients.entries()) {
+      if (client.staffId === id) {
+        this.clients.set(cid, {
+          ...client,
+          staffId: "", // denotes unassigned
+          updatedAt: new Date(),
+        });
+      }
+    }
+
+    // Unassign staff from care plans
+    for (const [pid, plan] of this.carePlans.entries()) {
+      if (plan.staffId === id || plan.responsibleId === id) {
+        this.carePlans.set(pid, {
+          ...plan,
+          staffId: plan.staffId === id ? "" : plan.staffId,
+          responsibleId: plan.responsibleId === id ? "" : plan.responsibleId,
+          updatedAt: new Date(),
+        });
+      }
+    }
+
+    // Unassign staff from implementation plans
+    for (const [pid, plan] of this.implementationPlans.entries()) {
+      if (plan.staffId === id) {
+        this.implementationPlans.set(pid, {
+          ...plan,
+          staffId: "",
+          updatedAt: new Date(),
+        });
+      }
+    }
+
+    return true;
   }
 
   // Client operations

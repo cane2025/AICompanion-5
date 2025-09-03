@@ -231,9 +231,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/staff/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      await storage.deleteStaff(id);
+      const deleted = await storage.deleteStaff(id);
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Personal hittades inte" });
+      }
+
       broadcastUpdate("staff", { deleted: id });
-      res.json({ message: "Personal borttagen" });
+      // 204 No Content for successful deletion per REST
+      res.status(204).send();
     } catch (error) {
       console.error("Error deleting staff:", error);
       res.status(500).json({ message: "Kunde inte ta bort personal" });
