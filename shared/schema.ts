@@ -18,7 +18,8 @@ export const users = pgTable("users", {
 // Staff table
 export const staff = pgTable("staff", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
+  name: varchar("name").notNull(), // Display name (exactly as shown in UI)
+  fullName: varchar("full_name"), // Internal name for logic (trimmed)
   initials: varchar("initials").notNull(),
   personnummer: varchar("personnummer").default(""),
   telefon: varchar("telefon").default(""),

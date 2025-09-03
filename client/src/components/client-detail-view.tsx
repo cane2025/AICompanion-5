@@ -40,6 +40,8 @@ import {
 import { WeeklyDocumentationDialog } from "./weekly-documentation-dialog";
 import { MonthlyReportDialog } from "./monthly-report-dialog";
 import { VimsaTimeDialog } from "./vimsa-time-dialog";
+import { EditableCarePlan } from "./editable-care-plan";
+import { EditableImplementationPlan } from "./editable-implementation-plan";
 import * as api from "@/lib/api";
 import type {
   Client,
@@ -391,238 +393,16 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
 
         {/* Vårdplan Tab */}
         <TabsContent value="careplan">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Vårdplan - {client.initials}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">
-                      Mottagen datum
-                    </label>
-                    <Input
-                      type="date"
-                      value={
-                        carePlan?.receivedDate
-                          ? new Date(carePlan.receivedDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">
-                      Inlagd i journal (digitalt)
-                    </label>
-                    <Input
-                      type="date"
-                      value={
-                        carePlan?.enteredJournalDate
-                          ? new Date(carePlan.enteredJournalDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">
-                      Personal tillsagd
-                    </label>
-                    <Input
-                      type="date"
-                      value={
-                        carePlan?.staffNotifiedDate
-                          ? new Date(carePlan.staffNotifiedDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                {carePlan?.staffNotifiedDate && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm text-blue-800">
-                      <strong>GFP ska vara inlämnad senast:</strong>{" "}
-                      {new Date(
-                        new Date(carePlan.staffNotifiedDate).getTime() +
-                          21 * 24 * 60 * 60 * 1000
-                      ).toLocaleDateString("sv-SE")}{" "}
-                      (3 veckor från tillsägning)
-                    </p>
-                  </div>
-                )}
-
-                <div>
-                  <label className="text-sm font-medium">Status</label>
-                  <Badge
-                    className={`mt-1 ${getStatusColor(
-                      carePlan?.status || "received"
-                    )}`}
-                  >
-                    {carePlan?.status === "received" && "Mottagen"}
-                    {carePlan?.status === "entered_journal" &&
-                      "Inlagd i journal"}
-                    {carePlan?.status === "staff_notified" &&
-                      "Personal tillsagd"}
-                    {carePlan?.status === "gfp_pending" && "Väntar på GFP"}
-                    {carePlan?.status === "completed" && "Slutförd"}
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <EditableCarePlan clientId={client.id} clientInitials={client.initials} />
         </TabsContent>
 
         {/* GFP Tab */}
         <TabsContent value="gfp">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Genomförandeplan (GFP) - {client.initials}
-                  {isGfpOverdue() && (
-                    <Badge className="bg-red-100 text-red-800 border-red-200 ml-2">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      FÖRSENAD
-                    </Badge>
-                  )}
-                </CardTitle>
-                <SimpleImplementationPlanDialog clientId={client.id} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              {implementationPlan ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">
-                        Förfallodatum
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          implementationPlan?.dueDate
-                            ? new Date(implementationPlan.dueDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
-                        className="mt-1"
-                        disabled
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        Slutförd datum
-                      </label>
-                      <Input
-                        type="date"
-                        value={
-                          implementationPlan?.completedDate
-                            ? new Date(implementationPlan.completedDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
-                        className="mt-1"
-                        disabled
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">Status</label>
-                    <Badge
-                      className={`mt-1 ${getStatusColor(
-                        implementationPlan?.status || "pending",
-                        isGfpOverdue()
-                      )}`}
-                    >
-                      {isGfpOverdue() &&
-                        implementationPlan?.status !== "completed" &&
-                        "FÖRSENAD - "}
-                      {implementationPlan?.status === "pending" && "Väntande"}
-                      {implementationPlan?.status === "in_progress" &&
-                        "Pågående"}
-                      {implementationPlan?.status === "completed" && "Slutförd"}
-                      {implementationPlan?.status === "sent" && "Skickad"}
-                    </Badge>
-                  </div>
-
-                  {implementationPlan?.planContent && (
-                    <div>
-                      <label className="text-sm font-medium">
-                        Planinnehåll
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.planContent}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {implementationPlan?.goals && (
-                    <div>
-                      <label className="text-sm font-medium">Mål</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">{implementationPlan.goals}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {implementationPlan?.activities && (
-                    <div>
-                      <label className="text-sm font-medium">Aktiviteter</label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded border">
-                        <p className="text-sm">
-                          {implementationPlan.activities}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {implementationPlan?.completedDate && (
-                    <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm text-green-800 flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" />
-                        GFP slutförd och godkänd
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">
-                    Ingen genomförandeplan skapad än
-                  </p>
-                  <ImplementationPlanDialog
-                    trigger={
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Skapa genomförandeplan
-                      </Button>
-                    }
-                    client={client}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <EditableImplementationPlan 
+            clientId={client.id} 
+            clientInitials={client.initials}
+            carePlanDate={carePlan?.staffNotifiedDate}
+          />
         </TabsContent>
 
         {/* Dokumentation Tab */}

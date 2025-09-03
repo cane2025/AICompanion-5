@@ -859,6 +859,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/implementation-plans/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteImplementationPlan(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte ta bort genomförandeplan" });
+    }
+  });
+
   // Vimsa time routes
   app.get("/api/clients/:clientId/vimsa/:year/:week", async (req, res) => {
     try {
