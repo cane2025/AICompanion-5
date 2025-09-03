@@ -415,6 +415,23 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                           : ""
                       }
                       className="mt-1"
+                      onChange={(e) => {
+                        if (!carePlan) return;
+                        fetch(`/api/care-plans/${carePlan.id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          credentials: "include",
+                          body: JSON.stringify({ receivedDate: e.target.value }),
+                        })
+                          .then(() =>
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/care-plans", client.id],
+                            })
+                          )
+                          .catch(() =>
+                            toast({ title: "Fel vid sparning", variant: "destructive" })
+                          );
+                      }}
                     />
                   </div>
                   <div>
@@ -431,6 +448,23 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                           : ""
                       }
                       className="mt-1"
+                      onChange={(e) => {
+                        if (!carePlan) return;
+                        fetch(`/api/care-plans/${carePlan.id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          credentials: "include",
+                          body: JSON.stringify({ enteredJournalDate: e.target.value }),
+                        })
+                          .then(() =>
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/care-plans", client.id],
+                            })
+                          )
+                          .catch(() =>
+                            toast({ title: "Fel vid sparning", variant: "destructive" })
+                          );
+                      }}
                     />
                   </div>
                   <div>
@@ -447,6 +481,23 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                           : ""
                       }
                       className="mt-1"
+                      onChange={(e) => {
+                        if (!carePlan) return;
+                        fetch(`/api/care-plans/${carePlan.id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          credentials: "include",
+                          body: JSON.stringify({ staffNotifiedDate: e.target.value }),
+                        })
+                          .then(() =>
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/care-plans", client.id],
+                            })
+                          )
+                          .catch(() =>
+                            toast({ title: "Fel vid sparning", variant: "destructive" })
+                          );
+                      }}
                     />
                   </div>
                 </div>
@@ -521,7 +572,23 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                             : ""
                         }
                         className="mt-1"
-                        disabled
+                        onChange={(e) => {
+                          if (!implementationPlan) return;
+                          fetch(`/api/implementation-plans/${implementationPlan.id}`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({ dueDate: e.target.value }),
+                          })
+                            .then(() =>
+                              queryClient.invalidateQueries({
+                                queryKey: ["/api/implementation-plans", client.id],
+                              })
+                            )
+                            .catch(() =>
+                              toast({ title: "Fel vid sparning", variant: "destructive" })
+                            );
+                        }}
                       />
                     </div>
                     <div>
@@ -538,7 +605,23 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                             : ""
                         }
                         className="mt-1"
-                        disabled
+                        onChange={(e) => {
+                          if (!implementationPlan) return;
+                          fetch(`/api/implementation-plans/${implementationPlan.id}`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({ completedDate: e.target.value }),
+                          })
+                            .then(() =>
+                              queryClient.invalidateQueries({
+                                queryKey: ["/api/implementation-plans", client.id],
+                              })
+                            )
+                            .catch(() =>
+                              toast({ title: "Fel vid sparning", variant: "destructive" })
+                            );
+                        }}
                       />
                     </div>
                   </div>
@@ -550,6 +633,30 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                         implementationPlan?.status || "pending",
                         isGfpOverdue()
                       )}`}
+                      onClick={() => {
+                        if (!implementationPlan) return;
+                        const next =
+                          implementationPlan.status === "pending"
+                            ? "in_progress"
+                            : implementationPlan.status === "in_progress"
+                            ? "completed"
+                            : "pending";
+                        fetch(`/api/implementation-plans/${implementationPlan.id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          credentials: "include",
+                          body: JSON.stringify({ status: next }),
+                        })
+                          .then(() =>
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/implementation-plans", client.id],
+                            })
+                          )
+                          .catch(() =>
+                            toast({ title: "Fel vid sparning", variant: "destructive" })
+                          );
+                      }}
+                      style={{ cursor: "pointer" }}
                     >
                       {isGfpOverdue() &&
                         implementationPlan?.status !== "completed" &&

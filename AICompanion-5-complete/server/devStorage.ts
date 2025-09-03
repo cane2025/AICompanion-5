@@ -61,6 +61,9 @@ export interface IStaff {
   id: string;
   name: string;
   initials: string;
+  // Optional fields for display/normalization
+  displayName?: string;
+  fullName?: string;
   personnummer?: string;
   telefon?: string;
   epost?: string;
@@ -86,10 +89,59 @@ interface IStore {
 
 // Initialize or get existing store from global scope
 const store: IStore = (global as any).__DEV_STORE__ || {
-  staff: [
-    {
+  staff: (function seedStaff() {
+    const now = new Date().toISOString();
+    const names = [
+      "Afif Derbas-",
+      "Ahmed Alrakabi",
+      "Ahmed Ramadan –",
+      "Ajmen Rafiq-",
+      "Alana Salah-",
+      "Alharis Albayati",
+      "Amir Al-Istarabadi  -",
+      "Anjelika Bååth-",
+      "Bashdar Reza –",
+      "Constanza Soto",
+      "Deni Dulji",
+      "Diana Gharib",
+      "Drilon Muqkurtaj",
+      "Heidar Farhan",
+      "Hussein Ahmed",
+      "Ida Björkbacka",
+      "Ikhlas Almaliki",
+      "Intisar Almansour",
+      "Israa Touman",
+      "Johan Wessberg",
+      "Kim Torneus",
+      "Lejla Kocacik",
+      "Mirza Celik",
+      "Mirza Hodzic",
+      "Nasima Kuraishe",
+      "Nicolas Lazcano",
+      "Omar Mezza",
+      "Qasin Abdullahi",
+      "Robert Ackar",
+      "Samir Bezzina",
+      "Sebastian Holm",
+      "Wissam Hemissi",
+      "Yasmin Ibrahim",
+    ];
+    function normalize(n: string) {
+      return n.replace(/[\u2013\u2014\u2012\-]+\s*$/u, "").replace(/\s+/g, " ").trim();
+    }
+    function initials(n: string) {
+      return normalize(n)
+        .split(" ")
+        .filter(Boolean)
+        .map((p) => p[0])
+        .join("")
+        .toUpperCase();
+    }
+    const demo: IStaff = {
       id: "s_demo",
       name: "Demo Personal",
+      displayName: "Demo Personal",
+      fullName: "Demo Personal",
       initials: "DP",
       personnummer: "",
       telefon: "",
@@ -98,94 +150,27 @@ const store: IStore = (global as any).__DEV_STORE__ || {
       anställningsdatum: "",
       roll: "sjuksköterska",
       avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "s_afif",
-      name: "Afif Derbas",
-      initials: "AD",
+      createdAt: now,
+      updatedAt: now,
+    };
+    const seeded = names.map((n, idx) => ({
+      id: `s_seed_${idx}`,
+      name: n,
+      displayName: n,
+      fullName: normalize(n),
+      initials: initials(n),
       personnummer: "",
       telefon: "",
-      epost: "afif@example.com",
+      epost: "",
       adress: "",
       anställningsdatum: "",
-      roll: "sjuksköterska",
-      avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "s_mirza",
-      name: "Mirza Celik",
-      initials: "MC",
-      personnummer: "",
-      telefon: "",
-      epost: "mirza@example.com",
-      adress: "",
-      anställningsdatum: "",
-      roll: "sjuksköterska",
-      avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "s_sarah",
-      name: "Sarah Andersson",
-      initials: "SA",
-      personnummer: "",
-      telefon: "",
-      epost: "sarah@example.com",
-      adress: "",
-      anställningsdatum: "",
-      roll: "sjuksköterska",
-      avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "s_mikael",
-      name: "Mikael Johansson",
-      initials: "MJ",
-      personnummer: "",
-      telefon: "",
-      epost: "mikael@example.com",
-      adress: "",
-      anställningsdatum: "",
-      roll: "sjuksköterska",
-      avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "s_anna",
-      name: "Anna Lindberg",
-      initials: "AL",
-      personnummer: "",
-      telefon: "",
-      epost: "anna@example.com",
-      adress: "",
-      anställningsdatum: "",
-      roll: "sjuksköterska",
-      avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: "s_erik",
-      name: "Erik Svensson",
-      initials: "ES",
-      personnummer: "",
-      telefon: "",
-      epost: "erik@example.com",
-      adress: "",
-      anställningsdatum: "",
-      roll: "sjuksköterska",
-      avdelning: "demo",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
+      roll: "",
+      avdelning: "",
+      createdAt: now,
+      updatedAt: now,
+    }));
+    return [demo, ...seeded];
+  })(),
   clients: [],
   carePlans: [],
   implementationPlans: [],
@@ -257,6 +242,27 @@ export const devStorage = {
     return carePlan;
   },
 
+  async updateCarePlan(
+    id: string,
+    data: Partial<Omit<ICarePlan, "id" | "createdAt" | "updatedAt">>
+  ): Promise<ICarePlan> {
+    const plan = updateById(store.carePlans, id, {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    });
+    if (!plan) {
+      throw new Error("Care plan not found");
+    }
+    return plan;
+  },
+
+  async deleteCarePlan(id: string): Promise<void> {
+    const idx = store.carePlans.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      store.carePlans.splice(idx, 1);
+    }
+  },
+
   async getCarePlansByClient(clientId: string): Promise<ICarePlan[]> {
     return store.carePlans.filter((plan) => plan.clientId === clientId);
   },
@@ -296,6 +302,13 @@ export const devStorage = {
       throw new Error("Implementation plan not found");
     }
     return plan;
+  },
+
+  async deleteImplementationPlan(id: string): Promise<void> {
+    const idx = store.implementationPlans.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      store.implementationPlans.splice(idx, 1);
+    }
   },
 
   // Weekly documentation operations
@@ -388,6 +401,10 @@ export const devStorage = {
     const staff = store.staff.find((s) => s.id === id);
     if (staff) {
       staff.deletedAt = new Date().toISOString();
+      // Unassign clients linked to this staff
+      store.clients = store.clients.map((c) =>
+        c.staffId === id ? { ...c, staffId: "unassigned", updatedAt: new Date().toISOString() } : c
+      );
     }
   },
 

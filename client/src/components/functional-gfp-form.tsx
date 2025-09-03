@@ -21,7 +21,7 @@ interface FunctionalGfpFormProps {
 }
 
 export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
-  const { saveData, isLoading: isSaving } = useSaveData("gfp-endpoint");
+  const { saveData, isLoading: isSaving } = useSaveData("/api/implementation-plans");
 
   // Form state
   const [formData, setFormData] = useState({

@@ -262,6 +262,35 @@ router.post("/api/care-plans", async (req, res) => {
   }
 });
 
+// Update care plan
+router.put("/api/care-plans/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = carePlanSchema.omit({ id: true }).partial().parse({
+      ...req.body,
+      staffId: req.body.staffId || (req as any).user.id,
+    });
+    const plan = await devStorage.updateCarePlan(id, data as any);
+    res.json(plan);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    res.status(500).json({ error: "Failed to update care plan" });
+  }
+});
+
+// Delete care plan
+router.delete("/api/care-plans/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await devStorage.deleteCarePlan(id);
+    res.status(204).end();
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to delete care plan" });
+  }
+});
+
 router.get("/api/clients/:clientId/care-plans", async (req, res) => {
   try {
     const { clientId } = req.params;
@@ -359,6 +388,17 @@ router.put("/api/implementation-plans/:id", async (req, res) => {
       return res.status(400).json({ error: error.errors });
     }
     res.status(500).json({ error: "Failed to update implementation plan" });
+  }
+});
+
+// Delete implementation plan
+router.delete("/api/implementation-plans/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await devStorage.deleteImplementationPlan(id);
+    res.status(204).end();
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to delete implementation plan" });
   }
 });
 
