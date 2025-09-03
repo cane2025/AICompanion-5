@@ -312,6 +312,24 @@ export class MemStorage implements IStorage {
   }
 
   async deleteStaff(id: string): Promise<boolean> {
+    // Check if staff has assigned clients
+    const assignedClients = Array.from(this.clients.values()).filter(
+      (client) => client.staffId === id
+    );
+
+    if (assignedClients.length > 0) {
+      // Reassign clients to "unassigned" status
+      for (const client of assignedClients) {
+        const updatedClient = {
+          ...client,
+          staffId: "unassigned",
+          updatedAt: new Date(),
+        };
+        this.clients.set(client.id, updatedClient);
+      }
+    }
+
+    // Delete the staff member
     return this.staff.delete(id);
   }
 
