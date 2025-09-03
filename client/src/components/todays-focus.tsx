@@ -46,7 +46,6 @@ export function TodaysFocus({ staff }: TodaysFocusProps) {
 
   const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ["/api/clients/all"],
-    queryFn: () => fetch("/api/clients/all").then((r) => r.json()),
   });
 
   const today = new Date();

@@ -178,6 +178,7 @@ export function StaffSidebar({
             <span className="flex items-center gap-1"><CircleDot className="h-3 w-3 text-green-500" /> Arbetar</span>
             <span className="flex items-center gap-1"><Circle className="h-3 w-3 text-gray-400" /> Ledig</span>
             <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-red-500" /> Överbelastad</span>
+            <span className="ml-auto">(DEMO-status)</span>
           </div>
         </div>
         {/* Staff Tabs */}

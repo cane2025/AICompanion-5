@@ -42,7 +42,6 @@ export function RecentActivity() {
   });
   const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ["/api/clients/all"],
-    queryFn: () => fetch("/api/clients/all").then((r) => r.json()),
   });
 
   const clientNameById = useMemo(() => {
@@ -54,27 +53,30 @@ export function RecentActivity() {
   const items: ActivityItem[] = useMemo(() => {
     const list: ActivityItem[] = [];
     for (const cp of carePlans) {
+      if (!(cp as any)?.updatedAt) continue; // skip if no timestamp
       list.push({
         id: cp.id,
         kind: "Vårdplan",
         clientId: cp.clientId,
-        updatedAt: (cp.updatedAt as any as string) ?? new Date().toISOString(),
+        updatedAt: (cp.updatedAt as any as string),
       });
     }
     for (const wd of weeklyDocs) {
+      if (!(wd as any)?.updatedAt) continue;
       list.push({
         id: wd.id,
         kind: "Veckodok",
         clientId: wd.clientId,
-        updatedAt: (wd.updatedAt as any as string) ?? new Date().toISOString(),
+        updatedAt: (wd.updatedAt as any as string),
       });
     }
     for (const mr of monthlyReports) {
+      if (!(mr as any)?.updatedAt) continue;
       list.push({
         id: mr.id,
         kind: "Månadsrapport",
         clientId: mr.clientId,
-        updatedAt: (mr.updatedAt as any as string) ?? new Date().toISOString(),
+        updatedAt: (mr.updatedAt as any as string),
       });
     }
     return list
