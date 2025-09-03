@@ -43,7 +43,80 @@ devRoutes.get("/auth/session", (req, res) => {
 });
 
 // === STAFF ===
+// Seed helper to ensure exact staff list exists with displayName/fullName
+const STAFF_DISPLAY_NAMES = [
+  "Afif Derbas-",
+  "Ahmed Alrakabi",
+  "Ahmed Ramadan –",
+  "Ajmen Rafiq-",
+  "Alana Salah-",
+  "Alharis Albayati",
+  "Amir Al-Istarabadi  -",
+  "Anjelika Bååth-",
+  "Bashdar Reza –",
+  "Constanza Soto",
+  "Deni Dulji",
+  "Diana Gharib",
+  "Drilon Muqkurtaj",
+  "Heidar Farhan",
+  "Hussein Ahmed",
+  "Ida Björkbacka",
+  "Ikhlas Almaliki",
+  "Intisar Almansour",
+  "Israa Touman",
+  "Johan Wessberg",
+  "Kim Torneus",
+  "Lejla Kocacik",
+  "Mirza Celik",
+  "Mirza Hodzic",
+  "Nasima Kuraishe",
+  "Nicolas Lazcano",
+  "Omar Mezza",
+  "Qasin Abdullahi",
+  "Robert Ackar",
+  "Samir Bezzina",
+  "Sebastian Holm",
+  "Wissam Hemissi",
+  "Yasmin Ibrahim",
+];
+
+function toFullName(displayName: string): string {
+  // Trim trailing hyphen or en-dash and extra spaces
+  return displayName.replace(/[\-–]\s*$/u, "").trim();
+}
+
+function initialsOf(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((n) => n[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function ensureSeedStaff() {
+  if (!store.staff) store.staff = [];
+  const existingNames = new Set((store.staff ?? []).map((s: any) => s.name));
+  let added = 0;
+  for (const displayName of STAFF_DISPLAY_NAMES) {
+    if (!existingNames.has(displayName)) {
+      const fullName = toFullName(displayName);
+      store.staff.push({
+        id: "staff_" + randomUUID(),
+        name: displayName, // display as provided (including trailing dash if any)
+        displayName,
+        fullName,
+        initials: initialsOf(fullName),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      added++;
+    }
+  }
+  if (added > 0) persist();
+}
+
 devRoutes.get("/staff", (_req, res) => {
+  ensureSeedStaff();
   return res.json(store.staff ?? []);
 });
 
@@ -58,6 +131,42 @@ devRoutes.post("/staff", (req, res) => {
   store.staff.push(item);
   persist();
   return res.status(201).json(item);
+});
+
+// Staff usage info (linked clients count)
+devRoutes.get("/staff/:id/usage", (req, res) => {
+  const { id } = req.params;
+  const clients = (store.clients ?? []).filter((c: any) => c.staffId === id);
+  return res.json({ clientCount: clients.length, clientIds: clients.map((c: any) => c.id) });
+});
+
+// Delete staff with optional unassign
+devRoutes.delete("/staff/:id", (req, res) => {
+  const { id } = req.params;
+  const idx = (store.staff ?? []).findIndex((s: any) => s.id === id);
+  if (idx === -1) return res.status(404).json({ error: "Personal hittades inte" });
+
+  const linkedClients = (store.clients ?? []).filter((c: any) => c.staffId === id);
+  const unassign = String(req.query.unassign ?? "").toLowerCase();
+  const shouldUnassign = unassign === "1" || unassign === "true" || unassign === "yes";
+
+  if (linkedClients.length > 0 && !shouldUnassign) {
+    return res.status(409).json({
+      error: "Personal är kopplad till klienter",
+      clientCount: linkedClients.length,
+    });
+  }
+
+  if (linkedClients.length > 0 && shouldUnassign) {
+    for (const c of linkedClients) {
+      c.staffId = "Oassignerad"; // explicit label for UI
+      c.updatedAt = new Date().toISOString();
+    }
+  }
+
+  store.staff.splice(idx, 1);
+  persist();
+  return res.json({ message: "Personal borttagen" });
 });
 
 // === CLIENTS ===
@@ -172,6 +281,24 @@ devRoutes.put("/care-plans/:id", (req, res) => {
   return res.json(store.carePlans[idx]);
 });
 
+// Get latest care plan for a client
+devRoutes.get("/clients/:clientId/care-plan", (req, res) => {
+  const list = (store.carePlans ?? []).filter((p: any) => p.clientId === req.params.clientId);
+  if (!list.length) return res.status(404).json({ error: "Not found" });
+  // return most recently updated
+  const latest = list.slice().sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0];
+  return res.json(latest);
+});
+
+// Delete care plan
+devRoutes.delete("/care-plans/:id", (req, res) => {
+  const idx = (store.carePlans ?? []).findIndex((p: any) => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  store.carePlans.splice(idx, 1);
+  persist();
+  return res.status(204).send();
+});
+
 // === IMPLEMENTATION PLANS (administrativ) ===
 devRoutes.get("/implementation-plans/all", (_req, res) => {
   return res.json(store.implementationPlans ?? []);
@@ -225,6 +352,32 @@ devRoutes.put("/implementation-plans/:id", (req, res) => {
   };
   persist();
   return res.json(store.implementationPlans[idx]);
+});
+
+// Get latest implementation plan for a client (used by forms)
+devRoutes.get("/clients/:clientId/implementation-plan", (req, res) => {
+  const list = (store.implementationPlans ?? []).filter(
+    (p: any) => p.clientId === req.params.clientId
+  );
+  if (!list.length) return res.status(404).json({ error: "Not found" });
+  const latest = list
+    .slice()
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )[0];
+  return res.json(latest);
+});
+
+// Delete implementation plan
+devRoutes.delete("/implementation-plans/:id", (req, res) => {
+  const idx = (store.implementationPlans ?? []).findIndex(
+    (p: any) => p.id === req.params.id
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  store.implementationPlans.splice(idx, 1);
+  persist();
+  return res.status(204).send();
 });
 
 // === WEEKLY DOCS (inkl. lör/sön) ===

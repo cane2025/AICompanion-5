@@ -73,7 +73,20 @@ export function StaffSidebar({
 
   // Delete staff mutation
   const deleteStaffMutation = useMutation({
-    mutationFn: (id: string) => api.deleteStaff(id),
+    mutationFn: async (id: string) => {
+      // Check usage first
+      const usage = await api.getStaffUsage(id).catch(() => ({ clientCount: 0 } as any));
+      if (usage.clientCount > 0) {
+        const confirm = window.confirm(
+          `Denna personal är kopplad till ${usage.clientCount} klient(er).\n\nVälj OK för att radera och sätta Ansvarig = Oassignerad, eller Avbryt.`
+        );
+        if (!confirm) {
+          throw new Error("Radering avbröts av användaren");
+        }
+        return apiRequest("DELETE", `/api/staff/${id}?unassign=1`).then((r) => r.json());
+      }
+      return api.deleteStaff(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
       setDeletingId(null);
@@ -103,8 +116,6 @@ export function StaffSidebar({
 
   // Delete staff handler
   const handleDeleteStaff = async (id: string) => {
-    if (!window.confirm("Är du säker på att du vill ta bort denna personal?"))
-      return;
     deleteStaffMutation.mutate(id);
   };
 
