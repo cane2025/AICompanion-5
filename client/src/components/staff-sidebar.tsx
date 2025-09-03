@@ -103,8 +103,10 @@ export function StaffSidebar({
 
   // Delete staff handler
   const handleDeleteStaff = async (id: string) => {
-    if (!window.confirm("Är du säker på att du vill ta bort denna personal?"))
-      return;
+    const confirmed = window.confirm(
+      "Personen kan vara kopplad till klienter. Radera och sätt ansvarig = Oassignerad?"
+    );
+    if (!confirmed) return;
     deleteStaffMutation.mutate(id);
   };
 
