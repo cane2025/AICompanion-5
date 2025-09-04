@@ -243,6 +243,101 @@ export const createWeeklyDocumentation = (data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
+// =========================
+// V2 API (versioned flows)
+// =========================
+
+// CarePlan V2
+export const v2_getCarePlansByClient = (clientId: string) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/care-plans`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
+export const v2_createCarePlan = (
+  clientId: string,
+  data: {
+    receivedDate: string;
+    enteredToJournalDate?: string;
+    status?: string;
+    assignedStaffId?: string;
+    content?: string;
+  }
+) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/care-plans`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+export const v2_updateCarePlan = (carePlanId: string, data: any) =>
+  fetch(`${API_BASE_URL}/care-plans/${carePlanId}`, {
+    method: "PATCH",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+// ImplementationPlan (GFP) V2
+export const v2_getGfpsByClient = (clientId: string) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/implementation-plans`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
+export const v2_createGfp = (
+  clientId: string,
+  data: { carePlanIndex: number; status?: string; dueDate?: string; completedDate?: string; sentDate?: string; followUps?: any[] }
+) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/implementation-plans`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+export const v2_updateGfp = (implId: string, data: any) =>
+  fetch(`${API_BASE_URL}/implementation-plans/${implId}`, {
+    method: "PATCH",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+// Weekly Docs V2
+export const v2_getWeeklyDocsByClientYear = (clientId: string, year: number) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/weekly-docs?year=${year}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
+export const v2_getWeeklyDoc = (clientId: string, year: number, week: number) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/weekly-docs/${year}/${week}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
+
+export const v2_upsertWeeklyDoc = (
+  clientId: string,
+  year: number,
+  week: number,
+  data: any
+) =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/weekly-docs/${year}/${week}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+// Stats V2
+export const v2_getStaffStats = (from: string, to: string) =>
+  fetch(`${API_BASE_URL}/stats/staff?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
+export const v2_getClientStats = (clientId: string, from: string, to: string) =>
+  fetch(`${API_BASE_URL}/stats/client/${clientId}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
 // Monthly Reports API
 export const getMonthlyReports = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/monthly-reports`, { credentials: "include" }).then(

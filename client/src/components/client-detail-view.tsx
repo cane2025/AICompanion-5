@@ -37,11 +37,14 @@ import {
   ImplementationPlanDialog,
   SimpleImplementationPlanDialog,
 } from "./implementation-plan-dialog";
-import { WeeklyDocumentationDialog } from "./weekly-documentation-dialog";
+// import { WeeklyDocumentationDialog } from "./weekly-documentation-dialog";
 import { MonthlyReportDialog } from "./monthly-report-dialog";
 import { VimsaTimeDialog } from "./vimsa-time-dialog";
 import { EditableCarePlan } from "./editable-care-plan";
 import { EditableImplementationPlan } from "./editable-implementation-plan";
+import { V2CarePlanList } from "./v2-care-plan-list";
+import { V2GfpList } from "./v2-gfp-list";
+import { V2WeeklyDocs } from "./v2-weekly-docs";
 import * as api from "@/lib/api";
 import type {
   Client,
@@ -391,142 +394,19 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
           <TabsTrigger value="vimsa">Vimsa Tid</TabsTrigger>
         </TabsList>
 
-        {/* Vårdplan Tab */}
+        {/* Vårdplan Tab (V2 list) */}
         <TabsContent value="careplan">
-          <EditableCarePlan clientId={client.id} clientInitials={client.initials} />
+          <V2CarePlanList clientId={client.id} clientInitials={client.initials} />
         </TabsContent>
 
-        {/* GFP Tab */}
+        {/* GFP Tab (V2 list) */}
         <TabsContent value="gfp">
-          <EditableImplementationPlan 
-            clientId={client.id} 
-            clientInitials={client.initials}
-            carePlanDate={carePlan?.staffNotifiedDate}
-          />
+          <V2GfpList clientId={client.id} />
         </TabsContent>
 
-        {/* Dokumentation Tab */}
+        {/* Dokumentation Tab (V2 day view) */}
         <TabsContent value="documentation">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Veckodokumentation 2025 - {client.initials}
-                </CardTitle>
-                <WeeklyDocumentationDialog
-                  trigger={
-                    <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Lägg till dokumentation
-                    </Button>
-                  }
-                  staffId={staffId}
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              {weeklyDocs.length > 0 ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Vecka 34 - 52, 2025. Grön = Godkänd kvalitet, Ingen färg =
-                    Dokumenterad, Röd = Saknas
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {generateWeeks().map(({ year, week }) => {
-                      const doc = weeklyDocs.find(
-                        (d) => d.year === year && d.week === week
-                      );
-                      return (
-                        <div
-                          key={`${year}-${week}`}
-                          className="p-3 border border-gray-200 rounded-lg"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">Vecka {week}</span>
-                            <Badge
-                              className={
-                                !doc
-                                  ? "bg-red-100 text-red-800 border-red-200"
-                                  : doc.qualityAssessment === "approved"
-                                  ? "bg-green-100 text-green-800 border-green-200"
-                                  : "bg-gray-100 text-gray-800 border-gray-200"
-                              }
-                            >
-                              {!doc
-                                ? "Saknas"
-                                : doc.qualityAssessment === "approved"
-                                ? "Godkänd"
-                                : "Dokumenterad"}
-                            </Badge>
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Checkbox checked={!!doc} />
-                              <span className="text-sm">Dokumenterad</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={doc?.qualityAssessment === "approved"}
-                              />
-                              <span className="text-sm">Kvalitet godkänd</span>
-                            </div>
-                          </div>
-
-                          {doc?.comments && (
-                            <div className="mt-2">
-                              <p className="text-xs text-muted-foreground">
-                                Kommentar:
-                              </p>
-                              <p className="text-xs">{doc.comments}</p>
-                            </div>
-                          )}
-
-                          {doc && (
-                            <div className="mt-2 flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                <Edit className="h-3 w-3 mr-1" />
-                                Redigera
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs text-red-600"
-                              >
-                                <Trash2 className="h-3 w-3 mr-1" />
-                                Ta bort
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">
-                    Ingen veckodokumentation skapad än
-                  </p>
-                  <WeeklyDocumentationDialog
-                    trigger={
-                      <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Skapa veckodokumentation
-                      </Button>
-                    }
-                    staffId={staffId}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <V2WeeklyDocs clientId={client.id} year={2025} />
         </TabsContent>
 
         {/* Månadsrapporter Tab */}
