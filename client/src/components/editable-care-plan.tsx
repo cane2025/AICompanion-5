@@ -111,7 +111,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as "received" | "staff_notified" | "in_progress" | "completed") || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -244,7 +244,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as "received" | "staff_notified" | "in_progress" | "completed") || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });

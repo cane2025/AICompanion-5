@@ -266,7 +266,8 @@ export function StaffManagement() {
   }
 
   return (
-    <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+    <>
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -361,5 +362,6 @@ export function StaffManagement() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+    </>
   );
 }

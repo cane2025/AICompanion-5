@@ -105,12 +105,12 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as "pending" | "in_progress" | "completed") || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: typeof implementationPlan.dueDate === 'string' ? implementationPlan.dueDate : "",
+        completedDate: typeof implementationPlan.completedDate === 'string' ? implementationPlan.completedDate : "",
+        sentDate: typeof implementationPlan.sentDate === 'string' ? implementationPlan.sentDate : "",
         comments: implementationPlan.comments || "",
       });
     }
@@ -239,12 +239,12 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as "pending" | "in_progress" | "completed") || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: typeof implementationPlan.dueDate === 'string' ? implementationPlan.dueDate : "",
+        completedDate: typeof implementationPlan.completedDate === 'string' ? implementationPlan.completedDate : "",
+        sentDate: typeof implementationPlan.sentDate === 'string' ? implementationPlan.sentDate : "",
         comments: implementationPlan.comments || "",
       });
     }

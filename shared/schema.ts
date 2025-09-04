@@ -26,16 +26,9 @@ export const users = pgTable("users", {
 
 // Staff table
 export const staff = pgTable("staff", {
-<<<<<<< Current (Your changes)
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-=======
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(), // Display name (exactly as shown in UI)
   fullName: varchar("full_name"), // Internal name for logic (trimmed)
->>>>>>> Incoming (Background Agent changes)
   initials: varchar("initials").notNull(),
   personnummer: varchar("personnummer").default(""),
   telefon: varchar("telefon").default(""),

@@ -99,9 +99,9 @@ export const restoreClient = (id: string): Promise<Client> =>
 
 // Care Plan API
 export const getCarePlan = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans/${clientId}`, { credentials: "include" }).then(
-    (res) => handleResponse<any>(res)
-  );
+  fetch(`${API_BASE_URL}/care-plans/${clientId}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
 export const createCarePlan = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/care-plans`, {
     method: "POST",
@@ -124,8 +124,8 @@ export const deleteCarePlan = (id: string): Promise<{ message: string }> =>
 
 // Implementation Plan API
 export const getImplementationPlan = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, { 
-    credentials: "include" 
+  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, {
+    credentials: "include",
   }).then((res) => handleResponse<any>(res));
 export const createImplementationPlan = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/implementation-plans`, {
@@ -141,7 +141,9 @@ export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
-export const deleteImplementationPlan = (id: string): Promise<{ message: string }> =>
+export const deleteImplementationPlan = (
+  id: string
+): Promise<{ message: string }> =>
   fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
     method: "DELETE",
     credentials: "include",
@@ -199,23 +201,6 @@ export const getCarePlanByClient = (clientId: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
-export const createCarePlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-// Update care plan (used by compact autosave flow)
-export const updateCarePlan = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
 // Implementation Plans API
 export const getImplementationPlans = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/implementation-plans`, {
@@ -237,22 +222,6 @@ export const getImplementationPlanByClient = (clientId: string): Promise<any> =>
 export const getImplementationPlanById = (id: string): Promise<any> =>
   fetch(`${API_BASE_URL}/implementation-plans/plan/${id}`, {
     credentials: "include",
-  }).then((res) => handleResponse<any>(res));
-
-export const createImplementationPlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
 // Weekly Documentation API
