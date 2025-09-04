@@ -98,7 +98,6 @@ export function CarePlanDialog({ trigger }: CarePlanDialogProps) {
           body: JSON.stringify({
             initials: data.clientInitials,
             staffId: primaryStaffId,
-            personalNumber: "",
             notes: `Vårdplan ${data.planNumber} från ${data.socialWorkerName}`,
             status: "active",
           }),

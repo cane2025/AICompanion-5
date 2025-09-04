@@ -6,7 +6,6 @@ import { escapeCsvField, sanitizeText, safeLog } from './security';
 import type { Staff, Client, CarePlan, ImplementationPlan } from '@shared/schema';
 
 export interface ExportOptions {
-  includePersonalNumbers?: boolean;
   dateRange?: {
     start: Date;
     end: Date;
@@ -32,9 +31,6 @@ export function exportStaffToCSV(staff: Staff[], options: ExportOptions = {}): s
     'Status'
   ];
 
-  if (options.includePersonalNumbers) {
-    headers.splice(2, 0, 'Personnummer');
-  }
 
   const rows = staff.map(member => {
     const row = [
@@ -48,12 +44,6 @@ export function exportStaffToCSV(staff: Staff[], options: ExportOptions = {}): s
       escapeCsvField('Aktiv') // Staff is always active in this system
     ];
 
-    if (options.includePersonalNumbers) {
-      // Mask personal numbers for security - only show last 4 digits
-      const maskedNumber = member.personnummer ? 
-        `****-**${member.personnummer.slice(-2)}` : '';
-      row.splice(2, 0, escapeCsvField(maskedNumber));
-    }
 
     return row;
   });

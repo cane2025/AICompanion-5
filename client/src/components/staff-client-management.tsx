@@ -55,7 +55,6 @@ interface StaffClientManagementProps {
 
 const clientSchema = z.object({
   initials: z.string().min(1, "Initialer krävs").max(10, "Max 10 tecken"),
-  personalNumber: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -72,7 +71,6 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
     resolver: zodResolver(clientSchema),
     defaultValues: {
       initials: "",
-      personalNumber: "",
       notes: "",
     },
   });
@@ -360,24 +358,6 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="personalNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Personnummer (frivilligt)</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="YYYYMMDD-XXXX"
-                                {...field}
-                                value={field.value ?? ""}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <FormField
                         control={form.control}
@@ -620,7 +600,7 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
         <AlertTriangle className="h-4 w-4 text-ungdoms-600" />
         <AlertDescription className="text-ungdoms-700">
           <strong>GDPR-säkerhet:</strong> Systemet använder endast initialer för
-          klientidentifiering. Personnummer sparas krypterat och är frivilligt.
+          klientidentifiering.
           All data hanteras enligt GDPR-bestämmelser.
         </AlertDescription>
       </Alert>

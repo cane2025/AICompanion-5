@@ -21,7 +21,6 @@ export const staff = pgTable("staff", {
   name: varchar("name").notNull(), // Display name (exactly as shown in UI)
   fullName: varchar("full_name"), // Internal name for logic (trimmed)
   initials: varchar("initials").notNull(),
-  personnummer: varchar("personnummer").default(""),
   telefon: varchar("telefon").default(""),
   epost: varchar("epost").default(""),
   adress: varchar("adress").default(""),
@@ -39,7 +38,6 @@ export const clients = pgTable("clients", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   initials: varchar("initials").notNull(),
   staffId: varchar("staff_id").notNull(),
-  personalNumber: varchar("personal_number").default(""),
   notes: text("notes").default(""),
   status: varchar("status").default("active"), // active, inactive
   createdAt: timestamp("created_at").defaultNow(),
@@ -120,6 +118,7 @@ export const implementationPlans = pgTable("implementation_plans", {
   clientId: varchar("client_id").notNull(),
   staffId: varchar("staff_id").notNull(),
   carePlanId: varchar("care_plan_id"),
+  title: varchar("title").notNull().default(""), // Required for GFP
   planContent: text("plan_content").default(""),
   goals: text("goals").default(""),
   activities: text("activities").default(""),
@@ -137,6 +136,9 @@ export const implementationPlans = pgTable("implementation_plans", {
   completedDate: timestamp("completed_date"),
   sentDate: timestamp("sent_date"),
   planType: varchar("plan_type").default("1"),
+  // Fields for GFP requirements
+  version: integer("version").default(1), // For optimistic concurrency
+  locked: boolean("locked").default(false), // For lock/unlock functionality
 });
 
 // Vimsa time tracking
@@ -217,6 +219,28 @@ export const insertVimsaTimeSchema = createInsertSchema(vimsaTime).omit({
   updatedAt: true,
 });
 
+// GFP-specific schemas for the new API endpoints
+export const gfpCreateSchema = z.object({
+  title: z.string().min(1, "Titel krävs").max(120, "Titel får vara max 120 tecken"),
+  clientRef: z.string().min(1, "Klient-referens krävs"), // maps to clientId
+  goals: z.array(z.object({
+    text: z.string().min(1, "Mål-text krävs").max(280, "Mål-text får vara max 280 tecken")
+  })).min(1, "Minst ett mål krävs"),
+  staffId: z.string().min(1, "Personal-ID krävs"),
+});
+
+export const gfpUpdateSchema = z.object({
+  title: z.string().min(1, "Titel krävs").max(120, "Titel får vara max 120 tecken").optional(),
+  goals: z.array(z.object({
+    text: z.string().min(1, "Mål-text krävs").max(280, "Mål-text får vara max 280 tecken")
+  })).min(1, "Minst ett mål krävs").optional(),
+  version: z.number().int().min(1), // Required for optimistic concurrency
+});
+
+export const gfpLockSchema = z.object({
+  locked: z.boolean(),
+});
+
 // Update schemas
 export const updateStaffSchema = insertStaffSchema.partial();
 export const updateClientSchema = insertClientSchema.partial();
@@ -258,3 +282,8 @@ export type UpdateImplementationPlan = z.infer<typeof updateImplementationPlanSc
 export type VimsaTime = typeof vimsaTime.$inferSelect;
 export type InsertVimsaTime = z.infer<typeof insertVimsaTimeSchema>;
 export type UpdateVimsaTime = z.infer<typeof updateVimsaTimeSchema>;
+
+// GFP-specific types
+export type GfpCreate = z.infer<typeof gfpCreateSchema>;
+export type GfpUpdate = z.infer<typeof gfpUpdateSchema>;
+export type GfpLock = z.infer<typeof gfpLockSchema>;

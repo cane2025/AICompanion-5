@@ -24,6 +24,8 @@ import {
   type UpdateVimsaTime,
 } from "../shared/schema.js";
 import { randomUUID } from "crypto";
+import { promises as fs } from "fs";
+import { join } from "path";
 
 export interface IStorage {
   // User operations
@@ -126,6 +128,9 @@ export class MemStorage implements IStorage {
   private carePlans: Map<string, CarePlan>;
   private implementationPlans: Map<string, ImplementationPlan>;
   private vimsaTime: Map<string, VimsaTime>;
+  private backupTimer: NodeJS.Timer | null = null;
+  private readonly backupPath: string;
+  private lastBackupTime: Date | null = null;
 
   constructor() {
     this.users = new Map();
@@ -136,8 +141,12 @@ export class MemStorage implements IStorage {
     this.carePlans = new Map();
     this.implementationPlans = new Map();
     this.vimsaTime = new Map();
-
+    
+    this.backupPath = join(process.cwd(), "server", "data");
+    
     this.initializeDefaultData();
+    this.loadFromBackup().catch(console.error);
+    this.startBackupScheduler();
   }
 
   private async initializeDefaultData() {
@@ -163,6 +172,139 @@ export class MemStorage implements IStorage {
 
     // Initialize default staff
     this.initializeDefaultStaff();
+  }
+
+  // Backup and restore functionality
+  private async createBackup(): Promise<void> {
+    try {
+      // Ensure backup directory exists
+      await fs.mkdir(this.backupPath, { recursive: true });
+
+      const backupData = {
+        timestamp: new Date().toISOString(),
+        data: {
+          users: Array.from(this.users.entries()),
+          staff: Array.from(this.staff.entries()),
+          clients: Array.from(this.clients.entries()),
+          weeklyDocumentation: Array.from(this.weeklyDocumentation.entries()),
+          monthlyReports: Array.from(this.monthlyReports.entries()),
+          carePlans: Array.from(this.carePlans.entries()),
+          implementationPlans: Array.from(this.implementationPlans.entries()),
+          vimsaTime: Array.from(this.vimsaTime.entries()),
+        },
+      };
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupFile = join(this.backupPath, `backup-${timestamp}.json`);
+      const currentBackupFile = join(this.backupPath, 'current-backup.json');
+
+      // Write timestamped backup
+      await fs.writeFile(backupFile, JSON.stringify(backupData, null, 2));
+      
+      // Write current backup (for easy restoration)
+      await fs.writeFile(currentBackupFile, JSON.stringify(backupData, null, 2));
+
+      this.lastBackupTime = new Date();
+      console.log(`✅ Backup created: ${backupFile}`);
+
+      // Clean old backups (keep last 10)
+      await this.cleanOldBackups();
+    } catch (error) {
+      console.error('❌ Failed to create backup:', error);
+    }
+  }
+
+  private async cleanOldBackups(): Promise<void> {
+    try {
+      const files = await fs.readdir(this.backupPath);
+      const backupFiles = files
+        .filter(file => file.startsWith('backup-') && file.endsWith('.json'))
+        .sort()
+        .reverse(); // Most recent first
+
+      if (backupFiles.length > 10) {
+        const filesToDelete = backupFiles.slice(10);
+        for (const file of filesToDelete) {
+          await fs.unlink(join(this.backupPath, file));
+          console.log(`🗑️ Deleted old backup: ${file}`);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Failed to clean old backups:', error);
+    }
+  }
+
+  private async loadFromBackup(): Promise<void> {
+    try {
+      const currentBackupFile = join(this.backupPath, 'current-backup.json');
+      
+      try {
+        await fs.access(currentBackupFile);
+      } catch {
+        console.log('📁 No existing backup found, starting with fresh data');
+        return;
+      }
+
+      const backupContent = await fs.readFile(currentBackupFile, 'utf-8');
+      const backup = JSON.parse(backupContent);
+
+      if (backup.data) {
+        // Restore data from backup
+        this.users = new Map(backup.data.users || []);
+        this.staff = new Map(backup.data.staff || []);
+        this.clients = new Map(backup.data.clients || []);
+        this.weeklyDocumentation = new Map(backup.data.weeklyDocumentation || []);
+        this.monthlyReports = new Map(backup.data.monthlyReports || []);
+        this.carePlans = new Map(backup.data.carePlans || []);
+        this.implementationPlans = new Map(backup.data.implementationPlans || []);
+        this.vimsaTime = new Map(backup.data.vimsaTime || []);
+
+        console.log(`✅ Data restored from backup: ${backup.timestamp}`);
+        console.log(`📊 Restored: ${this.staff.size} staff, ${this.clients.size} clients, ${this.implementationPlans.size} GFP plans`);
+      }
+    } catch (error) {
+      console.error('❌ Failed to load from backup:', error);
+      console.log('🔄 Continuing with fresh data');
+    }
+  }
+
+  private startBackupScheduler(): void {
+    // Create backup every 5 minutes
+    this.backupTimer = setInterval(() => {
+      this.createBackup().catch(console.error);
+    }, 5 * 60 * 1000);
+
+    // Create initial backup after 30 seconds
+    setTimeout(() => {
+      this.createBackup().catch(console.error);
+    }, 30 * 1000);
+  }
+
+  // Method to trigger manual backup
+  public async forceBackup(): Promise<void> {
+    await this.createBackup();
+  }
+
+  // Method to get backup status
+  public getBackupStatus(): { lastBackup: Date | null; backupPath: string } {
+    return {
+      lastBackup: this.lastBackupTime,
+      backupPath: this.backupPath,
+    };
+  }
+
+  // Schedule backup with debouncing to avoid too frequent backups
+  private backupDebounceTimer: NodeJS.Timeout | null = null;
+  private scheduleBackup(): void {
+    // Clear existing timer
+    if (this.backupDebounceTimer) {
+      clearTimeout(this.backupDebounceTimer);
+    }
+
+    // Schedule backup after 30 seconds of inactivity
+    this.backupDebounceTimer = setTimeout(() => {
+      this.createBackup().catch(console.error);
+    }, 30 * 1000);
   }
 
   // User operations
@@ -241,21 +383,22 @@ export class MemStorage implements IStorage {
 
     defaultStaffNames.forEach((name) => {
       const id = randomUUID();
-      const staff: Staff = {
-        id,
-        name,
-        initials: this.getInitials(name),
-        personnummer: null,
-        telefon: null,
-        epost: null,
-        adress: null,
-        anställningsdatum: null,
-        roll: null,
-        avdelning: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-      };
+          const staff: Staff = {
+      id,
+      name,
+      fullName: name,
+      initials: this.getInitials(name),
+      telefon: null,
+      epost: null,
+      adress: null,
+      anställningsdatum: null,
+      roll: null,
+      avdelning: null,
+      weeklyCapacityHours: 40,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    };
       this.staff.set(id, staff);
     });
   }
@@ -280,14 +423,15 @@ export class MemStorage implements IStorage {
     const staff: Staff = {
       id,
       name: insertStaff.name,
+      fullName: insertStaff.fullName || insertStaff.name,
       initials: insertStaff.initials,
-      personnummer: insertStaff.personnummer || null,
       telefon: insertStaff.telefon || null,
       epost: insertStaff.epost || null,
       adress: insertStaff.adress || null,
       anställningsdatum: insertStaff.anställningsdatum || null,
       roll: insertStaff.roll || null,
       avdelning: insertStaff.avdelning || null,
+      weeklyCapacityHours: insertStaff.weeklyCapacityHours || 40,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -320,7 +464,7 @@ export class MemStorage implements IStorage {
         const updated = {
           ...client,
           staffId: 'unassigned',
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.clients.set(client.id, updated);
       }
@@ -334,7 +478,7 @@ export class MemStorage implements IStorage {
           ...plan,
           staffId: plan.staffId === id ? 'unassigned' : plan.staffId,
           responsibleId: plan.responsibleId === id ? 'unassigned' : plan.responsibleId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.carePlans.set(plan.id, updated);
       }
@@ -347,7 +491,7 @@ export class MemStorage implements IStorage {
         const updated = {
           ...plan,
           staffId: 'unassigned',
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.implementationPlans.set(plan.id, updated);
       }
@@ -373,7 +517,6 @@ export class MemStorage implements IStorage {
       id,
       initials: insertClient.initials,
       staffId: insertClient.staffId,
-      personalNumber: insertClient.personalNumber || "",
       notes: insertClient.notes || "",
       status: insertClient.status || "active",
       createdAt: new Date(),
@@ -622,6 +765,7 @@ export class MemStorage implements IStorage {
       clientId: insertPlan.clientId,
       staffId: insertPlan.staffId,
       carePlanId: insertPlan.carePlanId || null,
+      title: insertPlan.title || "", // New field for GFP
       planContent: insertPlan.planContent || null,
       goals: insertPlan.goals || null,
       activities: insertPlan.activities || null,
@@ -638,8 +782,14 @@ export class MemStorage implements IStorage {
       completedDate: insertPlan.completedDate || null,
       sentDate: insertPlan.sentDate || null,
       planType: insertPlan.planType || "care", // synced default
+      version: insertPlan.version || 1, // New field for optimistic concurrency
+      locked: insertPlan.locked || false, // New field for lock functionality
     };
     this.implementationPlans.set(id, plan);
+    
+    // Trigger backup on important data changes
+    this.scheduleBackup();
+    
     return plan;
   }
 
@@ -656,11 +806,20 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
     this.implementationPlans.set(id, updated);
+    
+    // Trigger backup on important data changes
+    this.scheduleBackup();
+    
     return updated;
   }
 
   async deleteImplementationPlan(id: string): Promise<boolean> {
-    return this.implementationPlans.delete(id);
+    const result = this.implementationPlans.delete(id);
+    if (result) {
+      // Trigger backup on important data changes
+      this.scheduleBackup();
+    }
+    return result;
   }
 
   // Vimsa time operations

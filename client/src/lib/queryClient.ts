@@ -11,8 +11,8 @@ const API_BASE =
   (typeof import.meta !== "undefined" &&
     (import.meta as any).env?.VITE_API_BASE) ||
   (typeof window !== "undefined"
-    ? window.location.origin
-    : "http://127.0.0.1:3001");
+    ? "/api"
+    : "/api");
 
 export async function apiRequest(
   method: string,

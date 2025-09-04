@@ -36,7 +36,6 @@ export function SimpleCarePlanDialog({ trigger, staffId }: SimpleCarePlanDialogP
         body: JSON.stringify({
           initials: clientInitials,
           staffId: staffId,
-          personalNumber: "",
           notes: `Vårdplan ${planNumber} från ${socialWorker}`,
           status: "active",
         }),

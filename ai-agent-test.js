@@ -104,7 +104,6 @@ class AICompanionTester {
     const success = await this.runTest("Create Client", async () => {
       const clientData = {
         initials: "TEST",
-        personnummer: `200001${Date.now().toString().slice(-6)}-0000`,
         name: `Test Client ${new Date().toISOString()}`,
         status: "active",
       };

@@ -41,7 +41,6 @@ export function PersonalInfoForm({ staff }: PersonalInfoFormProps) {
     defaultValues: {
       name: staff.name,
       initials: staff.initials,
-      personnummer: staff.personnummer || "",
       telefon: staff.telefon || "",
       epost: staff.epost || "",
       adress: staff.adress || "",
@@ -92,24 +91,6 @@ export function PersonalInfoForm({ staff }: PersonalInfoFormProps) {
                     <FormLabel>Fullständigt namn</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="personnummer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Personnummer</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="YYYYMMDD-XXXX"
                         {...field}
                         value={field.value ?? ""}
                         onChange={field.onChange}

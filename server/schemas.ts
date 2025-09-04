@@ -4,7 +4,6 @@ export const clientSchema = z.object({
   id: z.string(),
   initials: z.string().min(1, 'Initialer krävs').max(10, 'Max 10 tecken'),
   staffId: z.string().min(1),
-  personalNumber: z.string().optional().default(''),
   notes: z.string().optional().default(''),
   status: z.enum(['active', 'inactive']).default('active'),
   createdAt: z.string().datetime().default(() => new Date().toISOString()),

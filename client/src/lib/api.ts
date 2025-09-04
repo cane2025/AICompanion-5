@@ -8,21 +8,158 @@ import {
   type User,
   type Staff,
   type Client,
+  type GfpCreate,
+  type GfpUpdate,
+  type GfpLock,
 } from "@shared/schema";
 
 const API_BASE_URL = "/api";
 
 export type LoginData = z.infer<typeof loginSchema>;
 
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const errorData = await response
-      .json()
-      .catch(() => ({ message: response.statusText }));
-    throw new Error(errorData.message || "Ett okänt fel uppstod");
+// Enhanced error class for better error handling
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+    public details?: any
+  ) {
+    super(message);
+    this.name = 'ApiError';
   }
+
+  get isNetworkError() {
+    return this.status === 0 || !navigator.onLine;
+  }
+
+  get isServerError() {
+    return this.status >= 500;
+  }
+
+  get isClientError() {
+    return this.status >= 400 && this.status < 500;
+  }
+
+  get isRetryable() {
+    // Retry on network errors, server errors, but not client errors (except 408, 429)
+    return this.isNetworkError || 
+           this.isServerError || 
+           this.status === 408 || // Request Timeout
+           this.status === 429;   // Too Many Requests
+  }
+}
+
+async function handleResponse<T>(response: Response, url?: string): Promise<T> {
+  if (!response.ok) {
+    let errorData: any = {};
+    let errorMessage = response.statusText || "Ett okänt fel uppstod";
+
+    try {
+      errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch {
+      // If JSON parsing fails, use status text
+    }
+
+    // Add context for specific error types
+    if (response.status === 404) {
+      errorMessage = `Resursen hittades inte: ${url || 'okänd'}`;
+    } else if (response.status === 403) {
+      errorMessage = "Du har inte behörighet för denna åtgärd";
+    } else if (response.status === 401) {
+      errorMessage = "Du måste logga in igen";
+    } else if (response.status === 429) {
+      errorMessage = "För många förfrågningar. Vänta en stund och försök igen.";
+    } else if (response.status >= 500) {
+      errorMessage = "Serverfel. Försök igen senare.";
+    }
+
+    throw new ApiError(
+      errorMessage,
+      response.status,
+      errorData.code,
+      errorData.details
+    );
+  }
+  
   if (response.status === 204) return {} as T;
-  return response.json();
+  
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new ApiError(
+      "Ogiltigt svar från servern",
+      response.status,
+      'INVALID_RESPONSE'
+    );
+  }
+}
+
+// Retry configuration
+interface RetryOptions {
+  maxRetries?: number;
+  baseDelay?: number;
+  maxDelay?: number;
+}
+
+// Helper function for exponential backoff delay
+function calculateDelay(attempt: number, baseDelay: number, maxDelay: number): number {
+  const delay = baseDelay * Math.pow(2, attempt);
+  return Math.min(delay + Math.random() * 1000, maxDelay);
+}
+
+// Enhanced fetch with retry logic
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retryOptions: RetryOptions = {}
+): Promise<Response> {
+  const {
+    maxRetries = 3,
+    baseDelay = 200,
+    maxDelay = 10000
+  } = retryOptions;
+
+  let lastError: Error | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      
+      // Check if we should retry based on status
+      if (response.ok || attempt === maxRetries) {
+        return response;
+      }
+
+      const apiError = new ApiError(
+        response.statusText,
+        response.status
+      );
+
+      if (!apiError.isRetryable) {
+        return response; // Don't retry client errors (except 408, 429)
+      }
+
+      lastError = apiError;
+    } catch (error) {
+      lastError = error as Error;
+      
+      // Don't retry if it's the last attempt
+      if (attempt === maxRetries) {
+        break;
+      }
+    }
+
+    // Wait before retrying
+    if (attempt < maxRetries) {
+      const delay = calculateDelay(attempt, baseDelay, maxDelay);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  // If we get here, all retries failed
+  throw lastError || new Error('All retry attempts failed');
 }
 
 // Helper function to get auth headers
@@ -39,8 +176,8 @@ function getAuthHeaders(): Record<string, string> {
 
 // Staff API
 export const getStaff = (): Promise<Staff[]> =>
-  fetch(`${API_BASE_URL}/staff`, { credentials: "include" }).then((res) =>
-    handleResponse<Staff[]>(res)
+  fetchWithRetry(`${API_BASE_URL}/staff`, { credentials: "include" }).then((res) =>
+    handleResponse<Staff[]>(res, '/staff')
   );
 export const createStaff = (data: InsertStaff): Promise<Staff> =>
   fetch(`${API_BASE_URL}/staff`, {
@@ -300,3 +437,61 @@ function buildPayload(input: any) {
     clientId: input.clientId,
   };
 }
+
+// GFP API - New endpoints as per requirements
+export interface GfpPlan {
+  id: string;
+  title: string;
+  clientRef: string;
+  goals: Array<{ text: string }>;
+  version: number;
+  locked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET /api/gfp?clientRef=... (lista)
+export const getGfpPlans = (clientRef: string): Promise<GfpPlan[]> =>
+  fetchWithRetry(`${API_BASE_URL}/gfp?clientRef=${encodeURIComponent(clientRef)}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<GfpPlan[]>(res, `/gfp?clientRef=${clientRef}`));
+
+// GET /api/gfp/:id
+export const getGfpPlan = (id: string): Promise<GfpPlan> =>
+  fetchWithRetry(`${API_BASE_URL}/gfp/${id}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<GfpPlan>(res, `/gfp/${id}`));
+
+// POST /api/gfp (skapar; kräver title, clientRef, goals[])
+export const createGfpPlan = (data: GfpCreate): Promise<GfpPlan> =>
+  fetchWithRetry(`${API_BASE_URL}/gfp`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }, { maxRetries: 2 }).then((res) => handleResponse<GfpPlan>(res, '/gfp'));
+
+// PUT /api/gfp/:id (optimistic concurrency via version)
+export const updateGfpPlan = (id: string, data: GfpUpdate): Promise<GfpPlan> =>
+  fetchWithRetry(`${API_BASE_URL}/gfp/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }, { maxRetries: 2 }).then((res) => handleResponse<GfpPlan>(res, `/gfp/${id}`));
+
+// PATCH /api/gfp/:id/lock body: { locked: boolean }
+export const lockGfpPlan = (id: string, data: GfpLock): Promise<GfpPlan> =>
+  fetchWithRetry(`${API_BASE_URL}/gfp/${id}/lock`, {
+    method: "PATCH",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }, { maxRetries: 1 }).then((res) => handleResponse<GfpPlan>(res, `/gfp/${id}/lock`));
+
+// DELETE /api/gfp/:id
+export const deleteGfpPlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/gfp/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));

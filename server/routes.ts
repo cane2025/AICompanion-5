@@ -4,6 +4,16 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage.js";
 import bcrypt from "bcryptjs";
 import {
+  errorHandler,
+  notFoundHandler,
+  requestLogger,
+  asyncHandler,
+  ValidationError,
+  NotFoundError,
+  ConflictError,
+  UnauthorizedError,
+} from "./middleware/errorHandler.js";
+import {
   insertStaffSchema,
   insertClientSchema,
   insertWeeklyDocumentationSchema,
@@ -19,6 +29,9 @@ import {
   updateCarePlanSchema,
   updateImplementationPlanSchema,
   updateVimsaTimeSchema,
+  gfpCreateSchema,
+  gfpUpdateSchema,
+  gfpLockSchema,
 } from "../shared/schema.js";
 
 // Simple in-memory session store for tokens -> user mapping
@@ -46,8 +59,11 @@ function broadcastUpdate(type: string, data: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add request logging middleware
+  app.use(requestLogger);
+
   // Authentication routes
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", asyncHandler(async (req, res) => {
     try {
       const validated = loginSchema.parse(req.body);
       const user = await storage.getUserByUsername(validated.username);
@@ -83,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (_error) {
       res.status(400).json({ message: "Ogiltiga inloggningsuppgifter" });
     }
-  });
+  }));
 
   // Return current authenticated user based on token
   app.get("/api/auth/me", async (req, res) => {
@@ -199,9 +215,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (staff) =>
           (staff.name || "").toLowerCase().includes(query.toLowerCase()) ||
           (staff.initials || "").toLowerCase().includes(query.toLowerCase()) ||
-          (staff.personnummer || "")
-            .toLowerCase()
-            .includes(query.toLowerCase()) ||
           (staff.telefon || "").toLowerCase().includes(query.toLowerCase()) ||
           (staff.epost || "").toLowerCase().includes(query.toLowerCase()) ||
           (staff.roll || "").toLowerCase().includes(query.toLowerCase()) ||
@@ -871,6 +884,237 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GFP-specific endpoints as per requirements
+  // GET /api/gfp?clientRef=... (lista)
+  app.get("/api/gfp", async (req, res) => {
+    try {
+      const { clientRef } = req.query;
+      if (!clientRef || typeof clientRef !== 'string') {
+        return res.status(400).json({ message: "clientRef parameter krävs" });
+      }
+      
+      const plan = await storage.getImplementationPlan(clientRef);
+      if (!plan) {
+        return res.json([]); // Return empty array if no plan found
+      }
+      
+      // Transform to GFP format
+      const gfpPlan = {
+        id: plan.id,
+        title: plan.title || plan.planContent?.substring(0, 50) || "Genomförandeplan",
+        clientRef: plan.clientId,
+        goals: plan.goals ? [{ text: plan.goals }] : [],
+        version: plan.version || 1,
+        locked: plan.locked || false,
+        createdAt: plan.createdAt,
+        updatedAt: plan.updatedAt,
+      };
+      
+      res.json([gfpPlan]);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta genomförandeplaner" });
+    }
+  });
+
+  // GET /api/gfp/:id
+  app.get("/api/gfp/:id", async (req, res) => {
+    try {
+      const plan = await storage.getImplementationPlanById(req.params.id);
+      if (!plan) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      
+      // Transform to GFP format
+      const gfpPlan = {
+        id: plan.id,
+        title: plan.title || plan.planContent?.substring(0, 50) || "Genomförandeplan",
+        clientRef: plan.clientId,
+        goals: plan.goals ? [{ text: plan.goals }] : [],
+        version: plan.version || 1,
+        locked: plan.locked || false,
+        createdAt: plan.createdAt,
+        updatedAt: plan.updatedAt,
+      };
+      
+      res.json(gfpPlan);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta genomförandeplan" });
+    }
+  });
+
+  // POST /api/gfp (skapar; kräver title, clientRef, goals[])
+  app.post("/api/gfp", async (req, res) => {
+    try {
+      const validatedData = gfpCreateSchema.parse(req.body);
+      
+      // Check if goals array is not empty
+      if (!validatedData.goals || validatedData.goals.length === 0) {
+        return res.status(400).json({ message: "Minst ett mål krävs" });
+      }
+      
+      // Transform GFP format to implementation plan format
+      const planData = {
+        clientId: validatedData.clientRef,
+        staffId: validatedData.staffId,
+        title: validatedData.title,
+        goals: validatedData.goals.map(g => g.text).join('\n'),
+        planContent: validatedData.title,
+        version: 1,
+        locked: false,
+      };
+      
+      const plan = await storage.createImplementationPlan(planData);
+      broadcastUpdate("implementationPlans", plan);
+      
+      // Return in GFP format
+      const gfpPlan = {
+        id: plan.id,
+        title: plan.title,
+        clientRef: plan.clientId,
+        goals: validatedData.goals,
+        version: plan.version || 1,
+        locked: plan.locked || false,
+        createdAt: plan.createdAt,
+        updatedAt: plan.updatedAt,
+      };
+      
+      res.status(201).json(gfpPlan);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(400).json({ message: "Ogiltiga data för genomförandeplan", error: errorMessage });
+    }
+  });
+
+  // PUT /api/gfp/:id (optimistic concurrency via version)
+  app.put("/api/gfp/:id", async (req, res) => {
+    try {
+      const validatedData = gfpUpdateSchema.parse(req.body);
+      
+      // Get current plan to check version
+      const currentPlan = await storage.getImplementationPlanById(req.params.id);
+      if (!currentPlan) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      
+      // Check optimistic concurrency
+      if (currentPlan.version !== validatedData.version) {
+        return res.status(409).json({ 
+          message: "Version har uppdaterats, ladda om?",
+          currentVersion: currentPlan.version,
+          providedVersion: validatedData.version
+        });
+      }
+      
+      // Transform GFP format to implementation plan format
+      const updateData: any = {
+        version: validatedData.version + 1, // Increment version
+        updatedAt: new Date(),
+      };
+      
+      if (validatedData.title) {
+        updateData.title = validatedData.title;
+        updateData.planContent = validatedData.title;
+      }
+      
+      if (validatedData.goals) {
+        updateData.goals = validatedData.goals.map(g => g.text).join('\n');
+      }
+      
+      const plan = await storage.updateImplementationPlan(req.params.id, updateData);
+      if (!plan) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      
+      // Return in GFP format
+      const gfpPlan = {
+        id: plan.id,
+        title: plan.title,
+        clientRef: plan.clientId,
+        goals: validatedData.goals || (plan.goals ? [{ text: plan.goals }] : []),
+        version: plan.version || 1,
+        locked: plan.locked || false,
+        createdAt: plan.createdAt,
+        updatedAt: plan.updatedAt,
+      };
+      
+      res.json(gfpPlan);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(400).json({ message: "Ogiltiga data för genomförandeplan", error: errorMessage });
+    }
+  });
+
+  // PATCH /api/gfp/:id/lock body: { locked: boolean }
+  app.patch("/api/gfp/:id/lock", async (req, res) => {
+    try {
+      const validatedData = gfpLockSchema.parse(req.body);
+      
+      const updateData = {
+        locked: validatedData.locked,
+        updatedAt: new Date(),
+      };
+      
+      const plan = await storage.updateImplementationPlan(req.params.id, updateData);
+      if (!plan) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      
+      // Return in GFP format
+      const gfpPlan = {
+        id: plan.id,
+        title: plan.title,
+        clientRef: plan.clientId,
+        goals: plan.goals ? [{ text: plan.goals }] : [],
+        version: plan.version || 1,
+        locked: plan.locked || false,
+        createdAt: plan.createdAt,
+        updatedAt: plan.updatedAt,
+      };
+      
+      res.json(gfpPlan);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(400).json({ message: "Kunde inte uppdatera låsstatus", error: errorMessage });
+    }
+  });
+
+  // DELETE /api/gfp/:id
+  app.delete("/api/gfp/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteImplementationPlan(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte ta bort genomförandeplan" });
+    }
+  });
+
+  // Health check endpoint
+  app.get("/api/health", async (req, res) => {
+    try {
+      const backupStatus = storage.getBackupStatus();
+      const healthData = {
+        ok: true,
+        time: new Date().toISOString(),
+        version: process.env.npm_package_version || "1.0.0",
+        backup: {
+          lastBackup: backupStatus.lastBackup,
+          backupPath: backupStatus.backupPath,
+          status: backupStatus.lastBackup ? 'healthy' : 'no_backup_yet'
+        }
+      };
+      res.json(healthData);
+    } catch (error) {
+      res.status(500).json({
+        ok: false,
+        time: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Health check failed'
+      });
+    }
+  });
+
   // Vimsa time routes
   app.get("/api/clients/:clientId/vimsa/:year/:week", async (req, res) => {
     try {
@@ -934,6 +1178,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     });
   }
+
+  // Add 404 handler for unmatched routes
+  app.use(notFoundHandler);
+
+  // Add global error handler (must be last)
+  app.use(errorHandler);
 
   return httpServer;
 }

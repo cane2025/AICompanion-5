@@ -119,7 +119,6 @@ export function SimpleWorkingCarePlan() {
         body: JSON.stringify({
           initials: formData.clientInitials,
           staffId: formData.staffId,
-          personalNumber: "",
           notes: `Vårdplan ${formData.planNumber} från ${formData.socialWorkerName}`,
           status: "active",
         }),

@@ -68,7 +68,6 @@ import {
 // Use only the fields needed for the form
 const ClientFormSchema = insertClientSchema.pick({
   initials: true,
-  personalNumber: true,
   notes: true,
   staffId: true,
   status: true,
@@ -90,14 +89,12 @@ function ClientForm({ client, staffList, onClose }: ClientFormProps) {
     defaultValues: client
       ? {
           initials: client.initials,
-          personalNumber: client.personalNumber || "",
           notes: client.notes || "",
           staffId: client.staffId,
           status: client.status || "active",
         }
       : {
           initials: "",
-          personalNumber: "",
           notes: "",
           staffId: "",
           status: "active",
@@ -155,24 +152,6 @@ function ClientForm({ client, staffList, onClose }: ClientFormProps) {
               <FormControl>
                 <Input
                   placeholder="t.ex. A.B."
-                  {...field}
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="personalNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Personnummer (valfritt)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="ÅÅMMDD-XXXX"
                   {...field}
                   value={field.value ?? ""}
                   onChange={field.onChange}

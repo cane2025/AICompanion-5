@@ -78,7 +78,6 @@ export function QuickSearch({
       const searchText = [
         staffMember.name,
         staffMember.initials,
-        staffMember.personnummer,
         staffMember.telefon,
         staffMember.epost,
         staffMember.roll,
@@ -102,7 +101,6 @@ export function QuickSearch({
 
       const searchText = [
         client.initials,
-        client.personalNumber,
         client.notes
       ].filter(Boolean).join(' ').toLowerCase();
 

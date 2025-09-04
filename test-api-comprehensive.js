@@ -41,7 +41,6 @@ async function testAllFunctions() {
       },
       body: JSON.stringify({
         initials: "TEST",
-        personnummer: "20000101-0000",
         status: "active",
       }),
     });

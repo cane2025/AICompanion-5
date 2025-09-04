@@ -116,7 +116,6 @@ echo "────────────────────────�
 # Create a test client
 CLIENT_DATA='{
     "initials": "TEST",
-    "personnummer": "20000101-0000",
     "name": "Test Client",
     "status": "active"
 }'
