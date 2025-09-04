@@ -132,9 +132,9 @@ export const implementationPlans = pgTable("implementation_plans", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   // Newly added optional fields referenced in UI
-  dueDate: timestamp("due_date"),
-  completedDate: timestamp("completed_date"),
-  sentDate: timestamp("sent_date"),
+  dueDate: varchar("due_date"),
+  completedDate: varchar("completed_date"),
+  sentDate: varchar("sent_date"),
   planType: varchar("plan_type").default("1"),
 });
 

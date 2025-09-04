@@ -39,7 +39,7 @@ export function QuickSearch({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Performance monitoring
-  usePerformanceMonitor('QuickSearch render', [query]);
+  usePerformanceMonitor();
 
   // Fetch all data
   const { data: staff = [] } = useQuery<Staff[]>({
@@ -173,12 +173,17 @@ export function QuickSearch({
   }, [staff, clients, carePlans, implementationPlans]);
 
   // Optimized search with debounce
-  const searchResults = useOptimizedSearch(
-    searchableItems,
-    query,
-    ['searchText'] as any,
+  const { searchResults: allResults, handleSearch } = useOptimizedSearch(
+    async (query: string) => {
+      if (!query.trim()) return [];
+      return searchableItems.filter(item => 
+        item.searchText.toLowerCase().includes(query.toLowerCase())
+      );
+    },
     300 // 300ms debounce for better UX
-  ).slice(0, 8); // Limit to 8 results
+  );
+  
+  const searchResults = allResults.slice(0, 8); // Limit to 8 results
 
   // Helper function for status text
   const getStatusText = (status: string) => {
@@ -285,7 +290,9 @@ export function QuickSearch({
           placeholder={placeholder}
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value);
+            const value = e.target.value;
+            setQuery(value);
+            handleSearch(value);
             setIsOpen(true);
             setSelectedIndex(-1);
           }}
@@ -299,7 +306,7 @@ export function QuickSearch({
           <CardContent className="p-0">
             {searchResults.length > 0 ? (
               <div className="py-2">
-                {searchResults.map((result, index) => (
+                {searchResults.map((result: any, index: number) => (
                   <div
                     key={`${result.type}-${result.id}`}
                     className={`px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors ${

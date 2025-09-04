@@ -38,6 +38,7 @@ import { FileText, Save, Trash2, Edit, X, Check } from "lucide-react";
 import * as api from "@/lib/api";
 import { CarePlan, Staff } from "@shared/schema";
 import { useDebounce } from "@/hooks/use-debounce";
+import { CARE_PLAN_STATUSES, type CarePlanStatus } from "@/types/status";
 
 const carePlanSchema = z.object({
   planContent: z.string().optional(),
@@ -111,7 +112,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as CarePlanStatus) || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -244,7 +245,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as CarePlanStatus) || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -408,7 +409,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
                   <p className="text-sm text-blue-800">
                     <strong>GFP ska vara inlämnad senast:</strong>{" "}
                     {new Date(
-                      new Date(form.watch("staffNotifiedDate")).getTime() +
+                      new Date(form.watch("staffNotifiedDate") || "").getTime() +
                         21 * 24 * 60 * 60 * 1000
                     ).toLocaleDateString("sv-SE")}{" "}
                     (3 veckor från tillsägning)
