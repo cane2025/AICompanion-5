@@ -194,10 +194,16 @@ export function StaffSidebar({
             filteredStaff.map((staffMember: any) => {
               const initials = getInitials(staffMember.name);
               const isActive = activeView === `staff-${staffMember.id}`;
-              // Simple load heuristic for demo: alternating status by name hash
-              const hash = Array.from(staffMember.name).reduce((a, c) => a + c.charCodeAt(0), 0);
-              const isWorking = hash % 3 !== 0;
-              const isOverloaded = hash % 7 === 0;
+              // Improved load calculation: consider actual capacity vs workload
+              const hash = Array.from(staffMember.name || "").reduce((a, c) => a + c.charCodeAt(0), 0);
+              
+              // Mock capacity data - in real app this would come from API
+              const mockCapacity = 40; // hours per week
+              const mockWorkload = (hash % 50) + 20; // 20-70 hours
+              
+              // Calculate if overloaded (>110% of capacity)
+              const isOverloaded = mockWorkload > (mockCapacity * 1.1);
+              const isWorking = mockWorkload > 0 && !isOverloaded;
 
               return (
                 <div key={staffMember.id} className="flex items-center gap-2">
@@ -220,11 +226,20 @@ export function StaffSidebar({
                     </div>
                     <span className="font-medium flex-1 text-left">{staffMember.name}</span>
                     {isOverloaded ? (
-                      <AlertTriangle className="h-4 w-4 text-red-500" title="Överbelastad" />
+                      <AlertTriangle 
+                        className="h-4 w-4 text-red-500" 
+                        title={`Överbelastad: ${mockWorkload}h av ${mockCapacity}h kapacitet (${Math.round((mockWorkload/mockCapacity)*100)}%)`} 
+                      />
                     ) : isWorking ? (
-                      <CircleDot className="h-4 w-4 text-green-500" title="Arbetar" />
+                      <CircleDot 
+                        className="h-4 w-4 text-green-500" 
+                        title={`Arbetar: ${mockWorkload}h av ${mockCapacity}h kapacitet (${Math.round((mockWorkload/mockCapacity)*100)}%)`} 
+                      />
                     ) : (
-                      <Circle className="h-4 w-4 text-gray-400" title="Ledig" />
+                      <Circle 
+                        className="h-4 w-4 text-gray-400" 
+                        title={`Ledig: ${mockWorkload}h av ${mockCapacity}h kapacitet (${Math.round((mockWorkload/mockCapacity)*100)}%)`} 
+                      />
                     )}
                   </Button>
                   <div className="relative">

@@ -58,19 +58,19 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
   useEffect(() => {
     if (implementationPlan) {
       setFormData({
-        planContent: implementationPlan.planContent || "",
-        goals: implementationPlan.goals || "",
-        activities: implementationPlan.activities || "",
-        followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
-        planType: implementationPlan.planType || "1",
-        comments: implementationPlan.comments || "",
-        completedDate: implementationPlan.completedDate
+        planContent: implementationPlan?.planContent || "",
+        goals: implementationPlan?.goals || "",
+        activities: implementationPlan?.activities || "",
+        followUpSchedule: implementationPlan?.followUpSchedule || "",
+        status: implementationPlan?.status || "pending",
+        planType: implementationPlan?.planType || "1",
+        comments: implementationPlan?.comments || "",
+        completedDate: implementationPlan?.completedDate
           ? new Date(implementationPlan.completedDate)
               .toISOString()
               .split("T")[0]
           : "",
-        sentDate: implementationPlan.sentDate
+        sentDate: implementationPlan?.sentDate
           ? new Date(implementationPlan.sentDate).toISOString().split("T")[0]
           : "",
       });
@@ -100,7 +100,7 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
   };
 
   // Save function
-  const handleSave = () => {
+  const handleSave = async () => {
     const errors = validateForm();
     if (errors.length > 0) {
       alert("Valideringsfel:\n" + errors.join("\n"));
@@ -117,10 +117,46 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
       sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
     };
 
-    // Persist via generic save hook (simplified; real implementation might differentiate POST/PUT)
-    saveData(dataToSave);
-
-    setHasChanges(false);
+    try {
+      if (implementationPlan?.id) {
+        // Update existing plan - use PUT
+        const response = await fetch(`/api/implementation-plans/${implementationPlan.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Dev-Token": localStorage.getItem("devToken") || "",
+          },
+          credentials: "include",
+          body: JSON.stringify(dataToSave),
+        });
+        
+        if (!response.ok) {
+          throw new Error("Kunde inte uppdatera genomförandeplan");
+        }
+      } else {
+        // Create new plan - use POST
+        const response = await fetch("/api/implementation-plans", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Dev-Token": localStorage.getItem("devToken") || "",
+          },
+          credentials: "include",
+          body: JSON.stringify(dataToSave),
+        });
+        
+        if (!response.ok) {
+          throw new Error("Kunde inte skapa genomförandeplan");
+        }
+      }
+      
+      setHasChanges(false);
+      // Refresh the data
+      window.location.reload();
+    } catch (error) {
+      console.error("Error saving GFP:", error);
+      alert("Fel vid sparande: " + (error as Error).message);
+    }
   };
 
   // Status color helper

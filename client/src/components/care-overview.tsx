@@ -57,13 +57,13 @@ export function CareOverview({ staff }: CareOverviewProps) {
 
   // Get client names for display
   const getClientName = (clientId: string) => {
-    const client = allClients.find((c) => c.id === clientId);
-    return client ? client.initials : "Okänd klient";
+    const client = allClients?.find((c) => c?.id === clientId);
+    return client?.initials || "Okänd klient";
   };
 
   const getStaffName = (staffId: string) => {
-    const staffMember = staff.find((s) => s.id === staffId);
-    return staffMember ? staffMember.name : "Okänd personal";
+    const staffMember = staff?.find((s) => s?.id === staffId);
+    return staffMember?.name || "Okänd personal";
   };
 
   return (
