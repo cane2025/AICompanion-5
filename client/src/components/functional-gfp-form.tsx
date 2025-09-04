@@ -21,7 +21,8 @@ interface FunctionalGfpFormProps {
 }
 
 export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
-  const { saveData, isLoading: isSaving } = useSaveData("gfp-endpoint");
+  // Decide endpoint dynamically: if plan exists use PUT else POST
+  const { saveData, isLoading: isSaving } = useSaveData("/api/implementation-plans");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -44,7 +45,7 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
       queryKey: ["/api/implementation-plans", client.id],
       queryFn: async () => {
         const response = await fetch(
-          `/api/clients/${client.id}/implementation-plan`
+          `/api/implementation-plans/client/${client.id}`
         );
         if (!response.ok) {
           if (response.status === 404) return null;
@@ -117,8 +118,13 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
       sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
     };
 
-    // Persist via generic save hook (simplified; real implementation might differentiate POST/PUT)
-    saveData(dataToSave);
+    // Use POST to create new or PUT to update existing plan
+    const method = implementationPlan ? "PUT" : "POST";
+    const endpoint = implementationPlan
+      ? `/api/implementation-plans/${implementationPlan.id}`
+      : "/api/implementation-plans";
+
+    saveData(dataToSave, { url: endpoint, method });
 
     setHasChanges(false);
   };

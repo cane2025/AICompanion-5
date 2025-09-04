@@ -3,7 +3,7 @@ import * as z from "zod";
 
 export interface SaveDataOptions {
   url: string;
-  // ...other option properties...
+  method?: "POST" | "PUT" | "PATCH" | "DELETE";
   payloadSchema?: z.ZodSchema<any>;
 }
 
@@ -12,15 +12,25 @@ export function useSaveData(endpointOrOptions: string | SaveDataOptions) {
   const [error, setError] = useState<string | null>(null);
   const abortControllers = useRef<AbortController[]>([]);
 
-  async function saveData(data?: any): Promise<any> {
+  async function saveData(
+    data?: any,
+    overrides?: Partial<Pick<SaveDataOptions, "url" | "method">>
+  ): Promise<any> {
     const controller = new AbortController();
     abortControllers.current.push(controller);
     setIsLoading(true);
     try {
-      const url =
-        typeof endpointOrOptions === "string"
-          ? endpointOrOptions
-          : endpointOrOptions.url;
+      const resolvedUrl = overrides?.url
+        ? overrides.url
+        : typeof endpointOrOptions === "string"
+        ? endpointOrOptions
+        : endpointOrOptions.url;
+
+      const httpMethod = overrides?.method
+        ? overrides.method
+        : typeof endpointOrOptions === "string"
+        ? "POST"
+        : endpointOrOptions.method || "POST";
 
       // Validate payload if a schema is provided
       if (
@@ -34,8 +44,8 @@ export function useSaveData(endpointOrOptions: string | SaveDataOptions) {
       }
 
       // ...construct additional fetch options if needed...
-      const res = await fetch(url, {
-        method: "POST",
+      const res = await fetch(resolvedUrl, {
+        method: httpMethod,
         body: JSON.stringify(data),
         signal: controller.signal,
         headers: {
