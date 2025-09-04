@@ -43,7 +43,7 @@ export function ImplementationPlanForm({
   // Fetch existing implementation plan for this client
   const { data: existingPlan, isLoading } = useQuery({
     queryKey: ["/api/implementation-plans", client.id],
-    queryFn: () => api.getImplementationPlanByClient(client.id),
+    queryFn: () => api.getImplementationPlansByClient(client.id),
   });
 
   const form = useForm<InsertImplementationPlan>({
