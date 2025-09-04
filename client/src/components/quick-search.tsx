@@ -291,6 +291,7 @@ export function QuickSearch({
           }}
           onFocus={() => setIsOpen(true)}
           className="pl-10 pr-4"
+          aria-label="Sök personal, klienter eller ärenden"
         />
       </div>
 
