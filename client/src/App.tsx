@@ -7,6 +7,20 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/header";
 import { StaffSidebar } from "@/components/staff-sidebar";
 import { Dashboard } from "@/pages/dashboard";
+// UI_DASHBOARD_V2 feature flag
+const UI_DASHBOARD_V2 =
+  (typeof localStorage !== "undefined" &&
+    localStorage.getItem("UI_DASHBOARD_V2") === "true") ||
+  (typeof window !== "undefined" &&
+    (window as any).UI_DASHBOARD_V2 === true);
+let DashboardV2: React.ComponentType | null = null;
+let SidebarV2: React.ComponentType<{ active: string; onChange: (v: string) => void }>| null = null;
+try {
+  // Lazy require to avoid bundling errors if file missing
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  DashboardV2 = require("@/features/UI_DASHBOARD_V2/DashboardV2").DashboardV2;
+  SidebarV2 = require("@/features/UI_DASHBOARD_V2/components/SidebarV2").SidebarV2;
+} catch {}
 import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
 import { LoginForm } from "@/components/login-form";
@@ -121,13 +135,18 @@ function MainApp() {
       />
 
       <div className="flex h-screen pt-16">
-        <StaffSidebar
-          activeView={activeView}
-          onViewChange={handleViewChange}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          searchTerm={searchTerm}
-        />
+        {UI_DASHBOARD_V2 && SidebarV2 ? (
+          // @ts-ignore
+          <SidebarV2 active={activeView} onChange={(v: string) => handleViewChange(v)} />
+        ) : (
+          <StaffSidebar
+            activeView={activeView}
+            onViewChange={handleViewChange}
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            searchTerm={searchTerm}
+          />
+        )}
 
         <main className="flex-1 overflow-y-auto bg-white">
           <div className="p-6">
@@ -143,7 +162,14 @@ function MainApp() {
             </div>
 
             {activeView === "dashboard" ? (
-              <Dashboard />
+              UI_DASHBOARD_V2 && DashboardV2 ? (
+                // New Dashboard V2 behind feature flag
+                <>{/* @ts-ignore */}
+                  <DashboardV2 />
+                </>
+              ) : (
+                <Dashboard />
+              )
             ) : activeStaff ? (
               <div className="space-y-6">
                 <div className="bg-ungdoms-50 rounded-lg p-4 border border-ungdoms-200">
