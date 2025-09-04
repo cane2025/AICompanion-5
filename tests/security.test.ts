@@ -153,14 +153,12 @@ describe('Security Utils', () => {
       safeLog('Test message', {
         name: 'John',
         password: 'secret123',
-        personnummer: '123456-7890',
         token: 'abc123'
       });
 
       expect(consoleSpy).toHaveBeenCalledWith('Test message', {
         name: 'John',
         password: '[REDACTED]',
-        personnummer: '[REDACTED]',
         token: '[REDACTED]'
       });
 

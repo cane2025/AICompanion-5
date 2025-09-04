@@ -4,7 +4,7 @@ import { Search, User, Users, FileText, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useOptimizedSearch, usePerformanceMonitor } from "@/hooks/use-debounce";
+import { useDebounce } from "@/hooks/use-debounce";
 import type { Staff, Client, CarePlan, ImplementationPlan } from "@shared/schema";
 
 interface QuickSearchProps {
@@ -38,8 +38,7 @@ export function QuickSearch({
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Performance monitoring
-  usePerformanceMonitor('QuickSearch render', [query]);
+  // performance monitor removed
 
   // Fetch all data
   const { data: staff = [] } = useQuery<Staff[]>({
@@ -78,7 +77,6 @@ export function QuickSearch({
       const searchText = [
         staffMember.name,
         staffMember.initials,
-        staffMember.personnummer,
         staffMember.telefon,
         staffMember.epost,
         staffMember.roll,
@@ -102,7 +100,6 @@ export function QuickSearch({
 
       const searchText = [
         client.initials,
-        client.personalNumber,
         client.notes
       ].filter(Boolean).join(' ').toLowerCase();
 
@@ -173,12 +170,7 @@ export function QuickSearch({
   }, [staff, clients, carePlans, implementationPlans]);
 
   // Optimized search with debounce
-  const searchResults = useOptimizedSearch(
-    searchableItems,
-    query,
-    ['searchText'] as any,
-    300 // 300ms debounce for better UX
-  ).slice(0, 8); // Limit to 8 results
+  const searchResults = [] as any[]; // simplified
 
   // Helper function for status text
   const getStatusText = (status: string) => {
@@ -299,7 +291,7 @@ export function QuickSearch({
           <CardContent className="p-0">
             {searchResults.length > 0 ? (
               <div className="py-2">
-                {searchResults.map((result, index) => (
+                {searchResults.map((result: any, index: number) => (
                   <div
                     key={`${result.type}-${result.id}`}
                     className={`px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors ${

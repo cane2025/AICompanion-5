@@ -107,7 +107,6 @@ export function ClientWorkflow({ staff }: ClientWorkflowProps) {
     defaultValues: {
       staffId: staff.id,
       initials: "",
-      personalNumber: "",
       notes: "",
       status: "active",
     },

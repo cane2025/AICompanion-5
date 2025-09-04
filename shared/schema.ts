@@ -21,7 +21,7 @@ export const staff = pgTable("staff", {
   name: varchar("name").notNull(), // Display name (exactly as shown in UI)
   fullName: varchar("full_name"), // Internal name for logic (trimmed)
   initials: varchar("initials").notNull(),
-  personnummer: varchar("personnummer").default(""),
+  // personnummer removed
   telefon: varchar("telefon").default(""),
   epost: varchar("epost").default(""),
   adress: varchar("adress").default(""),
@@ -39,7 +39,7 @@ export const clients = pgTable("clients", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   initials: varchar("initials").notNull(),
   staffId: varchar("staff_id").notNull(),
-  personalNumber: varchar("personal_number").default(""),
+  // personalNumber removed
   notes: text("notes").default(""),
   status: varchar("status").default("active"), // active, inactive
   createdAt: timestamp("created_at").defaultNow(),

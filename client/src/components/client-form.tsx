@@ -37,7 +37,6 @@ export function ClientForm() {
     defaultValues: {
       initials: "",
       staffId: "",
-      personalNumber: "",
       notes: "",
       status: "active",
     },
@@ -104,23 +103,7 @@ export function ClientForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="personalNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Personnummer</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="YYYYMMDD-NNNN"
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Personnummer removed */}
 
               <FormField
                 control={form.control}

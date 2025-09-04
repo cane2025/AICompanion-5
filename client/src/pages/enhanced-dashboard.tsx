@@ -78,11 +78,6 @@ export function EnhancedDashboard() {
                         <p className="text-sm text-muted-foreground">
                           ID: {client.id}
                         </p>
-                        {client.personalNumber && (
-                          <p className="text-sm text-muted-foreground">
-                            Personnummer: {client.personalNumber}
-                          </p>
-                        )}
                       </div>
                       <div className="text-right">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${

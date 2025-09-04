@@ -11,6 +11,7 @@ import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
 import { LoginForm } from "@/components/login-form";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import type { Staff, User } from "@shared/schema";
 import * as api from "@/lib/api";
 
@@ -113,6 +114,7 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-white">
+      <OfflineBanner />
       <Header
         onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
         onExport={handleExport}

@@ -14,7 +14,9 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Health check
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, time: new Date().toISOString(), version: process.env.APP_VERSION || "dev" })
+);
 
 // dev API
 app.use("/api", devRoutes);

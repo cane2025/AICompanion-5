@@ -55,7 +55,6 @@ interface StaffClientManagementProps {
 
 const clientSchema = z.object({
   initials: z.string().min(1, "Initialer krävs").max(10, "Max 10 tecken"),
-  personalNumber: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -72,7 +71,6 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
     resolver: zodResolver(clientSchema),
     defaultValues: {
       initials: "",
-      personalNumber: "",
       notes: "",
     },
   });
@@ -350,25 +348,6 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
                             <FormControl>
                               <Input
                                 placeholder="t.ex. A.B."
-                                {...field}
-                                value={field.value ?? ""}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="personalNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Personnummer (frivilligt)</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="YYYYMMDD-XXXX"
                                 {...field}
                                 value={field.value ?? ""}
                                 onChange={field.onChange}

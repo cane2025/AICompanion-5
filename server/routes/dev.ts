@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { store, persist } from "../devStorage";
 import { randomUUID } from "crypto";
+import { z } from "zod";
 
 export const devRoutes = Router();
 
@@ -225,6 +226,170 @@ devRoutes.put("/implementation-plans/:id", (req, res) => {
   };
   persist();
   return res.json(store.implementationPlans[idx]);
+});
+
+// === GFP (Genomförandeplan) ===
+const gfpGoalSchema = z.object({
+  id: z.string().optional(),
+  text: z.string().min(1).max(280),
+  done: z.boolean().optional().default(false),
+});
+
+const gfpCreateSchema = z.object({
+  title: z.string().min(1).max(120),
+  clientRef: z.string().min(1),
+  goals: z.array(gfpGoalSchema).min(1),
+});
+
+const gfpUpdateSchema = z.object({
+  title: z.string().min(1).max(120).optional(),
+  clientRef: z.string().min(1).optional(),
+  goals: z.array(gfpGoalSchema).min(1).optional(),
+  version: z.number().int(),
+});
+
+// List GFPs, optional filter by clientRef
+devRoutes.get("/gfp", (req, res) => {
+  const clientRef = (req.query.clientRef as string) || "";
+  const list = (store.gfp ?? []).filter((p: any) =>
+    clientRef ? p.clientRef === clientRef : true
+  );
+  return res.json(list);
+});
+
+// Get GFP by id
+devRoutes.get("/gfp/:id", (req, res) => {
+  const item = (store.gfp ?? []).find((p: any) => p.id === req.params.id);
+  if (!item) return res.status(404).json({ error: "GFP hittades inte" });
+  return res.json(item);
+});
+
+// Create GFP
+devRoutes.post("/gfp", (req, res) => {
+  try {
+    const parsed = gfpCreateSchema.parse(req.body || {});
+    const now = new Date().toISOString();
+    const item = {
+      id: "gfp_" + randomUUID(),
+      title: parsed.title,
+      clientRef: parsed.clientRef,
+      goals: parsed.goals.map((g: any) => ({
+        id: g.id || ("goal_" + randomUUID()),
+        text: g.text,
+        done: !!g.done,
+      })),
+      version: 1,
+      locked: false,
+      lockedBy: null as string | null,
+      lockedAt: null as string | null,
+      ownerId: staffIdOf(req),
+      createdAt: now,
+      updatedAt: now,
+    };
+    if (!store.gfp) store.gfp = [];
+    store.gfp.push(item);
+    persist();
+    return res.status(201).json(item);
+  } catch (err: any) {
+    return res.status(400).json({ error: "Ogiltig GFP-data", details: err?.message });
+  }
+});
+
+// Update GFP with optimistic concurrency
+devRoutes.put("/gfp/:id", (req, res) => {
+  try {
+    const parsed = gfpUpdateSchema.parse(req.body || {});
+    const idx = (store.gfp ?? []).findIndex((p: any) => p.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: "GFP hittades inte" });
+    const existing = store.gfp[idx];
+
+    // Respect locking
+    if (existing.locked && existing.lockedBy && existing.lockedBy !== staffIdOf(req)) {
+      return res.status(423).json({ error: "GFP är låst av annan användare" });
+    }
+
+    // Optimistic concurrency control
+    if (typeof parsed.version !== "number" || parsed.version !== existing.version) {
+      return res.status(409).json({
+        error: "Version conflict",
+        serverVersion: existing.version,
+      });
+    }
+
+    const now = new Date().toISOString();
+    const updated = {
+      ...existing,
+      ...(parsed.title !== undefined ? { title: parsed.title } : {}),
+      ...(parsed.clientRef !== undefined ? { clientRef: parsed.clientRef } : {}),
+      ...(parsed.goals !== undefined
+        ? {
+            goals: parsed.goals.map((g: any) => ({
+              id: g.id || ("goal_" + randomUUID()),
+              text: g.text,
+              done: !!g.done,
+            })),
+          }
+        : {}),
+      version: existing.version + 1,
+      updatedAt: now,
+    };
+    store.gfp[idx] = updated;
+    persist();
+    return res.json(updated);
+  } catch (err: any) {
+    return res.status(400).json({ error: "Ogiltig GFP-data", details: err?.message });
+  }
+});
+
+// Lock/unlock GFP
+devRoutes.patch("/gfp/:id/lock", (req, res) => {
+  const idx = (store.gfp ?? []).findIndex((p: any) => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "GFP hittades inte" });
+  const { locked } = req.body || {};
+  if (typeof locked !== "boolean") {
+    return res.status(400).json({ error: "locked måste vara boolean" });
+  }
+  const current = store.gfp[idx];
+  const user = staffIdOf(req);
+
+  if (locked) {
+    // Attempt to lock
+    if (current.locked && current.lockedBy && current.lockedBy !== user) {
+      return res.status(409).json({ error: "GFP redan låst av annan användare" });
+    }
+    store.gfp[idx] = {
+      ...current,
+      locked: true,
+      lockedBy: user,
+      lockedAt: new Date().toISOString(),
+    };
+  } else {
+    // Unlock only if same user or no owner
+    if (current.lockedBy && current.lockedBy !== user) {
+      return res.status(403).json({ error: "Endast låsägare kan låsa upp" });
+    }
+    store.gfp[idx] = {
+      ...current,
+      locked: false,
+      lockedBy: null,
+      lockedAt: null,
+    };
+  }
+  persist();
+  return res.json(store.gfp[idx]);
+});
+
+// Delete GFP
+devRoutes.delete("/gfp/:id", (req, res) => {
+  const idx = (store.gfp ?? []).findIndex((p: any) => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "GFP hittades inte" });
+  const item = store.gfp[idx];
+  if (item.locked && item.lockedBy && item.lockedBy !== staffIdOf(req)) {
+    return res.status(423).json({ error: "GFP är låst av annan användare" });
+  }
+  store.gfp.splice(idx, 1);
+  persist();
+  return res.status(204).send();
 });
 
 // === WEEKLY DOCS (inkl. lör/sön) ===

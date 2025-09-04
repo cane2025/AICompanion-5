@@ -52,6 +52,7 @@ import type {
   VimsaTime,
   Staff,
 } from "@shared/schema";
+import { GfpEditor } from "@/components/GfpEditor";
 
 interface ClientDetailViewProps {
   client: Client;
@@ -398,11 +399,7 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
 
         {/* GFP Tab */}
         <TabsContent value="gfp">
-          <EditableImplementationPlan 
-            clientId={client.id} 
-            clientInitials={client.initials}
-            carePlanDate={carePlan?.staffNotifiedDate}
-          />
+          <GfpEditor clientId={client.id} />
         </TabsContent>
 
         {/* Dokumentation Tab */}

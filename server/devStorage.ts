@@ -15,6 +15,7 @@ export let store: any = {
   clients: [],
   carePlans: [],
   implementationPlans: [],
+  gfp: [],
   weeklyDocumentation: [],
   monthlyReports: [],
   vimsaTime: [],

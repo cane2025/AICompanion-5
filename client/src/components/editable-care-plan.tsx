@@ -111,7 +111,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as any) || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -244,7 +244,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as any) || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -403,18 +403,19 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
                 />
               </div>
 
-              {form.watch("staffNotifiedDate") && (
+              {form.watch("staffNotifiedDate") ? (
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
                     <strong>GFP ska vara inlämnad senast:</strong>{" "}
-                    {new Date(
-                      new Date(form.watch("staffNotifiedDate")).getTime() +
-                        21 * 24 * 60 * 60 * 1000
-                    ).toLocaleDateString("sv-SE")}{" "}
+                    {(() => {
+                      const s = form.watch("staffNotifiedDate");
+                      const t = s ? new Date(s).getTime() : Date.now();
+                      return new Date(t + 21 * 24 * 60 * 60 * 1000).toLocaleDateString("sv-SE");
+                    })()}{" "}
                     (3 veckor från tillsägning)
                   </p>
                 </div>
-              )}
+              ) : null}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField

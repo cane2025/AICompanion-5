@@ -105,12 +105,12 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as any) || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: (implementationPlan.dueDate as any) || "",
+        completedDate: (implementationPlan.completedDate as any) || "",
+        sentDate: (implementationPlan.sentDate as any) || "",
         comments: implementationPlan.comments || "",
       });
     }
@@ -247,12 +247,12 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as any) || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: (implementationPlan.dueDate as any) || "",
+        completedDate: (implementationPlan.completedDate as any) || "",
+        sentDate: (implementationPlan.sentDate as any) || "",
         comments: implementationPlan.comments || "",
       });
     }

@@ -199,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (staff) =>
           (staff.name || "").toLowerCase().includes(query.toLowerCase()) ||
           (staff.initials || "").toLowerCase().includes(query.toLowerCase()) ||
-          (staff.personnummer || "")
+          ""
             .toLowerCase()
             .includes(query.toLowerCase()) ||
           (staff.telefon || "").toLowerCase().includes(query.toLowerCase()) ||

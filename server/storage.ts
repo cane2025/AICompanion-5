@@ -244,14 +244,15 @@ export class MemStorage implements IStorage {
       const staff: Staff = {
         id,
         name,
+        fullName: null,
         initials: this.getInitials(name),
-        personnummer: null,
         telefon: null,
         epost: null,
         adress: null,
         anställningsdatum: null,
         roll: null,
         avdelning: null,
+        weeklyCapacityHours: 40,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -280,14 +281,15 @@ export class MemStorage implements IStorage {
     const staff: Staff = {
       id,
       name: insertStaff.name,
+      fullName: null,
       initials: insertStaff.initials,
-      personnummer: insertStaff.personnummer || null,
       telefon: insertStaff.telefon || null,
       epost: insertStaff.epost || null,
       adress: insertStaff.adress || null,
       anställningsdatum: insertStaff.anställningsdatum || null,
       roll: insertStaff.roll || null,
       avdelning: insertStaff.avdelning || null,
+      weeklyCapacityHours: 40,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -320,7 +322,7 @@ export class MemStorage implements IStorage {
         const updated = {
           ...client,
           staffId: 'unassigned',
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.clients.set(client.id, updated);
       }
@@ -334,7 +336,7 @@ export class MemStorage implements IStorage {
           ...plan,
           staffId: plan.staffId === id ? 'unassigned' : plan.staffId,
           responsibleId: plan.responsibleId === id ? 'unassigned' : plan.responsibleId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.carePlans.set(plan.id, updated);
       }
@@ -347,7 +349,7 @@ export class MemStorage implements IStorage {
         const updated = {
           ...plan,
           staffId: 'unassigned',
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.implementationPlans.set(plan.id, updated);
       }
@@ -373,7 +375,6 @@ export class MemStorage implements IStorage {
       id,
       initials: insertClient.initials,
       staffId: insertClient.staffId,
-      personalNumber: insertClient.personalNumber || "",
       notes: insertClient.notes || "",
       status: insertClient.status || "active",
       createdAt: new Date(),

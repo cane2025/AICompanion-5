@@ -94,7 +94,7 @@ export const formatValidationErrors = (errors: z.ZodError): string[] => {
  */
 export const safeLog = (message: string, data?: Record<string, any>): void => {
   // Filter out potentially sensitive fields
-  const sensitiveFields = ['password', 'personnummer', 'personalNumber', 'token', 'hash'];
+  const sensitiveFields = ['password', 'token', 'hash'];
   
   if (data) {
     const safData = Object.keys(data).reduce((acc, key) => {
