@@ -60,6 +60,9 @@ export function Header({ onSidebarToggle, onExport, searchTerm, onSearchChange }
             <div className="hidden md:block relative">
               <Input
                 type="text"
+                id="header-search"
+                role="searchbox"
+                aria-label="Sök personal eller data"
                 placeholder="Sök personal eller data..."
                 defaultValue={searchTerm}
                 onChange={handleSearchChange}

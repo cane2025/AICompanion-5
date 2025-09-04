@@ -282,6 +282,8 @@ export function QuickSearch({
         <Input
           ref={inputRef}
           type="text"
+          id="global-quick-search"
+          aria-label="Snabbsök: personal, klienter eller ärenden"
           placeholder={placeholder}
           value={query}
           onChange={(e) => {
@@ -291,6 +293,7 @@ export function QuickSearch({
           }}
           onFocus={() => setIsOpen(true)}
           className="pl-10 pr-4"
+          role="searchbox"
         />
       </div>
 
