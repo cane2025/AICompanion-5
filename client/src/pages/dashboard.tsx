@@ -8,6 +8,7 @@ import { StaffStatistics } from "@/components/staff-statistics";
 import { DataOverview } from "@/components/data-overview";
 import { CompleteWorkflowOverview } from "@/components/complete-workflow-overview";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
+import { VersionedClientWorkflow } from "@/components/versioned-client-workflow";
 // Removed form-centric quickstart from dashboard in favor of overview widgets
 import { MonthlyReportDialog } from "@/components/monthly-report-dialog";
 import { WeeklyDocumentationDialog } from "@/components/weekly-documentation-dialog";
@@ -105,8 +106,9 @@ export function Dashboard() {
       </div>
 
       <Tabs defaultValue="vardplan" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="vardplan">📋 Vårdplan</TabsTrigger>
+          <TabsTrigger value="versioned">🆕 Nya systemet</TabsTrigger>
           <TabsTrigger value="workflow">🔄 Vårdflöde</TabsTrigger>
           <TabsTrigger value="overview">📊 Översikt</TabsTrigger>
           <TabsTrigger value="care-plans">📁 Vårdplaner & GFP</TabsTrigger>
@@ -121,6 +123,10 @@ export function Dashboard() {
               <RecentActivity />
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="versioned">
+          <VersionedClientWorkflow />
         </TabsContent>
 
         <TabsContent value="workflow">

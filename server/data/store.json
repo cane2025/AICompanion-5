@@ -743,6 +743,16 @@
       "comment": "",
       "createdAt": "2025-09-03T13:43:54.735Z",
       "updatedAt": "2025-09-03T13:44:07.088Z"
+    },
+    {
+      "id": "e0ae2227-8ff5-4a3e-8312-4760aeb641ed",
+      "receivedDate": "2025-01-15",
+      "status": "Mottagen",
+      "content": "Test vårdplan",
+      "clientId": "c_14e3ac48-f807-48db-b2af-1a4e6c32f9c2",
+      "index": 1,
+      "createdAt": "2025-09-04T21:53:16.594Z",
+      "updatedAt": "2025-09-04T21:53:16.594Z"
     }
   ],
   "implementationPlans": [
@@ -1018,6 +1028,16 @@
       "isActive": true,
       "createdAt": "2025-09-03T13:44:44.182Z",
       "updatedAt": "2025-09-03T13:44:44.182Z"
+    },
+    {
+      "id": "a53e8a8f-a402-4ae6-beb7-67a952066e6f",
+      "clientId": "c_14e3ac48-f807-48db-b2af-1a4e6c32f9c2",
+      "carePlanIndex": 1,
+      "index": 1,
+      "status": "Väntar",
+      "followUps": "[{\"key\":\"Uppföljning1\",\"done\":false},{\"key\":\"Uppföljning2\",\"done\":false},{\"key\":\"Uppföljning3\",\"done\":false},{\"key\":\"Uppföljning4\",\"done\":false},{\"key\":\"Uppföljning5\",\"done\":false}]",
+      "createdAt": "2025-09-04T21:53:16.594Z",
+      "updatedAt": "2025-09-04T21:53:16.594Z"
     }
   ],
   "weeklyDocumentation": [
@@ -1172,6 +1192,19 @@
       },
       "createdAt": "2025-08-21T13:25:23.440Z",
       "updatedAt": "2025-08-21T13:25:23.440Z"
+    },
+    {
+      "id": "64d4a34d-d99d-47ab-977c-1fad8a58f357",
+      "days": "{\"mon\":{\"documented\":true,\"qualityApproved\":true,\"onTime\":true,\"delayed\":false}}",
+      "documented": true,
+      "qualityApproved": true,
+      "onTime": true,
+      "delayed": false,
+      "clientId": "c_14e3ac48-f807-48db-b2af-1a4e6c32f9c2",
+      "year": 2025,
+      "week": 36,
+      "createdAt": "2025-09-04T21:53:31.749Z",
+      "updatedAt": "2025-09-04T21:53:31.749Z"
     }
   ],
   "monthlyReports": [
