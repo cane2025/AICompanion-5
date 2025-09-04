@@ -97,11 +97,11 @@ export const restoreClient = (id: string): Promise<Client> =>
     credentials: "include",
   }).then((res) => handleResponse<Client>(res));
 
-// Care Plan API
+// Care Plan API (singular resource)
 export const getCarePlan = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans/${clientId}`, { credentials: "include" }).then(
-    (res) => handleResponse<any>(res)
-  );
+  fetch(`${API_BASE_URL}/care-plans/${clientId}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
 export const createCarePlan = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/care-plans`, {
     method: "POST",
@@ -122,10 +122,10 @@ export const deleteCarePlan = (id: string): Promise<{ message: string }> =>
     credentials: "include",
   }).then((res) => handleResponse<{ message: string }>(res));
 
-// Implementation Plan API
+// Implementation Plan API (singular resource helpers)
 export const getImplementationPlan = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, { 
-    credentials: "include" 
+  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, {
+    credentials: "include",
   }).then((res) => handleResponse<any>(res));
 export const createImplementationPlan = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/implementation-plans`, {
@@ -183,11 +183,11 @@ export const checkAuth = (): Promise<User> =>
     handleResponse<User>(res)
   );
 
-// Care Plans API
+// Care Plans API (collections)
 export const getCarePlans = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/care-plans`, { credentials: "include" }).then((res) =>
-    handleResponse<any[]>(res)
-  );
+  fetch(`${API_BASE_URL}/care-plans/all`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
 
 export const getCarePlansByStaff = (staffId: string): Promise<any[]> =>
   fetch(`${API_BASE_URL}/care-plans/staff/${staffId}`, {
@@ -199,17 +199,9 @@ export const getCarePlanByClient = (clientId: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
-export const createCarePlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-// Implementation Plans API
+// Implementation Plans API (collections)
 export const getImplementationPlans = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
+  fetch(`${API_BASE_URL}/implementation-plans/all`, {
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
@@ -225,25 +217,11 @@ export const getImplementationPlanByClient = (clientId: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
+// The backend does not expose "/implementation-plans/plan/:id"; keeping byId helper out
+// If needed later, add a proper server route. For now, use client or staff filters.
 export const getImplementationPlanById = (id: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/plan/${id}`, {
-    credentials: "include",
-  }).then((res) => handleResponse<any>(res));
-
-export const createImplementationPlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
     credentials: "include",
-    body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
 // Weekly Documentation API
@@ -269,9 +247,9 @@ export const createWeeklyDocumentation = (data: any): Promise<any> =>
 
 // Monthly Reports API
 export const getMonthlyReports = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/monthly-reports`, { credentials: "include" }).then(
-    (res) => handleResponse<any[]>(res)
-  );
+  fetch(`${API_BASE_URL}/monthly-reports/all`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
 
 export const getMonthlyReportsByClient = (clientId: string): Promise<any[]> =>
   fetch(`${API_BASE_URL}/monthly-reports/${clientId}`, {
@@ -288,9 +266,9 @@ export const createMonthlyReport = (data: any): Promise<any> =>
 
 // Vimsa Time API
 export const getVimsaTime = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/vimsa-time`, { credentials: "include" }).then((res) =>
-    handleResponse<any[]>(res)
-  );
+  fetch(`${API_BASE_URL}/vimsa-time/all`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
 
 export const getVimsaTimeByClient = (clientId: string): Promise<any[]> =>
   fetch(`${API_BASE_URL}/vimsa-time/${clientId}`, {
