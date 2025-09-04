@@ -760,6 +760,209 @@ export class MemStorage implements IStorage {
     this.users.set(userId, updated);
     return updated;
   }
+
+  // ── Nya Vårdadminsystem metoder ───────────────────────────────────────────────
+
+  // CarePlan med versionshantering
+  async getCarePlansByClient(clientId: string): Promise<CarePlan[]> {
+    return Array.from(this.carePlans.values())
+      .filter(plan => plan.clientId === clientId)
+      .sort((a, b) => (b as any).index - (a as any).index); // nyast först
+  }
+
+  async createCarePlanWithVersion(planData: any): Promise<CarePlan> {
+    const id = randomUUID();
+    
+    // Hitta nästa index för klienten
+    const existingPlans = await this.getCarePlansByClient(planData.clientId);
+    const nextIndex = existingPlans.length > 0 ? Math.max(...existingPlans.map(p => (p as any).index)) + 1 : 1;
+    
+    const carePlan: CarePlan = {
+      id,
+      clientId: planData.clientId,
+      index: nextIndex,
+      receivedDate: planData.receivedDate,
+      enteredToJournalDate: planData.enteredToJournalDate,
+      status: planData.status || 'Mottagen',
+      assignedStaffId: planData.assignedStaffId,
+      content: planData.content,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    this.carePlans.set(id, carePlan);
+    return carePlan;
+  }
+
+  // GFP med autogenerering
+  async getImplementationPlansByClient(clientId: string): Promise<ImplementationPlan[]> {
+    return Array.from(this.implementationPlans.values())
+      .filter(plan => plan.clientId === clientId)
+      .sort((a, b) => (b as any).index - (a as any).index); // nyast först
+  }
+
+  async createGFPFromCarePlan(carePlan: CarePlan): Promise<ImplementationPlan> {
+    const id = randomUUID();
+    
+    // Hitta nästa GFP-index för klienten
+    const existingGFPs = await this.getImplementationPlansByClient(carePlan.clientId);
+    const nextIndex = existingGFPs.length > 0 ? Math.max(...existingGFPs.map(p => (p as any).index)) + 1 : 1;
+    
+    // Skapa 5 uppföljningar
+    const followUps = [
+      { key: 'Uppföljning1', done: false },
+      { key: 'Uppföljning2', done: false },
+      { key: 'Uppföljning3', done: false },
+      { key: 'Uppföljning4', done: false },
+      { key: 'Uppföljning5', done: false }
+    ];
+    
+    const gfp: ImplementationPlan = {
+      id,
+      clientId: carePlan.clientId,
+      carePlanIndex: (carePlan as any).index,
+      index: nextIndex,
+      status: 'Väntar',
+      followUps: JSON.stringify(followUps),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    this.implementationPlans.set(id, gfp);
+    return gfp;
+  }
+
+  // Weekly Documentation med dagvy
+  async getWeeklyDocsByClient(clientId: string, year: number): Promise<WeeklyDocumentation[]> {
+    return Array.from(this.weeklyDocumentation.values())
+      .filter(doc => doc.clientId === clientId && doc.year === year)
+      .sort((a, b) => b.week - a.week); // nyast först
+  }
+
+  async getWeeklyDocByClientYearWeek(clientId: string, year: number, week: number): Promise<WeeklyDocumentation | undefined> {
+    return Array.from(this.weeklyDocumentation.values())
+      .find(doc => doc.clientId === clientId && doc.year === year && doc.week === week);
+  }
+
+  async upsertWeeklyDoc(docData: any): Promise<WeeklyDocumentation> {
+    const existing = await this.getWeeklyDocByClientYearWeek(docData.clientId, docData.year, docData.week);
+    
+    if (existing) {
+      // Uppdatera befintlig
+      const updated: WeeklyDocumentation = {
+        ...existing,
+        ...docData,
+        updatedAt: new Date(),
+      };
+      this.weeklyDocumentation.set(existing.id, updated);
+      return updated;
+    } else {
+      // Skapa ny
+      const id = randomUUID();
+      const weeklyDoc: WeeklyDocumentation = {
+        id,
+        clientId: docData.clientId,
+        year: docData.year,
+        week: docData.week,
+        days: docData.days ? JSON.stringify(docData.days) : '{}',
+        documented: docData.documented || false,
+        qualityApproved: docData.qualityApproved || false,
+        onTime: docData.onTime !== undefined ? docData.onTime : true,
+        delayed: docData.delayed || false,
+        comments: docData.comments,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.weeklyDocumentation.set(id, weeklyDoc);
+      return weeklyDoc;
+    }
+  }
+
+  // Statistik/rapporter
+  async getStaffStats(fromDate: Date, toDate: Date): Promise<any[]> {
+    // Hämta alla veckodokumentation inom perioden
+    const allDocs = Array.from(this.weeklyDocumentation.values())
+      .filter(doc => {
+        const docDate = new Date(doc.year, 0, 1 + (doc.week - 1) * 7);
+        return docDate >= fromDate && docDate <= toDate;
+      });
+    
+    // Gruppera per personal och vecka
+    const staffStats = new Map<string, any>();
+    
+    for (const doc of allDocs) {
+      const days = JSON.parse(doc.days || '{}');
+      const staffId = days.mon?.authorStaffId || days.tue?.authorStaffId || days.wed?.authorStaffId || 
+                     days.thu?.authorStaffId || days.fri?.authorStaffId || days.sat?.authorStaffId || days.sun?.authorStaffId;
+      
+      if (staffId) {
+        const key = `${staffId}-${doc.year}-${doc.week}`;
+        if (!staffStats.has(key)) {
+          staffStats.set(key, {
+            staffId,
+            year: doc.year,
+            week: doc.week,
+            documentedCount: 0,
+            delayedCount: 0,
+            notApprovedCount: 0
+          });
+        }
+        
+        const stats = staffStats.get(key)!;
+        
+        // Räkna dokumenterade dagar
+        Object.values(days).forEach((day: any) => {
+          if (day?.documented) {
+            stats.documentedCount++;
+            if (day.delayed) stats.delayedCount++;
+            if (!day.qualityApproved) stats.notApprovedCount++;
+          }
+        });
+      }
+    }
+    
+    return Array.from(staffStats.values());
+  }
+
+  async getClientStats(clientId: string, fromDate: Date, toDate: Date): Promise<any[]> {
+    // Hämta alla veckodokumentation för klienten inom perioden
+    const clientDocs = Array.from(this.weeklyDocumentation.values())
+      .filter(doc => {
+        const docDate = new Date(doc.year, 0, 1 + (doc.week - 1) * 7);
+        return doc.clientId === clientId && docDate >= fromDate && docDate <= toDate;
+      });
+    
+    // Gruppera per vecka
+    const clientStats = clientDocs.map(doc => {
+      const days = JSON.parse(doc.days || '{}');
+      let documentedCount = 0;
+      let delayedCount = 0;
+      let notApprovedCount = 0;
+      
+      Object.values(days).forEach((day: any) => {
+        if (day?.documented) {
+          documentedCount++;
+          if (day.delayed) delayedCount++;
+          if (!day.qualityApproved) notApprovedCount++;
+        }
+      });
+      
+      return {
+        clientId,
+        year: doc.year,
+        week: doc.week,
+        documentedCount,
+        delayedCount,
+        notApprovedCount,
+        documented: doc.documented,
+        qualityApproved: doc.qualityApproved,
+        onTime: doc.onTime,
+        delayed: doc.delayed
+      };
+    });
+    
+    return clientStats.sort((a, b) => b.week - a.week);
+  }
 }
 
 export const storage = new MemStorage();
