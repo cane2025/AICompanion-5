@@ -115,6 +115,24 @@ export interface IStorage {
     id: string,
     updates: UpdateVimsaTime
   ): Promise<VimsaTime | undefined>;
+
+  // ── New Versioned Care Plan Operations ──
+  getCarePlansByClient(clientId: string): Promise<CarePlan[]>;
+  createCarePlanVersioned(plan: Omit<CarePlan, 'id' | 'index' | 'createdAt' | 'updatedAt'>): Promise<CarePlan>;
+  
+  // ── New Versioned Implementation Plan Operations ──
+  getImplementationPlansByClient(clientId: string): Promise<ImplementationPlan[]>;
+  createImplementationPlanVersioned(plan: Omit<ImplementationPlan, 'id' | 'index' | 'createdAt' | 'updatedAt' | 'followUps'> & { followUps?: any }): Promise<ImplementationPlan>;
+  autoCreateImplementationPlan(clientId: string, carePlanIndex: number): Promise<ImplementationPlan>;
+  
+  // ── New Weekly Documentation Operations ──
+  getWeeklyDocsByClient(clientId: string, year: number): Promise<WeeklyDocumentation[]>;
+  getWeeklyDoc(clientId: string, year: number, week: number): Promise<WeeklyDocumentation | undefined>;
+  upsertWeeklyDoc(doc: Omit<WeeklyDocumentation, 'id' | 'createdAt' | 'updatedAt'>): Promise<WeeklyDocumentation>;
+  
+  // ── Statistics Operations ──
+  getStaffStats(from?: string, to?: string): Promise<any>;
+  getClientStats(clientId: string, from?: string, to?: string): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -759,6 +777,137 @@ export class MemStorage implements IStorage {
     };
     this.users.set(userId, updated);
     return updated;
+  }
+
+  // ── New Versioned Care Plan Operations ──
+  async getCarePlansByClient(clientId: string): Promise<CarePlan[]> {
+    return Array.from(this.carePlans.values())
+      .filter(plan => plan.clientId === clientId)
+      .sort((a, b) => b.index - a.index); // newest first
+  }
+
+  async createCarePlanVersioned(plan: Omit<CarePlan, 'id' | 'index' | 'createdAt' | 'updatedAt'>): Promise<CarePlan> {
+    // Get next index for this client
+    const existingPlans = await this.getCarePlansByClient(plan.clientId);
+    const nextIndex = existingPlans.length > 0 ? Math.max(...existingPlans.map(p => p.index)) + 1 : 1;
+
+    const newPlan: CarePlan = {
+      id: randomUUID(),
+      ...plan,
+      index: nextIndex,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.carePlans.set(newPlan.id, newPlan);
+    return newPlan;
+  }
+
+  // ── New Versioned Implementation Plan Operations ──
+  async getImplementationPlansByClient(clientId: string): Promise<ImplementationPlan[]> {
+    return Array.from(this.implementationPlans.values())
+      .filter(plan => plan.clientId === clientId)
+      .sort((a, b) => b.index - a.index); // newest first
+  }
+
+  async createImplementationPlanVersioned(plan: Omit<ImplementationPlan, 'id' | 'index' | 'createdAt' | 'updatedAt' | 'followUps'> & { followUps?: any }): Promise<ImplementationPlan> {
+    // Get next index for this client
+    const existingPlans = await this.getImplementationPlansByClient(plan.clientId);
+    const nextIndex = existingPlans.length > 0 ? Math.max(...existingPlans.map(p => p.index)) + 1 : 1;
+
+    const newPlan: ImplementationPlan = {
+      id: randomUUID(),
+      ...plan,
+      index: nextIndex,
+      followUps: JSON.stringify(plan.followUps || [
+        { key: 'Uppföljning1', done: false },
+        { key: 'Uppföljning2', done: false },
+        { key: 'Uppföljning3', done: false },
+        { key: 'Uppföljning4', done: false },
+        { key: 'Uppföljning5', done: false },
+      ]),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.implementationPlans.set(newPlan.id, newPlan);
+    return newPlan;
+  }
+
+  async autoCreateImplementationPlan(clientId: string, carePlanIndex: number): Promise<ImplementationPlan> {
+    return await this.createImplementationPlanVersioned({
+      clientId,
+      carePlanIndex,
+      status: 'Väntar',
+    });
+  }
+
+  // ── New Weekly Documentation Operations ──
+  async getWeeklyDocsByClient(clientId: string, year: number): Promise<WeeklyDocumentation[]> {
+    return Array.from(this.weeklyDocumentation.values())
+      .filter(doc => doc.clientId === clientId && doc.year === year)
+      .sort((a, b) => b.week - a.week); // newest first
+  }
+
+  async getWeeklyDoc(clientId: string, year: number, week: number): Promise<WeeklyDocumentation | undefined> {
+    return Array.from(this.weeklyDocumentation.values())
+      .find(doc => doc.clientId === clientId && doc.year === year && doc.week === week);
+  }
+
+  async upsertWeeklyDoc(doc: Omit<WeeklyDocumentation, 'id' | 'createdAt' | 'updatedAt'>): Promise<WeeklyDocumentation> {
+    // Check if document already exists
+    const existing = await this.getWeeklyDoc(doc.clientId, doc.year, doc.week);
+    
+    if (existing) {
+      // Update existing
+      const updated: WeeklyDocumentation = {
+        ...existing,
+        ...doc,
+        updatedAt: new Date().toISOString(),
+      };
+      this.weeklyDocumentation.set(existing.id, updated);
+      return updated;
+    } else {
+      // Create new
+      const newDoc: WeeklyDocumentation = {
+        id: randomUUID(),
+        ...doc,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      this.weeklyDocumentation.set(newDoc.id, newDoc);
+      return newDoc;
+    }
+  }
+
+  // ── Statistics Operations ──
+  async getStaffStats(from?: string, to?: string): Promise<any> {
+    // Mock implementation - in real app would calculate from weekly docs
+    const stats = Array.from(this.staff.values()).map(staff => ({
+      staffId: staff.id,
+      staffName: staff.name,
+      documentedCount: Math.floor(Math.random() * 50) + 10,
+      delayedCount: Math.floor(Math.random() * 5),
+      notApprovedCount: Math.floor(Math.random() * 3),
+      totalWeeks: 12,
+    }));
+    
+    return stats;
+  }
+
+  async getClientStats(clientId: string, from?: string, to?: string): Promise<any> {
+    // Mock implementation - in real app would calculate from weekly docs
+    const client = this.clients.get(clientId);
+    if (!client) return null;
+
+    return {
+      clientId,
+      clientDisplayCode: client.displayCode,
+      documentedWeeks: Math.floor(Math.random() * 40) + 30,
+      delayedWeeks: Math.floor(Math.random() * 5),
+      notApprovedWeeks: Math.floor(Math.random() * 3),
+      totalWeeks: 52,
+    };
   }
 }
 

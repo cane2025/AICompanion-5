@@ -392,3 +392,196 @@ devRoutes.delete("/vimsa-time/:id", (req, res) => {
   persist();
   return res.status(204).send();
 });
+
+// ── New Versioned Care Plan Routes ──
+devRoutes.get("/clients/:clientId/care-plans", (req, res) => {
+  const { clientId } = req.params;
+  const carePlans = (store.carePlans || [])
+    .filter(plan => plan.clientId === clientId)
+    .sort((a, b) => (b.index || 0) - (a.index || 0));
+  return res.json(carePlans);
+});
+
+devRoutes.post("/clients/:clientId/care-plans", (req, res) => {
+  const { clientId } = req.params;
+  const carePlanData = { ...req.body, clientId };
+  
+  // Get next index for this client
+  const existingPlans = (store.carePlans || []).filter(p => p.clientId === clientId);
+  const nextIndex = existingPlans.length > 0 ? Math.max(...existingPlans.map(p => p.index || 0)) + 1 : 1;
+  
+  const carePlan = {
+    id: randomUUID(),
+    ...carePlanData,
+    index: nextIndex,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  
+  if (!store.carePlans) store.carePlans = [];
+  store.carePlans.push(carePlan);
+  
+  // Auto-generate GFP
+  const gfp = {
+    id: randomUUID(),
+    clientId,
+    carePlanIndex: carePlan.index,
+    index: ((store.implementationPlans || []).filter(p => p.clientId === clientId).length) + 1,
+    status: 'Väntar',
+    followUps: JSON.stringify([
+      { key: 'Uppföljning1', done: false },
+      { key: 'Uppföljning2', done: false },
+      { key: 'Uppföljning3', done: false },
+      { key: 'Uppföljning4', done: false },
+      { key: 'Uppföljning5', done: false },
+    ]),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  
+  if (!store.implementationPlans) store.implementationPlans = [];
+  store.implementationPlans.push(gfp);
+  
+  persist();
+  return res.json({ carePlan, gfp, message: `GFP skapad automatiskt (index ${gfp.index})` });
+});
+
+devRoutes.patch("/care-plans/:carePlanId", (req, res) => {
+  const { carePlanId } = req.params;
+  const updateData = req.body;
+  
+  const index = (store.carePlans || []).findIndex(p => p.id === carePlanId);
+  if (index === -1) return res.status(404).json({ error: "Care plan not found" });
+  
+  store.carePlans[index] = {
+    ...store.carePlans[index],
+    ...updateData,
+    updatedAt: new Date().toISOString(),
+  };
+  
+  persist();
+  return res.json(store.carePlans[index]);
+});
+
+// ── New Versioned Implementation Plan (GFP) Routes ──
+devRoutes.get("/clients/:clientId/implementation-plans", (req, res) => {
+  const { clientId } = req.params;
+  const plans = (store.implementationPlans || [])
+    .filter(plan => plan.clientId === clientId)
+    .sort((a, b) => (b.index || 0) - (a.index || 0));
+  return res.json(plans);
+});
+
+devRoutes.patch("/implementation-plans/:implId", (req, res) => {
+  const { implId } = req.params;
+  const updateData = req.body;
+  
+  const index = (store.implementationPlans || []).findIndex(p => p.id === implId);
+  if (index === -1) return res.status(404).json({ error: "Implementation plan not found" });
+  
+  store.implementationPlans[index] = {
+    ...store.implementationPlans[index],
+    ...updateData,
+    updatedAt: new Date().toISOString(),
+  };
+  
+  persist();
+  return res.json(store.implementationPlans[index]);
+});
+
+// ── New Weekly Documentation Routes ──
+devRoutes.get("/clients/:clientId/weekly-docs", (req, res) => {
+  const { clientId } = req.params;
+  const { year = new Date().getFullYear() } = req.query;
+  
+  const docs = (store.weeklyDocumentation || [])
+    .filter(doc => doc.clientId === clientId && doc.year === parseInt(year))
+    .sort((a, b) => (b.week || 0) - (a.week || 0));
+  
+  return res.json(docs);
+});
+
+devRoutes.get("/clients/:clientId/weekly-docs/:year/:week", (req, res) => {
+  const { clientId, year, week } = req.params;
+  
+  const doc = (store.weeklyDocumentation || [])
+    .find(d => d.clientId === clientId && d.year === parseInt(year) && d.week === parseInt(week));
+  
+  return res.json(doc || null);
+});
+
+devRoutes.put("/clients/:clientId/weekly-docs/:year/:week", (req, res) => {
+  const { clientId, year, week } = req.params;
+  const docData = {
+    ...req.body,
+    clientId,
+    year: parseInt(year),
+    week: parseInt(week),
+  };
+  
+  if (!store.weeklyDocumentation) store.weeklyDocumentation = [];
+  
+  // Check if document already exists
+  const existingIndex = store.weeklyDocumentation.findIndex(
+    d => d.clientId === clientId && d.year === parseInt(year) && d.week === parseInt(week)
+  );
+  
+  if (existingIndex !== -1) {
+    // Update existing
+    store.weeklyDocumentation[existingIndex] = {
+      ...store.weeklyDocumentation[existingIndex],
+      ...docData,
+      updatedAt: new Date().toISOString(),
+    };
+    persist();
+    return res.json(store.weeklyDocumentation[existingIndex]);
+  } else {
+    // Create new
+    const newDoc = {
+      id: randomUUID(),
+      ...docData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    store.weeklyDocumentation.push(newDoc);
+    persist();
+    return res.json(newDoc);
+  }
+});
+
+// ── Statistics and Reports Routes ──
+devRoutes.get("/stats/staff", (req, res) => {
+  const { from, to } = req.query;
+  
+  // Mock implementation - in real app would calculate from weekly docs
+  const stats = (store.staff || []).map(staff => ({
+    staffId: staff.id,
+    staffName: staff.name,
+    documentedCount: Math.floor(Math.random() * 50) + 10,
+    delayedCount: Math.floor(Math.random() * 5),
+    notApprovedCount: Math.floor(Math.random() * 3),
+    totalWeeks: 12,
+  }));
+  
+  return res.json(stats);
+});
+
+devRoutes.get("/stats/client/:clientId", (req, res) => {
+  const { clientId } = req.params;
+  const { from, to } = req.query;
+  
+  const client = (store.clients || []).find(c => c.id === clientId);
+  if (!client) return res.status(404).json({ error: "Client not found" });
+  
+  // Mock implementation
+  const stats = {
+    clientId,
+    clientDisplayCode: client.initials,
+    documentedWeeks: Math.floor(Math.random() * 40) + 30,
+    delayedWeeks: Math.floor(Math.random() * 5),
+    notApprovedWeeks: Math.floor(Math.random() * 3),
+    totalWeeks: 52,
+  };
+  
+  return res.json(stats);
+});

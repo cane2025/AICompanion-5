@@ -352,47 +352,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Care plan routes
-  app.get("/api/care-plans/all", async (req, res) => {
+  // ── New Versioned Care Plan Routes ──
+  app.get("/api/clients/:clientId/care-plans", async (req, res) => {
     try {
-      const carePlans = await storage.getAllCarePlans();
+      const { clientId } = req.params;
+      const carePlans = await storage.getCarePlansByClient(clientId);
       res.json(carePlans);
     } catch (error) {
-      console.error("Error getting care plans:", error);
+      console.error("Error getting care plans for client:", error);
       res.status(500).json({ message: "Kunde inte hämta vårdplaner" });
     }
   });
 
-  app.post("/api/care-plans", async (req, res) => {
+  app.post("/api/clients/:clientId/care-plans", async (req, res) => {
     try {
-      const carePlanData = req.body;
-      const carePlan = await storage.createCarePlan(carePlanData);
-      res.json(carePlan);
+      const { clientId } = req.params;
+      const carePlanData = { ...req.body, clientId };
+      
+      // Create care plan with auto-incremented index
+      const carePlan = await storage.createCarePlanVersioned(carePlanData);
+      
+      // Auto-generate GFP
+      const gfp = await storage.autoCreateImplementationPlan(clientId, carePlan.index);
+      
+      broadcastUpdate("carePlanCreated", { carePlan, gfp });
+      res.json({ carePlan, gfp, message: `GFP skapad automatiskt (index ${gfp.index})` });
     } catch (error) {
       console.error("Error creating care plan:", error);
       res.status(500).json({ message: "Kunde inte skapa vårdplan" });
     }
   });
 
-  // Weekly documentation routes
-  app.get("/api/weekly-documentation/all", async (req, res) => {
+  app.patch("/api/care-plans/:carePlanId", async (req, res) => {
     try {
-      const docs = await storage.getAllWeeklyDocumentation();
+      const { carePlanId } = req.params;
+      const updateData = req.body;
+      const carePlan = await storage.updateCarePlan(carePlanId, updateData);
+      broadcastUpdate("carePlanUpdated", carePlan);
+      res.json(carePlan);
+    } catch (error) {
+      console.error("Error updating care plan:", error);
+      res.status(500).json({ message: "Kunde inte uppdatera vårdplan" });
+    }
+  });
+
+  // ── New Versioned Implementation Plan (GFP) Routes ──
+  app.get("/api/clients/:clientId/implementation-plans", async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const plans = await storage.getImplementationPlansByClient(clientId);
+      res.json(plans);
+    } catch (error) {
+      console.error("Error getting implementation plans:", error);
+      res.status(500).json({ message: "Kunde inte hämta genomförandeplaner" });
+    }
+  });
+
+  app.post("/api/clients/:clientId/implementation-plans", async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const planData = { ...req.body, clientId };
+      const plan = await storage.createImplementationPlanVersioned(planData);
+      broadcastUpdate("implementationPlanCreated", plan);
+      res.json(plan);
+    } catch (error) {
+      console.error("Error creating implementation plan:", error);
+      res.status(500).json({ message: "Kunde inte skapa genomförandeplan" });
+    }
+  });
+
+  app.patch("/api/implementation-plans/:implId", async (req, res) => {
+    try {
+      const { implId } = req.params;
+      const updateData = req.body;
+      const plan = await storage.updateImplementationPlan(implId, updateData);
+      broadcastUpdate("implementationPlanUpdated", plan);
+      res.json(plan);
+    } catch (error) {
+      console.error("Error updating implementation plan:", error);
+      res.status(500).json({ message: "Kunde inte uppdatera genomförandeplan" });
+    }
+  });
+
+  // ── New Weekly Documentation Routes ──
+  app.get("/api/clients/:clientId/weekly-docs", async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const { year = new Date().getFullYear() } = req.query;
+      const docs = await storage.getWeeklyDocsByClient(clientId, parseInt(year as string));
       res.json(docs);
     } catch (error) {
-      console.error("Error getting weekly documentation:", error);
+      console.error("Error getting weekly docs:", error);
       res.status(500).json({ message: "Kunde inte hämta veckodokumentation" });
     }
   });
 
-  app.post("/api/weekly-documentation", async (req, res) => {
+  app.get("/api/clients/:clientId/weekly-docs/:year/:week", async (req, res) => {
     try {
-      const docData = req.body;
-      const doc = await storage.createWeeklyDocumentation(docData);
+      const { clientId, year, week } = req.params;
+      const doc = await storage.getWeeklyDoc(clientId, parseInt(year), parseInt(week));
       res.json(doc);
     } catch (error) {
-      console.error("Error creating weekly documentation:", error);
-      res.status(500).json({ message: "Kunde inte skapa veckodokumentation" });
+      console.error("Error getting weekly doc:", error);
+      res.status(500).json({ message: "Kunde inte hämta veckodokumentation" });
+    }
+  });
+
+  app.put("/api/clients/:clientId/weekly-docs/:year/:week", async (req, res) => {
+    try {
+      const { clientId, year, week } = req.params;
+      const docData = {
+        ...req.body,
+        clientId,
+        year: parseInt(year),
+        week: parseInt(week)
+      };
+      const doc = await storage.upsertWeeklyDoc(docData);
+      broadcastUpdate("weeklyDocUpdated", doc);
+      res.json(doc);
+    } catch (error) {
+      console.error("Error upserting weekly doc:", error);
+      res.status(500).json({ message: "Kunde inte spara veckodokumentation" });
+    }
+  });
+
+  // ── Statistics and Reports Routes ──
+  app.get("/api/stats/staff", async (req, res) => {
+    try {
+      const { from, to } = req.query;
+      const stats = await storage.getStaffStats(from as string, to as string);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error getting staff stats:", error);
+      res.status(500).json({ message: "Kunde inte hämta personalstatistik" });
+    }
+  });
+
+  app.get("/api/stats/client/:clientId", async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const { from, to } = req.query;
+      const stats = await storage.getClientStats(clientId, from as string, to as string);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error getting client stats:", error);
+      res.status(500).json({ message: "Kunde inte hämta klientstatistik" });
     }
   });
 
