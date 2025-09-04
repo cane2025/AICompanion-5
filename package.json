@@ -10,6 +10,7 @@
     "dev:open": "node -e \"require('child_process').exec(process.platform==='darwin'?'open http://127.0.0.1:3001':process.platform==='win32'?'start http://127.0.0.1:3001':'xdg-open http://127.0.0.1:3001')\"",
     "migrate": "tsx server/scripts/migrate.ts",
     "check": "tsc",
+    "check:frontend": "echo '=== KONTROLLERAR FRONTEND STATUS ===' && curl -s http://localhost:5175 | grep -qi '<html' && echo '✅ Frontend körs på port 5175' || echo '❌ Frontend körs inte'",
     "build": "vite build",
     "start": "npm run build && npm run dev",
     "prod": "NODE_ENV=production PORT=3001 tsx server/index.ts",
