@@ -35,7 +35,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Save, Trash2, Edit, X, Check, AlertTriangle } from "lucide-react";
+import {
+  Calendar,
+  Save,
+  Trash2,
+  Edit,
+  X,
+  Check,
+  AlertTriangle,
+} from "lucide-react";
 import * as api from "@/lib/api";
 import { ImplementationPlan, Staff } from "@shared/schema";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -62,10 +70,10 @@ interface EditableImplementationPlanProps {
   carePlanDate?: string;
 }
 
-export function EditableImplementationPlan({ 
-  clientId, 
+export function EditableImplementationPlan({
+  clientId,
   clientInitials,
-  carePlanDate 
+  carePlanDate,
 }: EditableImplementationPlanProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -105,12 +113,28 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status:
+          (implementationPlan.status as
+            | "pending"
+            | "in_progress"
+            | "completed") || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: implementationPlan.dueDate
+          ? typeof implementationPlan.dueDate === "string"
+            ? implementationPlan.dueDate
+            : implementationPlan.dueDate.toISOString().split("T")[0]
+          : "",
+        completedDate: implementationPlan.completedDate
+          ? typeof implementationPlan.completedDate === "string"
+            ? implementationPlan.completedDate
+            : implementationPlan.completedDate.toISOString().split("T")[0]
+          : "",
+        sentDate: implementationPlan.sentDate
+          ? typeof implementationPlan.sentDate === "string"
+            ? implementationPlan.sentDate
+            : implementationPlan.sentDate.toISOString().split("T")[0]
+          : "",
         comments: implementationPlan.comments || "",
       });
     }
@@ -125,7 +149,9 @@ export function EditableImplementationPlan({
         staffId: implementationPlan?.staffId || "unassigned",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", clientId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/implementation-plans", clientId],
+      });
       toast({
         title: "✅ GFP skapad",
         description: "Genomförandeplanen har skapats.",
@@ -156,11 +182,15 @@ export function EditableImplementationPlan({
       return api.updateImplementationPlan(implementationPlan.id, data);
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", clientId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/implementation-plans", clientId],
+      });
       const isNewPlan = !implementationPlan?.id;
       toast({
         title: isNewPlan ? "✅ GFP skapad" : "✅ GFP uppdaterad",
-        description: isNewPlan ? "Genomförandeplanen har skapats." : "Ändringar har sparats.",
+        description: isNewPlan
+          ? "Genomförandeplanen har skapats."
+          : "Ändringar har sparats.",
       });
       setHasUnsavedChanges(false);
       if (isNewPlan) {
@@ -183,7 +213,9 @@ export function EditableImplementationPlan({
       return api.deleteImplementationPlan(implementationPlan.id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", clientId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/implementation-plans", clientId],
+      });
       toast({
         title: "🗑️ GFP borttagen",
         description: "Genomförandeplanen har tagits bort.",
@@ -222,7 +254,7 @@ export function EditableImplementationPlan({
     };
 
     autosave();
-  }, [debouncedFormValues, isEditing, hasUnsavedChanges]);
+  }, [debouncedFormValues, isEditing, hasUnsavedChanges, implementationPlan]);
 
   // Track changes
   useEffect(() => {
@@ -247,12 +279,28 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status:
+          (implementationPlan.status as
+            | "pending"
+            | "in_progress"
+            | "completed") || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: implementationPlan.dueDate
+          ? typeof implementationPlan.dueDate === "string"
+            ? implementationPlan.dueDate
+            : implementationPlan.dueDate.toISOString().split("T")[0]
+          : "",
+        completedDate: implementationPlan.completedDate
+          ? typeof implementationPlan.completedDate === "string"
+            ? implementationPlan.completedDate
+            : implementationPlan.completedDate.toISOString().split("T")[0]
+          : "",
+        sentDate: implementationPlan.sentDate
+          ? typeof implementationPlan.sentDate === "string"
+            ? implementationPlan.sentDate
+            : implementationPlan.sentDate.toISOString().split("T")[0]
+          : "",
         comments: implementationPlan.comments || "",
       });
     }
@@ -325,7 +373,9 @@ export function EditableImplementationPlan({
                     size="sm"
                     variant="outline"
                     onClick={handleCancel}
-                    disabled={createMutation.isPending || updateMutation.isPending}
+                    disabled={
+                      createMutation.isPending || updateMutation.isPending
+                    }
                   >
                     <X className="h-4 w-4 mr-1" />
                     Avbryt
@@ -333,7 +383,9 @@ export function EditableImplementationPlan({
                   <Button
                     size="sm"
                     onClick={form.handleSubmit(handleSave)}
-                    disabled={createMutation.isPending || updateMutation.isPending}
+                    disabled={
+                      createMutation.isPending || updateMutation.isPending
+                    }
                   >
                     <Save className="h-4 w-4 mr-1" />
                     Spara
@@ -371,11 +423,7 @@ export function EditableImplementationPlan({
                     <FormItem>
                       <FormLabel>Förfallodatum</FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                          disabled={!isEditing}
-                        />
+                        <Input type="date" {...field} disabled={!isEditing} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -389,11 +437,7 @@ export function EditableImplementationPlan({
                     <FormItem>
                       <FormLabel>Slutförd datum</FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                          disabled={!isEditing}
-                        />
+                        <Input type="date" {...field} disabled={!isEditing} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -416,7 +460,11 @@ export function EditableImplementationPlan({
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue>
-                              <Badge className={getStatusColor(field.value || "pending")}>
+                              <Badge
+                                className={getStatusColor(
+                                  field.value || "pending"
+                                )}
+                              >
                                 {getStatusLabel(field.value || "pending")}
                               </Badge>
                             </SelectValue>
@@ -440,11 +488,7 @@ export function EditableImplementationPlan({
                     <FormItem>
                       <FormLabel>Skickad datum</FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                          disabled={!isEditing}
-                        />
+                        <Input type="date" {...field} disabled={!isEditing} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -599,8 +643,8 @@ export function EditableImplementationPlan({
           <AlertDialogHeader>
             <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
             <AlertDialogDescription>
-              Är du säker på att du vill ta bort denna genomförandeplan?
-              Detta kan inte ångras.
+              Är du säker på att du vill ta bort denna genomförandeplan? Detta
+              kan inte ångras.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
