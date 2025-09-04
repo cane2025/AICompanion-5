@@ -278,10 +278,13 @@ export function QuickSearch({
   return (
     <div ref={searchRef} className={`relative ${className}`}>
       <div className="relative">
+        <label htmlFor="quick-search-input" className="sr-only">Sök</label>
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           ref={inputRef}
+          id="quick-search-input"
           type="text"
+          aria-label="Sök"
           placeholder={placeholder}
           value={query}
           onChange={(e) => {
