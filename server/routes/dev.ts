@@ -114,6 +114,402 @@ devRoutes.delete("/clients/:id", (req, res) => {
   return res.status(204).send();
 });
 
+// ====== NEW VERSIONED CARE PLAN/GFP/WEEKLY DOCS API (per spec) ======
+// Data shapes per spec (in-memory only)
+type UUID = string;
+
+interface CarePlanSpec {
+  id: UUID;
+  clientId: UUID;
+  index: number; // sequential per client
+  receivedDate: string; // ISO
+  enteredToJournalDate?: string; // ISO
+  status: "Mottagen" | "Aktiv" | "Avslutad";
+  assignedStaffId?: UUID;
+  content?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface FollowUpSpec {
+  key:
+    | "Uppföljning1"
+    | "Uppföljning2"
+    | "Uppföljning3"
+    | "Uppföljning4"
+    | "Uppföljning5";
+  done: boolean;
+  note?: string;
+  date?: string;
+}
+
+interface ImplementationPlanSpec {
+  id: UUID;
+  clientId: UUID;
+  carePlanIndex: number;
+  index: number; // sequential per client
+  status: "Väntar" | "Aktiv" | "Slutförd";
+  dueDate?: string;
+  completedDate?: string;
+  sentDate?: string;
+  followUps: FollowUpSpec[]; // max 5
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface DayDocSpec {
+  documented: boolean;
+  qualityApproved: boolean;
+  onTime: boolean;
+  delayed: boolean;
+  comment?: string;
+  authorStaffId?: UUID;
+  timestamp?: string; // ISO
+}
+
+interface WeeklyDocumentationSpec {
+  id: UUID;
+  clientId: UUID;
+  year: number;
+  week: number;
+  days: {
+    mon?: DayDocSpec;
+    tue?: DayDocSpec;
+    wed?: DayDocSpec;
+    thu?: DayDocSpec;
+    fri?: DayDocSpec;
+    sat?: DayDocSpec;
+    sun?: DayDocSpec;
+  };
+  documented: boolean;
+  qualityApproved: boolean;
+  onTime: boolean;
+  delayed: boolean;
+  comments?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Ensure collections exist
+store.versionedCarePlans = store.versionedCarePlans ?? [];
+store.versionedImplementationPlans = store.versionedImplementationPlans ?? [];
+store.versionedWeeklyDocs = store.versionedWeeklyDocs ?? [];
+
+// Helpers
+function nextIndexFor<T extends { clientId: string; index: number }>(
+  list: T[],
+  clientId: string
+): number {
+  const indices = list.filter((x) => x.clientId === clientId).map((x) => x.index);
+  return (indices.length ? Math.max(...indices) : 0) + 1;
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function toFiveFollowUps(): FollowUpSpec[] {
+  return [1, 2, 3, 4, 5].map((n) => ({
+    key: `Uppföljning${n}` as FollowUpSpec["key"],
+    done: false,
+  }));
+}
+
+function computeDayOnTimeAndDelay(day?: DayDocSpec): { onTime: boolean; delayed: boolean } {
+  if (!day) return { onTime: false, delayed: false };
+  if (typeof day.delayed === "boolean" && typeof day.onTime === "boolean") {
+    return { onTime: day.onTime, delayed: day.delayed };
+  }
+  if (!day.timestamp) return { onTime: false, delayed: false };
+  const ts = new Date(day.timestamp);
+  const midnightNext = new Date(ts);
+  midnightNext.setUTCDate(ts.getUTCDate() + 1);
+  midnightNext.setUTCHours(0, 0, 0, 0);
+  const onTime = ts.getTime() <= midnightNext.getTime();
+  return { onTime, delayed: !onTime };
+}
+
+function aggregateWeek(week: WeeklyDocumentationSpec): WeeklyDocumentationSpec {
+  const days = week.days;
+  const dayValues: DayDocSpec[] = (
+    [days.mon, days.tue, days.wed, days.thu, days.fri, days.sat, days.sun].filter(Boolean) as DayDocSpec[]
+  );
+
+  // Ensure default onTime/delayed for any provided days without explicit values
+  for (const d of dayValues) {
+    const result = computeDayOnTimeAndDelay(d);
+    d.onTime = result.onTime;
+    d.delayed = result.delayed;
+  }
+
+  const documented = dayValues.some((d) => d.documented);
+  const delayed = dayValues.some((d) => d.delayed);
+  const qualityApproved = dayValues
+    .filter((d) => d.documented)
+    .every((d) => d.qualityApproved);
+  const onTime = !delayed;
+  return { ...week, documented, delayed, qualityApproved, onTime };
+}
+
+// ---- CarePlan endpoints ----
+devRoutes.get("/clients/:clientId/care-plans", (req, res) => {
+  const { clientId } = req.params;
+  const list: CarePlanSpec[] = (store.versionedCarePlans as CarePlanSpec[]).filter(
+    (p) => p.clientId === clientId
+  );
+  list.sort((a, b) => b.index - a.index);
+  return res.json(list);
+});
+
+devRoutes.post("/clients/:clientId/care-plans", (req, res) => {
+  const { clientId } = req.params;
+  const body = req.body || {};
+  const index = nextIndexFor<CarePlanSpec>(store.versionedCarePlans, clientId);
+  const plan: CarePlanSpec = {
+    id: "cpv_" + randomUUID(),
+    clientId,
+    index,
+    receivedDate: body.receivedDate ?? nowIso(),
+    enteredToJournalDate: body.enteredToJournalDate ?? undefined,
+    status: (body.status as CarePlanSpec["status"]) ?? "Mottagen",
+    assignedStaffId: body.assignedStaffId ?? undefined,
+    content: body.content ?? "",
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+  };
+  (store.versionedCarePlans as CarePlanSpec[]).push(plan);
+
+  // Auto-create GFP
+  const implIndex = nextIndexFor<ImplementationPlanSpec>(
+    store.versionedImplementationPlans,
+    clientId
+  );
+  const gfp: ImplementationPlanSpec = {
+    id: "ipV_" + randomUUID(),
+    clientId,
+    carePlanIndex: plan.index,
+    index: implIndex,
+    status: "Väntar",
+    dueDate: body.dueDate ?? undefined,
+    completedDate: undefined,
+    sentDate: undefined,
+    followUps: toFiveFollowUps(),
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+  };
+  (store.versionedImplementationPlans as ImplementationPlanSpec[]).push(gfp);
+  persist();
+  res.status(201).json({ plan, autoImplementationPlan: gfp });
+});
+
+devRoutes.patch("/care-plans/:carePlanId", (req, res) => {
+  const { carePlanId } = req.params;
+  const idx = (store.versionedCarePlans as CarePlanSpec[]).findIndex(
+    (p) => p.id === carePlanId
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  const updated = {
+    ...(store.versionedCarePlans as CarePlanSpec[])[idx],
+    ...req.body,
+    updatedAt: nowIso(),
+  } as CarePlanSpec;
+  (store.versionedCarePlans as CarePlanSpec[])[idx] = updated;
+  persist();
+  return res.json(updated);
+});
+
+// ---- ImplementationPlan endpoints ----
+devRoutes.get("/clients/:clientId/implementation-plans", (req, res) => {
+  const { clientId } = req.params;
+  const list: ImplementationPlanSpec[] = (
+    store.versionedImplementationPlans as ImplementationPlanSpec[]
+  )
+    .filter((p) => p.clientId === clientId)
+    .sort((a, b) => b.index - a.index);
+  return res.json(list);
+});
+
+devRoutes.post("/clients/:clientId/implementation-plans", (req, res) => {
+  const { clientId } = req.params;
+  const body = req.body || {};
+  const index = nextIndexFor<ImplementationPlanSpec>(
+    store.versionedImplementationPlans,
+    clientId
+  );
+  const carePlanIndex = body.carePlanIndex ?? 1;
+  let followUps: FollowUpSpec[] = Array.isArray(body.followUps)
+    ? (body.followUps as FollowUpSpec[])
+    : toFiveFollowUps();
+  if (followUps.length > 5) followUps = followUps.slice(0, 5);
+  const plan: ImplementationPlanSpec = {
+    id: "ipV_" + randomUUID(),
+    clientId,
+    carePlanIndex,
+    index,
+    status: (body.status as ImplementationPlanSpec["status"]) ?? "Väntar",
+    dueDate: body.dueDate ?? undefined,
+    completedDate: body.completedDate ?? undefined,
+    sentDate: body.sentDate ?? undefined,
+    followUps,
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+  };
+  (store.versionedImplementationPlans as ImplementationPlanSpec[]).push(plan);
+  persist();
+  return res.status(201).json(plan);
+});
+
+devRoutes.patch("/implementation-plans/:implId", (req, res) => {
+  const { implId } = req.params;
+  const idx = (store.versionedImplementationPlans as ImplementationPlanSpec[]).findIndex(
+    (p) => p.id === implId
+  );
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+  const current = (store.versionedImplementationPlans as ImplementationPlanSpec[])[idx];
+  let followUps = req.body.followUps ?? current.followUps;
+  if (Array.isArray(followUps) && followUps.length > 5) {
+    followUps = followUps.slice(0, 5);
+  }
+  const updated: ImplementationPlanSpec = {
+    ...current,
+    ...req.body,
+    followUps,
+    updatedAt: nowIso(),
+  };
+  (store.versionedImplementationPlans as ImplementationPlanSpec[])[idx] = updated;
+  persist();
+  return res.json(updated);
+});
+
+// ---- Weekly Documentation endpoints ----
+devRoutes.get("/clients/:clientId/weekly-docs", (req, res) => {
+  const { clientId } = req.params;
+  const year = req.query.year ? Number(req.query.year) : new Date().getFullYear();
+  const list: WeeklyDocumentationSpec[] = (
+    store.versionedWeeklyDocs as WeeklyDocumentationSpec[]
+  )
+    .filter((w) => w.clientId === clientId && w.year === year)
+    .sort((a, b) => a.week - b.week);
+  return res.json(list);
+});
+
+devRoutes.get("/clients/:clientId/weekly-docs/:year/:week", (req, res) => {
+  const { clientId, year, week } = req.params as any;
+  const item = (store.versionedWeeklyDocs as WeeklyDocumentationSpec[]).find(
+    (w) => w.clientId === clientId && w.year === Number(year) && w.week === Number(week)
+  );
+  if (!item) return res.status(404).json({ error: "Not found" });
+  return res.json(item);
+});
+
+devRoutes.put("/clients/:clientId/weekly-docs/:year/:week", (req, res) => {
+  const { clientId, year, week } = req.params as any;
+  const body = req.body || {};
+  const y = Number(year);
+  const w = Number(week);
+  const idx = (store.versionedWeeklyDocs as WeeklyDocumentationSpec[]).findIndex(
+    (it) => it.clientId === clientId && it.year === y && it.week === w
+  );
+  const base: WeeklyDocumentationSpec = idx === -1
+    ? {
+        id: "wdV_" + randomUUID(),
+        clientId,
+        year: y,
+        week: w,
+        days: body.days ?? {},
+        documented: false,
+        qualityApproved: false,
+        onTime: false,
+        delayed: false,
+        comments: body.comments ?? "",
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      }
+    : (store.versionedWeeklyDocs as WeeklyDocumentationSpec[])[idx];
+
+  const merged: WeeklyDocumentationSpec = aggregateWeek({
+    ...base,
+    days: { ...base.days, ...(body.days ?? {}) },
+    comments: body.comments ?? base.comments,
+    updatedAt: nowIso(),
+  });
+
+  if (idx === -1) {
+    (store.versionedWeeklyDocs as WeeklyDocumentationSpec[]).push(merged);
+  } else {
+    (store.versionedWeeklyDocs as WeeklyDocumentationSpec[])[idx] = merged;
+  }
+  persist();
+  return res.json(merged);
+});
+
+// ---- Stats endpoints ----
+devRoutes.get("/stats/staff", (req, res) => {
+  const from = req.query.from ? new Date(String(req.query.from)) : new Date("1970-01-01");
+  const to = req.query.to ? new Date(String(req.query.to)) : new Date("2999-12-31");
+  const weeklyDocs: WeeklyDocumentationSpec[] = store.versionedWeeklyDocs ?? [];
+
+  // Build map staffId -> { year, week -> counts }
+  const staffWeek: Record<string, Record<string, { documentedCount: number; delayedCount: number; notApprovedCount: number }>> = {};
+
+  for (const w of weeklyDocs) {
+    // Approximate a date for the ISO week (Monday)
+    const firstJan = new Date(Date.UTC(w.year, 0, 1));
+    const day = firstJan.getUTCDay() || 7;
+    const mondayOfWeek = new Date(firstJan);
+    mondayOfWeek.setUTCDate(firstJan.getUTCDate() + (w.week - 1) * 7 + (1 - day));
+    if (mondayOfWeek < from || mondayOfWeek > to) continue;
+
+    const days = [w.days.mon, w.days.tue, w.days.wed, w.days.thu, w.days.fri, w.days.sat, w.days.sun].filter(Boolean) as DayDocSpec[];
+    for (const d of days) {
+      const sid = d.authorStaffId ?? "unknown";
+      if (!staffWeek[sid]) staffWeek[sid] = {};
+      const key = `${w.year}-${w.week}`;
+      if (!staffWeek[sid][key]) staffWeek[sid][key] = { documentedCount: 0, delayedCount: 0, notApprovedCount: 0 };
+      if (d.documented) {
+        staffWeek[sid][key].documentedCount += 1;
+        if (d.delayed) staffWeek[sid][key].delayedCount += 1;
+        if (!d.qualityApproved) staffWeek[sid][key].notApprovedCount += 1;
+      }
+    }
+  }
+
+  const result: any[] = [];
+  for (const staffId of Object.keys(staffWeek)) {
+    for (const key of Object.keys(staffWeek[staffId])) {
+      const [year, week] = key.split("-").map((n) => Number(n));
+      const v = staffWeek[staffId][key];
+      result.push({ staffId, year, week, ...v });
+    }
+  }
+  return res.json(result);
+});
+
+devRoutes.get("/stats/client/:clientId", (req, res) => {
+  const { clientId } = req.params;
+  const from = req.query.from ? new Date(String(req.query.from)) : new Date("1970-01-01");
+  const to = req.query.to ? new Date(String(req.query.to)) : new Date("2999-12-31");
+  const weeklyDocs: WeeklyDocumentationSpec[] = (store.versionedWeeklyDocs as WeeklyDocumentationSpec[]).filter((w) => w.clientId === clientId);
+
+  const out: any[] = [];
+  for (const w of weeklyDocs) {
+    const firstJan = new Date(Date.UTC(w.year, 0, 1));
+    const day = firstJan.getUTCDay() || 7;
+    const mondayOfWeek = new Date(firstJan);
+    mondayOfWeek.setUTCDate(firstJan.getUTCDate() + (w.week - 1) * 7 + (1 - day));
+    if (mondayOfWeek < from || mondayOfWeek > to) continue;
+    out.push({
+      clientId,
+      year: w.year,
+      week: w.week,
+      documented: w.documented,
+      delayed: w.delayed,
+      qualityApproved: w.qualityApproved,
+    });
+  }
+  return res.json(out);
+});
+
 // === CARE PLANS ===
 devRoutes.get("/care-plans/all", (_req, res) => {
   return res.json(store.carePlans ?? []);

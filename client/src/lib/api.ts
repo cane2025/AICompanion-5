@@ -97,55 +97,60 @@ export const restoreClient = (id: string): Promise<Client> =>
     credentials: "include",
   }).then((res) => handleResponse<Client>(res));
 
-// Care Plan API
-export const getCarePlan = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans/${clientId}`, { credentials: "include" }).then(
-    (res) => handleResponse<any>(res)
-  );
-export const createCarePlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans`, {
+// Care Plan API (versioned per client)
+export const getCarePlansForClient = (clientId: string): Promise<any[]> =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/care-plans`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
+export const createCarePlan = (
+  clientId: string,
+  data: any
+): Promise<any> =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/care-plans`, {
     method: "POST",
     headers: getAuthHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
+
 export const updateCarePlan = (id: string, data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/care-plans/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: getAuthHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
-export const deleteCarePlan = (id: string): Promise<{ message: string }> =>
-  fetch(`${API_BASE_URL}/care-plans/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<{ message: string }>(res));
 
-// Implementation Plan API
-export const getImplementationPlan = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, { 
-    credentials: "include" 
-  }).then((res) => handleResponse<any>(res));
-export const createImplementationPlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
+// Implementation Plan API (versioned per client)
+export const getImplementationPlansForClient = (
+  clientId: string
+): Promise<any[]> =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/implementation-plans`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any[]>(res));
+
+export const createImplementationPlan = (
+  clientId: string,
+  data: any
+): Promise<any> =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/implementation-plans`, {
     method: "POST",
     headers: getAuthHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
-export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
+
+export const updateImplementationPlan = (
+  id: string,
+  data: any
+): Promise<any> =>
   fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: getAuthHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
-export const deleteImplementationPlan = (id: string): Promise<{ message: string }> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<{ message: string }>(res));
 
 // Auth API
 export const login = async (data: LoginData): Promise<User> => {
@@ -222,26 +227,57 @@ export const getImplementationPlanById = (id: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
-// Weekly Documentation API
-export const getWeeklyDocumentation = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/weekly-documentation`, {
-    credentials: "include",
-  }).then((res) => handleResponse<any[]>(res));
-
-export const getWeeklyDocumentationByClient = (
-  clientId: string
+// Weekly Documentation API (versioned per client)
+export const getWeeklyDocsForClient = (
+  clientId: string,
+  year: number
 ): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/weekly-documentation/${clientId}`, {
+  fetch(`${API_BASE_URL}/clients/${clientId}/weekly-docs?year=${year}`, {
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
-export const createWeeklyDocumentation = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/weekly-documentation`, {
-    method: "POST",
+export const getWeeklyDoc = (
+  clientId: string,
+  year: number,
+  week: number
+): Promise<any> =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/weekly-docs/${year}/${week}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
+
+export const upsertWeeklyDoc = (
+  clientId: string,
+  year: number,
+  week: number,
+  data: any
+): Promise<any> =>
+  fetch(`${API_BASE_URL}/clients/${clientId}/weekly-docs/${year}/${week}`, {
+    method: "PUT",
     headers: getAuthHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
+
+// Stats API
+export const getStaffStats = (from?: string, to?: string): Promise<any[]> => {
+  const qs = new URLSearchParams();
+  if (from) qs.set("from", from);
+  if (to) qs.set("to", to);
+  const url = `${API_BASE_URL}/stats/staff${qs.toString() ? `?${qs.toString()}` : ""}`;
+  return fetch(url, { credentials: "include" }).then((res) => handleResponse<any[]>(res));
+};
+
+export const getClientStats = (
+  clientId: string,
+  from?: string,
+  to?: string
+): Promise<any[]> => {
+  const qs = new URLSearchParams();
+  if (from) qs.set("from", from);
+  if (to) qs.set("to", to);
+  const url = `${API_BASE_URL}/stats/client/${clientId}${qs.toString() ? `?${qs.toString()}` : ""}`;
+  return fetch(url, { credentials: "include" }).then((res) => handleResponse<any[]>(res));
+};
 
 // Monthly Reports API
 export const getMonthlyReports = (): Promise<any[]> =>

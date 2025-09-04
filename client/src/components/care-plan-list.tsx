@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CarePlanDialog } from "@/components/care-plan-dialog";
-import type { CarePlan, Client } from "@shared/schema";
+import type { Client } from "@shared/schema";
+import { getCarePlansForClient, createCarePlan } from "@/lib/api";
 import { Calendar, FileText, Plus, AlertCircle } from "lucide-react";
 
 interface CarePlanListProps {
@@ -21,9 +22,10 @@ export function CarePlanList({ clients }: CarePlanListProps) {
     data: carePlans = [],
     isLoading,
     isError,
-  } = useQuery<CarePlan[]>({
-    queryKey: ["/api/care-plans", "all"],
-    queryFn: () => fetch("/api/care-plans/all").then((res) => res.json()),
+  } = useQuery<any[]>({
+    queryKey: ["/api/care-plans", selectedClient?.id],
+    queryFn: () =>
+      selectedClient?.id ? getCarePlansForClient(selectedClient.id) : Promise.resolve([]),
   });
 
   const getStatusBadge = (status: string) => {
@@ -70,6 +72,7 @@ export function CarePlanList({ clients }: CarePlanListProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Vårdplaner</h2>
         <Button
+          aria-label="Ny vårdplan"
           onClick={() => setSelectedClient(clients[0] || null)}
           disabled={clients.length === 0}
         >
@@ -118,7 +121,7 @@ export function CarePlanList({ clients }: CarePlanListProps) {
                   <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center">
                       <FileText className="mr-2 h-5 w-5" />
-                      {getClientInitials(plan.clientId)}
+                      {getClientInitials(plan.clientId)} #{plan.index}
                     </span>
                     <Badge variant={statusInfo.variant}>
                       {statusInfo.label}
@@ -132,23 +135,11 @@ export function CarePlanList({ clients }: CarePlanListProps) {
                   )}
                 </CardHeader>
                 <CardContent>
-                  {plan.goals && (
-                    <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Mål:</strong>{" "}
-                      {(plan.goals || "").substring(0, 100)}
-                      {(plan.goals || "").length > 100 && "..."}
-                    </p>
-                  )}
-                  {plan.planContent && (
+                  {plan.content && (
                     <p className="text-sm text-muted-foreground">
                       <strong>Innehåll:</strong>{" "}
-                      {plan.planContent.substring(0, 150)}
-                      {plan.planContent.length > 150 && "..."}
-                    </p>
-                  )}
-                  {plan.comment && (
-                    <p className="text-xs text-muted-foreground mt-2 italic">
-                      {plan.comment}
+                      {String(plan.content).substring(0, 150)}
+                      {String(plan.content).length > 150 && "..."}
                     </p>
                   )}
                 </CardContent>

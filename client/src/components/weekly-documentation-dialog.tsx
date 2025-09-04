@@ -114,20 +114,16 @@ export function WeeklyDocumentationDialog({
     enabled: !!staffId,
   });
 
-  // Create weekly documentation mutation
+  // Create weekly documentation mutation (upsert week-level per client)
   const createDocMutation = useMutation({
     mutationFn: async (data: WeeklyDocFormData) => {
-      const response = await fetch("/api/weekly-documentation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      return api.upsertWeeklyDoc(data.clientId, data.year, data.week, {
+        clientId: data.clientId,
+        year: data.year,
+        week: data.week,
+        days: {},
+        comments: data.comments ?? "",
       });
-
-      if (!response.ok) {
-        throw new Error("Kunde inte skapa veckodokumentation");
-      }
-
-      return response.json();
     },
     onSuccess: (doc) => {
       // Invalidate queries as specified in requirements

@@ -89,8 +89,7 @@ export function ImplementationPlanDialog({
   // Fetch care plans for the selected client
   const { data: carePlans = [] } = useQuery<CarePlan[]>({
     queryKey: ["/api/care-plans", client?.id],
-    queryFn: () =>
-      api.getCarePlanByClient(client!.id).then((plan) => (plan ? [plan] : [])),
+    queryFn: () => (client?.id ? api.getCarePlansForClient(client.id) : Promise.resolve([])),
     enabled: !!client?.id && isOpen,
   });
 
@@ -128,40 +127,15 @@ export function ImplementationPlanDialog({
     mutationFn: async (data: ImplementationPlanFormData) => {
       if (existingPlanId) {
         // Update existing plan - use POST with plan ID in body since PUT doesn't work
-        const response = await fetch(`/api/implementation-plans`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Dev-Token": localStorage.getItem("devToken") || "",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            ...data,
-            id: existingPlanId, // Include ID to indicate update
-            staffId: staffId || "",
-            planContent: "Administrativ genomförandeplan",
-            goals: "",
-            activities: "",
-            followUpSchedule: "",
-            status: "pending",
-            isActive: true,
-          }),
+        return api.updateImplementationPlan(existingPlanId, {
+          ...data,
+          status: "Väntar",
         });
-        if (!response.ok) {
-          throw new Error("Kunde inte uppdatera genomförandeplan");
-        }
-        return response.json();
       } else {
         // Create new plan
-        return api.createImplementationPlan({
+        return api.createImplementationPlan(client!.id, {
           ...data,
-          staffId: staffId || "",
-          planContent: "Administrativ genomförandeplan",
-          goals: "",
-          activities: "",
-          followUpSchedule: "",
-          status: "pending",
-          isActive: true,
+          status: "Väntar",
         });
       }
     },

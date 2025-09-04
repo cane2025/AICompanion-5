@@ -39,7 +39,7 @@ import {
   createClient,
   createCarePlan,
   createImplementationPlan,
-  createWeeklyDocumentation,
+  upsertWeeklyDoc,
   createMonthlyReport,
   createVimsaTime,
 } from "@/lib/api";
@@ -246,7 +246,9 @@ export function ClientWorkflow({ staff }: ClientWorkflowProps) {
 
   const createImplementationMutation = useMutation({
     mutationFn: async (data: InsertImplementationPlan) => {
-      return await createImplementationPlan(data);
+      const cid = (data as InsertImplementationPlan)?.clientId || selectedClientId;
+      if (!cid) throw new Error("Välj klient");
+      return await createImplementationPlan(cid, data);
     },
     onSuccess: (_data, variables) => {
       toast({ title: "Framgång", description: "Genomförandeplan sparad!" });
@@ -278,7 +280,15 @@ export function ClientWorkflow({ staff }: ClientWorkflowProps) {
 
   const createWeeklyDocMutation = useMutation({
     mutationFn: async (data: InsertWeeklyDocumentation) => {
-      return await createWeeklyDocumentation(data);
+      const cid = (data as InsertWeeklyDocumentation)?.clientId || selectedClientId;
+      if (!cid) throw new Error("Välj klient");
+      return await upsertWeeklyDoc(cid, data.year, data.week, {
+        clientId: cid,
+        year: data.year,
+        week: data.week,
+        days: {},
+        comments: data.comments ?? "",
+      });
     },
     onSuccess: (_data, variables) => {
       toast({ title: "Framgång", description: "Veckodokumentation sparad!" });
