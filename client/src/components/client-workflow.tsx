@@ -420,6 +420,8 @@ export function ClientWorkflow({ staff }: ClientWorkflowProps) {
                 }
                 className="w-20"
                 maxLength={3}
+                aria-label="Klientinitialer"
+                title="Klientinitialer"
               />
               <Button
                 onClick={() =>

@@ -132,6 +132,8 @@ export function StaffSidebar({
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               className="flex-1"
+              aria-label="Namn på personal"
+              title="Namn på personal"
             />
             <Button
               onClick={handleAddStaff}

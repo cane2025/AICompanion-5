@@ -82,20 +82,35 @@ export function SimpleImplementationPlanDialog({
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
-              <Label>Genomförandeplan</Label>
-              <Input {...form.register("planRef")} placeholder="Vilken plan" />
+              <Label htmlFor="plan-ref">Genomförandeplan</Label>
+              <Input 
+                id="plan-ref"
+                {...form.register("planRef")} 
+                placeholder="Vilken plan" 
+              />
             </div>
             <div>
-              <Label>Klient</Label>
-              <Input {...form.register("clientId")} />
+              <Label htmlFor="client-id">Klient</Label>
+              <Input 
+                id="client-id"
+                {...form.register("clientId")} 
+              />
             </div>
             <div>
-              <Label>Skickad datum</Label>
-              <Input {...form.register("sentDate")} type="date" />
+              <Label htmlFor="sent-date">Skickad datum</Label>
+              <Input 
+                id="sent-date"
+                {...form.register("sentDate")} 
+                type="date" 
+              />
             </div>
             <div>
-              <Label>Klar datum</Label>
-              <Input {...form.register("completedDate")} type="date" />
+              <Label htmlFor="completed-date">Klar datum</Label>
+              <Input 
+                id="completed-date"
+                {...form.register("completedDate")} 
+                type="date" 
+              />
             </div>
             <div className="space-y-2">
               <Label>Uppföljningar</Label>

@@ -536,20 +536,35 @@ export function SimpleImplementationPlanDialog({
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
-              <Label>Genomförandeplan</Label>
-              <Input {...form.register("planRef")} placeholder="Vilken plan" />
+              <Label htmlFor="plan-ref-impl">Genomförandeplan</Label>
+              <Input 
+                id="plan-ref-impl"
+                {...form.register("planRef")} 
+                placeholder="Vilken plan" 
+              />
             </div>
             <div>
-              <Label>Klient</Label>
-              <Input {...form.register("clientId")} />
+              <Label htmlFor="client-id-impl">Klient</Label>
+              <Input 
+                id="client-id-impl"
+                {...form.register("clientId")} 
+              />
             </div>
             <div>
-              <Label>Skickad datum</Label>
-              <Input {...form.register("sentDate")} type="date" />
+              <Label htmlFor="sent-date-impl">Skickad datum</Label>
+              <Input 
+                id="sent-date-impl"
+                {...form.register("sentDate")} 
+                type="date" 
+              />
             </div>
             <div>
-              <Label>Klar datum</Label>
-              <Input {...form.register("completedDate")} type="date" />
+              <Label htmlFor="completed-date-impl">Klar datum</Label>
+              <Input 
+                id="completed-date-impl"
+                {...form.register("completedDate")} 
+                type="date" 
+              />
             </div>
             <div className="space-y-2">
               <Label>Uppföljningar</Label>
@@ -656,8 +671,9 @@ export function NewActivityDialog({ clientId }: { clientId: string }) {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
-              <Label>Aktivitet</Label>
+              <Label htmlFor="activity-impl">Aktivitet</Label>
               <Input
+                id="activity-impl"
                 {...form.register("activity")}
                 placeholder="Beskriv aktiviteten..."
               />

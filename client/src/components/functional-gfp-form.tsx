@@ -167,10 +167,11 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
         <div className="space-y-4">
           {/* Plan Content - REQUIRED */}
           <div>
-            <label className="text-sm font-medium">
+            <label htmlFor="plan-content" className="text-sm font-medium">
               Planinnehåll <span className="text-red-500">*</span>
             </label>
             <Textarea
+              id="plan-content"
               placeholder="Beskriv genomförandeplanen..."
               value={formData.planContent}
               className="mt-1 min-h-[100px]"
@@ -181,10 +182,11 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
           {/* Goals and Activities */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">
+              <label htmlFor="goals" className="text-sm font-medium">
                 Mål <span className="text-red-500">*</span>
               </label>
               <Textarea
+                id="goals"
                 placeholder="Ange mål för genomförandet..."
                 value={formData.goals}
                 className="mt-1"
@@ -192,8 +194,9 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Aktiviteter</label>
+              <label htmlFor="activities" className="text-sm font-medium">Aktiviteter</label>
               <Textarea
+                id="activities"
                 placeholder="Ange planerade aktiviteter..."
                 value={formData.activities}
                 className="mt-1"
@@ -206,8 +209,9 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
 
           {/* Follow-up Schedule */}
           <div>
-            <label className="text-sm font-medium">Uppföljningsschema</label>
+            <label htmlFor="followup-schedule" className="text-sm font-medium">Uppföljningsschema</label>
             <Textarea
+              id="followup-schedule"
               placeholder="Beskriv schema för uppföljning..."
               value={formData.followUpSchedule}
               className="mt-1"
@@ -258,8 +262,9 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
           {/* Dates */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Slutförd datum</label>
+              <label htmlFor="completed-date-gfp" className="text-sm font-medium">Slutförd datum</label>
               <Input
+                id="completed-date-gfp"
                 type="date"
                 value={formData.completedDate}
                 className="mt-1"
@@ -269,8 +274,9 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Skickad datum</label>
+              <label htmlFor="sent-date-gfp" className="text-sm font-medium">Skickad datum</label>
               <Input
+                id="sent-date-gfp"
                 type="date"
                 value={formData.sentDate}
                 className="mt-1"
@@ -281,8 +287,9 @@ export function FunctionalGfpForm({ client }: FunctionalGfpFormProps) {
 
           {/* Comments */}
           <div>
-            <label className="text-sm font-medium">Kommentarer</label>
+            <label htmlFor="comments" className="text-sm font-medium">Kommentarer</label>
             <Textarea
+              id="comments"
               placeholder="Lägg till kommentarer..."
               value={formData.comments}
               className="mt-1"
