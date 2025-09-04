@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import {
-  ChartLine,
-  Trash2,
-  Plus,
-  Circle,
-  CircleDot,
-  AlertTriangle,
-} from "lucide-react";
+import { ChartLine, Trash2, Plus, Circle, CircleDot, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getInitials } from "@/lib/staff-data";
@@ -182,15 +175,9 @@ export function StaffSidebar({
             onChange={(e) => setFilterTerm(e.target.value)}
           />
           <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1">
-              <CircleDot className="h-3 w-3 text-green-500" /> Arbetar
-            </span>
-            <span className="flex items-center gap-1">
-              <Circle className="h-3 w-3 text-gray-400" /> Ledig
-            </span>
-            <span className="flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3 text-red-500" /> Överbelastad
-            </span>
+            <span className="flex items-center gap-1"><CircleDot className="h-3 w-3 text-green-500" /> Arbetar</span>
+            <span className="flex items-center gap-1"><Circle className="h-3 w-3 text-gray-400" /> Ledig</span>
+            <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-red-500" /> Överbelastad</span>
             <span className="ml-auto">(DEMO-status)</span>
           </div>
         </div>
@@ -208,10 +195,7 @@ export function StaffSidebar({
               const initials = getInitials(staffMember.name);
               const isActive = activeView === `staff-${staffMember.id}`;
               // Simple load heuristic for demo: alternating status by name hash
-              const hash = Array.from(staffMember.name).reduce(
-                (a: number, c: string) => a + c.charCodeAt(0),
-                0
-              ) as number;
+              const hash = Array.from(staffMember.name).reduce((a, c) => a + c.charCodeAt(0), 0);
               const isWorking = hash % 3 !== 0;
               const isOverloaded = hash % 7 === 0;
 
@@ -234,15 +218,13 @@ export function StaffSidebar({
                         {initials}
                       </span>
                     </div>
-                    <span className="font-medium flex-1 text-left">
-                      {staffMember.name}
-                    </span>
+                    <span className="font-medium flex-1 text-left">{staffMember.name}</span>
                     {isOverloaded ? (
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                      <AlertTriangle className="h-4 w-4 text-red-500" title="Överbelastad" />
                     ) : isWorking ? (
-                      <CircleDot className="h-4 w-4 text-green-500" />
+                      <CircleDot className="h-4 w-4 text-green-500" title="Arbetar" />
                     ) : (
-                      <Circle className="h-4 w-4 text-gray-400" />
+                      <Circle className="h-4 w-4 text-gray-400" title="Ledig" />
                     )}
                   </Button>
                   <div className="relative">

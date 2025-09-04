@@ -140,5 +140,3 @@ export function TodaysFocus({ staff }: TodaysFocusProps) {
     </Card>
   );
 }
-
-

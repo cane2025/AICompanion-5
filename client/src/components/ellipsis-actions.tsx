@@ -15,12 +15,7 @@ interface EllipsisActionsProps {
   onDelete?: () => void;
 }
 
-export function EllipsisActions({
-  onEdit,
-  onDuplicate,
-  onArchive,
-  onDelete,
-}: EllipsisActionsProps) {
+export function EllipsisActions({ onEdit, onDuplicate, onArchive, onDelete }: EllipsisActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
