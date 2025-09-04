@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import * as api from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -55,6 +56,15 @@ export function StaffStatistics({ staff }: StaffStatisticsProps) {
     queryKey: ["/api/clients/all"],
   });
 
+  // Prefer V2 stats from backend to drive charts
+  const periodFrom = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10);
+  const periodTo = new Date().toISOString().slice(0, 10);
+  const { data: v2StaffStats = [] } = useQuery({
+    queryKey: ["/api/v2/stats/staff", periodFrom, periodTo],
+    queryFn: () => api.v2_getStaffStats(periodFrom, periodTo),
+  });
+
+  // Keep legacy weeklyDocs for UI where needed
   const { data: weeklyDocs = [] } = useQuery<WeeklyDocumentation[]>({
     queryKey: ["/api/weekly-documentation/all"],
   });

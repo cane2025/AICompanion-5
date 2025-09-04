@@ -258,3 +258,111 @@ export type UpdateImplementationPlan = z.infer<typeof updateImplementationPlanSc
 export type VimsaTime = typeof vimsaTime.$inferSelect;
 export type InsertVimsaTime = z.infer<typeof insertVimsaTimeSchema>;
 export type UpdateVimsaTime = z.infer<typeof updateVimsaTimeSchema>;
+
+// ===========================
+// V2 Domain Types (non-Drizzle)
+// ===========================
+// These are pure TypeScript interfaces used by the new versioned flows
+// (CarePlan, ImplementationPlan/GFP, WeeklyDocumentation day-view, and Stats).
+// They do not change existing tables to preserve backward compatibility in dev.
+
+export type UUID = string;
+
+// Core
+export interface ClientV2 {
+  id: UUID;
+  displayCode: string; // e.g. initials, NOT personal number
+  active: boolean;
+}
+
+export interface StaffV2 {
+  id: UUID;
+  name: string;
+  role?: string;
+  active: boolean;
+}
+
+// CarePlan (V2)
+export interface CarePlanV2 {
+  id: UUID;
+  clientId: UUID;
+  index: number; // 1..N per client
+  receivedDate: string; // ISO date
+  enteredToJournalDate?: string; // ISO
+  status: "Mottagen" | "Aktiv" | "Avslutad";
+  assignedStaffId?: UUID;
+  content?: string; // rich text or JSON string
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ImplementationPlan (GFP) V2
+export type FollowUpKey =
+  | "Uppföljning1"
+  | "Uppföljning2"
+  | "Uppföljning3"
+  | "Uppföljning4"
+  | "Uppföljning5";
+
+export interface ImplementationPlanV2 {
+  id: UUID;
+  clientId: UUID;
+  carePlanIndex: number; // refers to CarePlanV2.index
+  index: number; // 1..N per client
+  status: "Väntar" | "Aktiv" | "Slutförd";
+  dueDate?: string;
+  completedDate?: string;
+  sentDate?: string;
+  followUps: Array<{
+    key: FollowUpKey;
+    done: boolean;
+    note?: string;
+    date?: string; // ISO
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Weekly documentation V2
+export interface DayDocV2 {
+  documented: boolean;
+  qualityApproved: boolean;
+  onTime: boolean;
+  delayed: boolean;
+  comment?: string;
+  authorStaffId?: UUID;
+  timestamp?: string; // ISO
+}
+
+export interface WeeklyDocumentationV2 {
+  id: UUID;
+  clientId: UUID;
+  year: number; // e.g. 2025
+  week: number; // ISO week number
+  days: {
+    mon?: DayDocV2;
+    tue?: DayDocV2;
+    wed?: DayDocV2;
+    thu?: DayDocV2;
+    fri?: DayDocV2;
+    sat?: DayDocV2;
+    sun?: DayDocV2;
+  };
+  documented: boolean; // any day documented
+  qualityApproved: boolean; // all documented days approved
+  onTime: boolean; // no delayed days
+  delayed: boolean; // any day delayed
+  comments?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Stats
+export interface StaffWeeklyStatV2 {
+  staffId: UUID;
+  year: number;
+  week: number;
+  documentedCount: number; // number of client-days marked
+  delayedCount: number;
+  notApprovedCount: number; // documented but not qualityApproved
+}

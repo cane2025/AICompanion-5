@@ -392,3 +392,407 @@ devRoutes.delete("/vimsa-time/:id", (req, res) => {
   persist();
   return res.status(204).send();
 });
+
+// ==============================
+// V2 ENDPOINTS (versioned flows)
+// ==============================
+
+// Helpers
+function sortByIndexAsc(a: any, b: any) {
+  return (a.index || 0) - (b.index || 0);
+}
+function sortByIndexDesc(a: any, b: any) {
+  return (b.index || 0) - (a.index || 0);
+}
+
+function nextIndexFor(list: any[], clientId: string): number {
+  const clientItems = (list || []).filter((x: any) => x.clientId === clientId);
+  if (clientItems.length === 0) return 1;
+  return (
+    Math.max(
+      ...clientItems.map((x: any) => (typeof x.index === "number" ? x.index : 0))
+    ) + 1
+  );
+}
+
+// Compute ISO week start (Monday) for given year/week (ISO 8601)
+function getIsoWeekStartDate(year: number, week: number): Date {
+  const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+  const day = simple.getUTCDay() || 7;
+  const ISOweekStart = new Date(simple);
+  if (day <= 4) {
+    ISOweekStart.setUTCDate(simple.getUTCDate() - day + 1);
+  } else {
+    ISOweekStart.setUTCDate(simple.getUTCDate() + 8 - day);
+  }
+  ISOweekStart.setUTCHours(0, 0, 0, 0);
+  return ISOweekStart;
+}
+
+const dayKeys = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+type DayKey = typeof dayKeys[number];
+
+function addDaysUTC(date: Date, days: number): Date {
+  const d = new Date(date.getTime());
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+
+function computeDayDefaults(
+  year: number,
+  week: number,
+  dayKey: DayKey,
+  partial: any,
+  authorStaffId: string
+) {
+  const index = dayKeys.indexOf(dayKey);
+  const monday = getIsoWeekStartDate(year, week);
+  const dayDate = addDaysUTC(monday, index);
+  const nextMidnight = new Date(Date.UTC(dayDate.getUTCFullYear(), dayDate.getUTCMonth(), dayDate.getUTCDate() + 1));
+
+  const timestamp = partial?.timestamp ? new Date(partial.timestamp) : new Date();
+  const hasManualDelayed = typeof partial?.delayed === "boolean";
+  const onTimeDefault = timestamp.getTime() <= nextMidnight.getTime();
+  const delayedDefault = !onTimeDefault;
+
+  const documented = !!partial?.documented;
+  const qualityApproved = !!partial?.qualityApproved;
+
+  return {
+    documented,
+    qualityApproved,
+    onTime: typeof partial?.onTime === "boolean" ? partial.onTime : !hasManualDelayed ? onTimeDefault : !partial.delayed,
+    delayed: hasManualDelayed ? !!partial.delayed : delayedDefault,
+    comment: partial?.comment || undefined,
+    authorStaffId: partial?.authorStaffId || authorStaffId,
+    timestamp: (partial?.timestamp ? new Date(partial.timestamp) : new Date()).toISOString(),
+  };
+}
+
+function aggregateWeek(days: Record<DayKey, any | undefined>) {
+  const dayList = dayKeys.map((k) => days[k]).filter(Boolean) as any[];
+  const anyDocumented = dayList.some((d) => d.documented);
+  const allApprovedIfDocumented = dayList
+    .filter((d) => d.documented)
+    .every((d) => d.qualityApproved);
+  const anyDelayed = dayList.some((d) => d.delayed);
+  const allOnTime = dayList.every((d) => d.onTime !== false) && !anyDelayed;
+  return {
+    documented: anyDocumented,
+    qualityApproved: anyDocumented ? allApprovedIfDocumented : false,
+    delayed: anyDelayed,
+    onTime: anyDocumented ? allOnTime : true,
+  };
+}
+
+function normalizeFollowUps(input: any): any[] {
+  // Ensure exactly max 5 items with keys Uppföljning1..5
+  const keys = ["Uppföljning1", "Uppföljning2", "Uppföljning3", "Uppföljning4", "Uppföljning5"];
+  const arr = Array.isArray(input) ? input : [];
+  const mapped: any[] = [];
+  for (let i = 0; i < 5; i++) {
+    const exist = arr[i] || {};
+    mapped.push({
+      key: keys[i],
+      done: !!exist.done,
+      note: exist.note || undefined,
+      date: exist.date || undefined,
+    });
+  }
+  return mapped;
+}
+
+// CarePlan V2
+devRoutes.get("/clients/:clientId/care-plans", (req, res) => {
+  const { clientId } = req.params;
+  const list = (store.v2CarePlans ?? []).filter((p: any) => p.clientId === clientId);
+  return res.json(list.sort(sortByIndexAsc));
+});
+
+devRoutes.post("/clients/:clientId/care-plans", (req, res) => {
+  const { clientId } = req.params;
+  const b = req.body || {};
+  if (!store.v2CarePlans) store.v2CarePlans = [];
+  if (!store.v2ImplementationPlans) store.v2ImplementationPlans = [];
+
+  const careIndex = nextIndexFor(store.v2CarePlans, clientId);
+  const now = new Date().toISOString();
+  const plan = {
+    id: "cp2_" + randomUUID(),
+    clientId,
+    index: careIndex,
+    receivedDate: b.receivedDate || now.substring(0, 10),
+    enteredToJournalDate: b.enteredToJournalDate || undefined,
+    status: b.status || "Mottagen",
+    assignedStaffId: b.assignedStaffId || staffIdOf(req),
+    content: b.content || "",
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.v2CarePlans.push(plan);
+
+  // Auto-create GFP linked to this care plan index
+  const gfpIndex = nextIndexFor(store.v2ImplementationPlans, clientId);
+  const gfp = {
+    id: "gfp2_" + randomUUID(),
+    clientId,
+    carePlanIndex: plan.index,
+    index: gfpIndex,
+    status: "Väntar" as const,
+    dueDate: b.dueDate || undefined,
+    completedDate: undefined,
+    sentDate: undefined,
+    followUps: normalizeFollowUps([]),
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.v2ImplementationPlans.push(gfp);
+  persist();
+  return res.status(201).json({ plan, autoGfp: gfp });
+});
+
+devRoutes.patch("/care-plans/:carePlanId", (req, res) => {
+  const { carePlanId } = req.params;
+  const idx = (store.v2CarePlans ?? []).findIndex((p: any) => p.id === carePlanId);
+  if (idx === -1) return res.status(404).json({ error: "Care plan not found" });
+  const now = new Date().toISOString();
+  const allowed = (({ status, enteredToJournalDate, assignedStaffId, content }) => ({
+    status,
+    enteredToJournalDate,
+    assignedStaffId,
+    content,
+  }))(req.body || {});
+  store.v2CarePlans[idx] = { ...store.v2CarePlans[idx], ...allowed, updatedAt: now };
+  persist();
+  return res.json(store.v2CarePlans[idx]);
+});
+
+// ImplementationPlan (GFP) V2
+devRoutes.get("/clients/:clientId/implementation-plans", (req, res) => {
+  const { clientId } = req.params;
+  const list = (store.v2ImplementationPlans ?? []).filter((p: any) => p.clientId === clientId);
+  return res.json(list.sort(sortByIndexDesc));
+});
+
+devRoutes.post("/clients/:clientId/implementation-plans", (req, res) => {
+  const { clientId } = req.params;
+  const b = req.body || {};
+  if (!store.v2ImplementationPlans) store.v2ImplementationPlans = [];
+  if (!store.v2CarePlans) store.v2CarePlans = [];
+  // Validate carePlanIndex exists for client
+  const cpIndex = Number(b.carePlanIndex);
+  const exists = (store.v2CarePlans || []).some(
+    (cp: any) => cp.clientId === clientId && cp.index === cpIndex
+  );
+  if (!exists) {
+    return res.status(400).json({ error: "Ogiltig carePlanIndex för klient" });
+  }
+  const index = nextIndexFor(store.v2ImplementationPlans, clientId);
+  const now = new Date().toISOString();
+  const plan = {
+    id: "gfp2_" + randomUUID(),
+    clientId,
+    carePlanIndex: cpIndex,
+    index,
+    status: (b.status as any) || "Väntar",
+    dueDate: b.dueDate || undefined,
+    completedDate: b.completedDate || undefined,
+    sentDate: b.sentDate || undefined,
+    followUps: normalizeFollowUps(b.followUps),
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.v2ImplementationPlans.push(plan);
+  persist();
+  return res.status(201).json(plan);
+});
+
+devRoutes.patch("/implementation-plans/:implId", (req, res) => {
+  const { implId } = req.params;
+  const idx = (store.v2ImplementationPlans ?? []).findIndex((p: any) => p.id === implId);
+  if (idx === -1)
+    return res.status(404).json({ error: "Implementation plan not found" });
+  const b = req.body || {};
+  const now = new Date().toISOString();
+  const updates: any = {};
+  if (b.status) updates.status = b.status;
+  if ("dueDate" in b) updates.dueDate = b.dueDate || undefined;
+  if ("completedDate" in b) updates.completedDate = b.completedDate || undefined;
+  if ("sentDate" in b) updates.sentDate = b.sentDate || undefined;
+  if ("followUps" in b) updates.followUps = normalizeFollowUps(b.followUps);
+  store.v2ImplementationPlans[idx] = {
+    ...store.v2ImplementationPlans[idx],
+    ...updates,
+    updatedAt: now,
+  };
+  persist();
+  return res.json(store.v2ImplementationPlans[idx]);
+});
+
+// Weekly Documentation V2
+devRoutes.get("/clients/:clientId/weekly-docs", (req, res) => {
+  const { clientId } = req.params;
+  const year = req.query.year ? Number(req.query.year) : new Date().getUTCFullYear();
+  const list = (store.v2WeeklyDocs ?? []).filter(
+    (w: any) => w.clientId === clientId && w.year === year
+  );
+  return res.json(list.sort((a: any, b: any) => a.week - b.week));
+});
+
+devRoutes.get("/clients/:clientId/weekly-docs/:year/:week", (req, res) => {
+  const { clientId, year, week } = req.params as any;
+  const doc = (store.v2WeeklyDocs ?? []).find(
+    (w: any) => w.clientId === clientId && w.year === Number(year) && w.week === Number(week)
+  );
+  if (!doc) return res.status(404).json({ error: "Not found" });
+  return res.json(doc);
+});
+
+devRoutes.put("/clients/:clientId/weekly-docs/:year/:week", (req, res) => {
+  const { clientId } = req.params;
+  const year = Number(req.params.year);
+  const week = Number(req.params.week);
+  if (!store.v2WeeklyDocs) store.v2WeeklyDocs = [];
+  const b = req.body || {};
+  const author = staffIdOf(req);
+  const existingIdx = store.v2WeeklyDocs.findIndex(
+    (w: any) => w.clientId === clientId && w.year === year && w.week === week
+  );
+
+  // Merge day updates with defaults
+  const days: Record<DayKey, any | undefined> = { mon: undefined, tue: undefined, wed: undefined, thu: undefined, fri: undefined, sat: undefined, sun: undefined } as any;
+  for (const key of dayKeys) {
+    if (b?.days && key in b.days) {
+      const merged = computeDayDefaults(year, week, key, b.days[key], author);
+      (days as any)[key] = merged;
+    }
+  }
+
+  const agg = aggregateWeek(days);
+  const now = new Date().toISOString();
+
+  if (existingIdx === -1) {
+    const item = {
+      id: "wd2_" + randomUUID(),
+      clientId,
+      year,
+      week,
+      days,
+      documented: agg.documented,
+      qualityApproved: agg.qualityApproved,
+      onTime: agg.onTime,
+      delayed: agg.delayed,
+      comments: b.comments || "",
+      createdAt: now,
+      updatedAt: now,
+    };
+    store.v2WeeklyDocs.push(item);
+    persist();
+    return res.status(201).json(item);
+  } else {
+    const prev = store.v2WeeklyDocs[existingIdx];
+    // Merge provided day updates into existing
+    const mergedDays: any = { ...(prev.days || {}) };
+    for (const key of dayKeys) {
+      if (days[key]) mergedDays[key] = days[key];
+    }
+    const newAgg = aggregateWeek(mergedDays);
+    const updated = {
+      ...prev,
+      days: mergedDays,
+      documented: newAgg.documented,
+      qualityApproved: newAgg.qualityApproved,
+      onTime: newAgg.onTime,
+      delayed: newAgg.delayed,
+      comments: b.comments !== undefined ? b.comments : prev.comments,
+      updatedAt: now,
+    };
+    store.v2WeeklyDocs[existingIdx] = updated;
+    persist();
+    return res.json(updated);
+  }
+});
+
+// Stats/Reports V2
+function dateInRange(d: Date, from?: Date, to?: Date): boolean {
+  if (from && d < from) return false;
+  if (to && d > to) return false;
+  return true;
+}
+
+devRoutes.get("/stats/staff", (req, res) => {
+  const fromStr = (req.query.from as string) || undefined;
+  const toStr = (req.query.to as string) || undefined;
+  const from = fromStr ? new Date(fromStr) : undefined;
+  const to = toStr ? new Date(toStr) : undefined;
+  const resultMap = new Map<string, { staffId: string; year: number; week: number; documentedCount: number; delayedCount: number; notApprovedCount: number }>();
+
+  for (const wd of store.v2WeeklyDocs || []) {
+    const monday = getIsoWeekStartDate(wd.year, wd.week);
+    for (let i = 0; i < dayKeys.length; i++) {
+      const key = dayKeys[i];
+      const day = wd.days?.[key];
+      if (!day || !day.documented || !day.authorStaffId) continue;
+      const dayDate = addDaysUTC(monday, i);
+      if (!dateInRange(dayDate, from, to)) continue;
+      const staffId = day.authorStaffId;
+      const compositeKey = `${staffId}:${wd.year}:${wd.week}`;
+      if (!resultMap.has(compositeKey)) {
+        resultMap.set(compositeKey, {
+          staffId,
+          year: wd.year,
+          week: wd.week,
+          documentedCount: 0,
+          delayedCount: 0,
+          notApprovedCount: 0,
+        });
+      }
+      const obj = resultMap.get(compositeKey)!;
+      obj.documentedCount += 1;
+      if (day.delayed) obj.delayedCount += 1;
+      if (!day.qualityApproved) obj.notApprovedCount += 1;
+    }
+  }
+
+  const out = Array.from(resultMap.values()).sort((a, b) => (a.staffId + a.year + a.week).localeCompare(b.staffId + b.year + b.week));
+  return res.json(out);
+});
+
+devRoutes.get("/stats/client/:clientId", (req, res) => {
+  const { clientId } = req.params;
+  const fromStr = (req.query.from as string) || undefined;
+  const toStr = (req.query.to as string) || undefined;
+  const from = fromStr ? new Date(fromStr) : undefined;
+  const to = toStr ? new Date(toStr) : undefined;
+  const resultMap = new Map<string, { clientId: string; year: number; week: number; documentedCount: number; delayedCount: number; notApprovedCount: number }>();
+
+  for (const wd of store.v2WeeklyDocs || []) {
+    if (wd.clientId !== clientId) continue;
+    const monday = getIsoWeekStartDate(wd.year, wd.week);
+    for (let i = 0; i < dayKeys.length; i++) {
+      const key = dayKeys[i];
+      const day = wd.days?.[key];
+      if (!day || !day.documented) continue;
+      const dayDate = addDaysUTC(monday, i);
+      if (!dateInRange(dayDate, from, to)) continue;
+      const compositeKey = `${clientId}:${wd.year}:${wd.week}`;
+      if (!resultMap.has(compositeKey)) {
+        resultMap.set(compositeKey, {
+          clientId,
+          year: wd.year,
+          week: wd.week,
+          documentedCount: 0,
+          delayedCount: 0,
+          notApprovedCount: 0,
+        });
+      }
+      const obj = resultMap.get(compositeKey)!;
+      obj.documentedCount += 1;
+      if (day.delayed) obj.delayedCount += 1;
+      if (!day.qualityApproved) obj.notApprovedCount += 1;
+    }
+  }
+
+  const out = Array.from(resultMap.values()).sort((a, b) => (a.year - b.year) || (a.week - b.week));
+  return res.json(out);
+});

@@ -421,6 +421,22 @@
       "status": "active",
       "createdAt": "2025-08-21T13:32:47.561Z",
       "updatedAt": "2025-08-21T13:32:47.561Z"
+    },
+    {
+      "id": "c_29cb2255-da04-4ab6-a57c-cee9895e41af",
+      "initials": "A1",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-04T21:59:03.205Z",
+      "updatedAt": "2025-09-04T21:59:03.205Z"
+    },
+    {
+      "id": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "initials": "QA2",
+      "staffId": "s_demo",
+      "status": "active",
+      "createdAt": "2025-09-04T22:02:52.510Z",
+      "updatedAt": "2025-09-04T22:02:52.510Z"
     }
   ],
   "carePlans": [
@@ -1291,6 +1307,169 @@
       "comments": "",
       "createdAt": "2025-08-21T12:49:06.931Z",
       "updatedAt": "2025-08-21T12:49:06.931Z"
+    }
+  ],
+  "v2CarePlans": [
+    {
+      "id": "cp2_47be9f90-7c4b-47a8-98b3-87dc46e25cb6",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "index": 1,
+      "receivedDate": "2025-09-01",
+      "status": "Mottagen",
+      "assignedStaffId": "s_demo",
+      "content": "",
+      "createdAt": "2025-09-04T22:02:52.541Z",
+      "updatedAt": "2025-09-04T22:02:52.541Z"
+    },
+    {
+      "id": "cp2_49c3ef43-1490-4bb3-b246-395bbe0bff76",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "index": 2,
+      "receivedDate": "2025-09-02",
+      "status": "Mottagen",
+      "assignedStaffId": "s_demo",
+      "content": "",
+      "createdAt": "2025-09-04T22:02:52.547Z",
+      "updatedAt": "2025-09-04T22:02:52.547Z"
+    },
+    {
+      "id": "cp2_44fb6ef1-6188-4452-8e43-0e2a94bdda48",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "index": 3,
+      "receivedDate": "2025-09-03",
+      "status": "Mottagen",
+      "assignedStaffId": "s_demo",
+      "content": "",
+      "createdAt": "2025-09-04T22:02:52.553Z",
+      "updatedAt": "2025-09-04T22:02:52.553Z"
+    }
+  ],
+  "v2ImplementationPlans": [
+    {
+      "id": "gfp2_92163c80-7b5b-49ff-b20a-344404bf0107",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "carePlanIndex": 1,
+      "index": 1,
+      "status": "Väntar",
+      "followUps": [
+        {
+          "key": "Uppföljning1",
+          "done": false
+        },
+        {
+          "key": "Uppföljning2",
+          "done": false
+        },
+        {
+          "key": "Uppföljning3",
+          "done": false
+        },
+        {
+          "key": "Uppföljning4",
+          "done": false
+        },
+        {
+          "key": "Uppföljning5",
+          "done": false
+        }
+      ],
+      "createdAt": "2025-09-04T22:02:52.541Z",
+      "updatedAt": "2025-09-04T22:02:52.541Z"
+    },
+    {
+      "id": "gfp2_405e338c-c89a-4a4a-a9fc-6ad229caa552",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "carePlanIndex": 2,
+      "index": 2,
+      "status": "Väntar",
+      "followUps": [
+        {
+          "key": "Uppföljning1",
+          "done": false
+        },
+        {
+          "key": "Uppföljning2",
+          "done": false
+        },
+        {
+          "key": "Uppföljning3",
+          "done": false
+        },
+        {
+          "key": "Uppföljning4",
+          "done": false
+        },
+        {
+          "key": "Uppföljning5",
+          "done": false
+        }
+      ],
+      "createdAt": "2025-09-04T22:02:52.547Z",
+      "updatedAt": "2025-09-04T22:02:52.547Z"
+    },
+    {
+      "id": "gfp2_a9598ddd-5559-463b-9edf-7239d9223e24",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "carePlanIndex": 3,
+      "index": 3,
+      "status": "Väntar",
+      "followUps": [
+        {
+          "key": "Uppföljning1",
+          "done": false
+        },
+        {
+          "key": "Uppföljning2",
+          "done": false
+        },
+        {
+          "key": "Uppföljning3",
+          "done": false
+        },
+        {
+          "key": "Uppföljning4",
+          "done": false
+        },
+        {
+          "key": "Uppföljning5",
+          "done": false
+        }
+      ],
+      "createdAt": "2025-09-04T22:02:52.553Z",
+      "updatedAt": "2025-09-04T22:02:52.553Z"
+    }
+  ],
+  "v2WeeklyDocs": [
+    {
+      "id": "wd2_6887dd3e-264e-41c9-943b-5cc38d6afc16",
+      "clientId": "c_e854c6d7-795d-412b-a443-82b6228b3005",
+      "year": 2025,
+      "week": 36,
+      "days": {
+        "mon": {
+          "documented": true,
+          "qualityApproved": true,
+          "onTime": false,
+          "delayed": true,
+          "authorStaffId": "s_demo",
+          "timestamp": "2025-09-04T22:02:52.563Z"
+        },
+        "tue": {
+          "documented": true,
+          "qualityApproved": false,
+          "onTime": false,
+          "delayed": true,
+          "authorStaffId": "s_demo",
+          "timestamp": "2025-09-04T22:02:52.563Z"
+        }
+      },
+      "documented": true,
+      "qualityApproved": false,
+      "onTime": false,
+      "delayed": true,
+      "comments": "Veckokommentar",
+      "createdAt": "2025-09-04T22:02:52.563Z",
+      "updatedAt": "2025-09-04T22:02:52.563Z"
     }
   ]
 }

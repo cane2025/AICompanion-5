@@ -18,6 +18,10 @@ export let store: any = {
   weeklyDocumentation: [],
   monthlyReports: [],
   vimsaTime: [],
+  // V2 collections (versioned per client)
+  v2CarePlans: [],
+  v2ImplementationPlans: [],
+  v2WeeklyDocs: [],
 };
 
 // Load existing data if file exists
