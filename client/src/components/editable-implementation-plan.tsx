@@ -145,16 +145,27 @@ export function EditableImplementationPlan({
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: (data: ImplementationPlanFormData) => {
-      if (!implementationPlan?.id) throw new Error("Ingen GFP att uppdatera");
+      if (!implementationPlan?.id) {
+        // If no existing plan, create a new one instead of throwing error
+        return api.createImplementationPlan({
+          ...data,
+          clientId,
+          staffId: "unassigned",
+        });
+      }
       return api.updateImplementationPlan(implementationPlan.id, data);
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["/api/implementation-plans", clientId] });
+      const isNewPlan = !implementationPlan?.id;
       toast({
-        title: "✅ GFP uppdaterad",
-        description: "Ändringar har sparats.",
+        title: isNewPlan ? "✅ GFP skapad" : "✅ GFP uppdaterad",
+        description: isNewPlan ? "Genomförandeplanen har skapats." : "Ändringar har sparats.",
       });
       setHasUnsavedChanges(false);
+      if (isNewPlan) {
+        setIsEditing(false);
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -195,7 +206,7 @@ export function EditableImplementationPlan({
 
   // Autosave
   useEffect(() => {
-    if (!isEditing || !hasUnsavedChanges || !implementationPlan) return;
+    if (!isEditing || !hasUnsavedChanges) return;
 
     const autosave = async () => {
       try {
@@ -221,11 +232,8 @@ export function EditableImplementationPlan({
   }, [formValues, isEditing]);
 
   const handleSave = async (data: ImplementationPlanFormData) => {
-    if (implementationPlan) {
-      await updateMutation.mutateAsync(data);
-    } else {
-      await createMutation.mutateAsync(data);
-    }
+    // Always use updateMutation as it now handles both create and update cases
+    await updateMutation.mutateAsync(data);
   };
 
   const handleEdit = () => {

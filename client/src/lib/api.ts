@@ -199,15 +199,7 @@ export const getCarePlanByClient = (clientId: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
-export const createCarePlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-// Implementation Plans API
+// Implementation Plans API (additional functions)
 export const getImplementationPlans = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/implementation-plans`, {
     credentials: "include",
@@ -228,22 +220,6 @@ export const getImplementationPlanByClient = (clientId: string): Promise<any> =>
 export const getImplementationPlanById = (id: string): Promise<any> =>
   fetch(`${API_BASE_URL}/implementation-plans/plan/${id}`, {
     credentials: "include",
-  }).then((res) => handleResponse<any>(res));
-
-export const createImplementationPlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
 // Weekly Documentation API
