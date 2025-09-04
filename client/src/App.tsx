@@ -7,12 +7,19 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/header";
 import { StaffSidebar } from "@/components/staff-sidebar";
 import { Dashboard } from "@/pages/dashboard";
+import { DashboardV2 } from "@/pages/dashboard-v2";
 import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
 import { LoginForm } from "@/components/login-form";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { getFeatureFlag } from "@/lib/feature-flags";
 import type { Staff, User } from "@shared/schema";
 import * as api from "@/lib/api";
+
+// Load demo script in development
+if (process.env.NODE_ENV === 'development') {
+  import("@/demo/dashboard-v2-demo");
+}
 
 function MainApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +28,7 @@ function MainApp() {
   const [activeView, setActiveView] = useState("dashboard");
   const [activeStaffId, setActiveStaffId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [useDashboardV1, setUseDashboardV1] = useState(false);
 
   const { data: staff = [], isLoading } = useQuery<Staff[]>({
     queryKey: ["/api/staff"],
@@ -143,7 +151,11 @@ function MainApp() {
             </div>
 
             {activeView === "dashboard" ? (
-              <Dashboard />
+              getFeatureFlag('UI_DASHBOARD_V2') && !useDashboardV1 ? (
+                <DashboardV2 onSwitchToV1={() => setUseDashboardV1(true)} />
+              ) : (
+                <Dashboard />
+              )
             ) : activeStaff ? (
               <div className="space-y-6">
                 <div className="bg-ungdoms-50 rounded-lg p-4 border border-ungdoms-200">
