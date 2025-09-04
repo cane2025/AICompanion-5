@@ -20,11 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ClientDetailView } from "./client-detail-view";
-import { CarePlanDialog } from "./care-plan-dialog";
-import { WeeklyDocumentationDialog } from "./weekly-documentation-dialog";
-import { MonthlyReportDialog } from "./monthly-report-dialog";
-import { VimsaTimeDialog } from "./vimsa-time-dialog";
+import { VardadminTabs } from "./vardadmin-tabs";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -54,9 +50,8 @@ interface StaffClientManagementProps {
 }
 
 const clientSchema = z.object({
-  initials: z.string().min(1, "Initialer krävs").max(10, "Max 10 tecken"),
-  personalNumber: z.string().optional(),
-  notes: z.string().optional(),
+  displayCode: z.string().min(1, "Visningskod krävs").max(10, "Max 10 tecken"),
+  active: z.boolean().default(true),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -71,9 +66,8 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      initials: "",
-      personalNumber: "",
-      notes: "",
+      displayCode: "",
+      active: true,
     },
   });
 
@@ -260,10 +254,10 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
             ← Tillbaka till klientlista
           </Button>
           <h2 className="text-xl font-semibold text-ungdoms-800">
-            {staff.name} - Klient: {selectedClient.initials}
+            {staff.name} - Klient: {selectedClient.displayCode}
           </h2>
         </div>
-        <ClientDetailView client={selectedClient} staffId={staff.id} />
+        <VardadminTabs client={selectedClient} staff={[staff]} />
       </div>
     );
   }
@@ -287,42 +281,19 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
               ← Tillbaka till Dashboard
             </Button>
             <div className="flex gap-2">
-              <CarePlanDialog
-                trigger={
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Skapa Vårdplan
-                  </Button>
-                }
-                staffId={staff.id}
-              />
-              <WeeklyDocumentationDialog
-                trigger={
-                  <Button className="bg-orange-600 hover:bg-orange-700">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Veckodokumentation
-                  </Button>
-                }
-                staffId={staff.id}
-              />
-              <MonthlyReportDialog
-                trigger={
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Månadsrapport
-                  </Button>
-                }
-                staffId={staff.id}
-              />
-              <VimsaTimeDialog
-                trigger={
-                  <Button className="bg-purple-600 hover:bg-purple-700">
-                    <ClockIcon className="h-4 w-4 mr-2" />
-                    Vimsa Tid
-                  </Button>
-                }
-                staffId={staff.id}
-              />
+              <Button
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => {
+                  // Navigate to first client's vårdadmin if available
+                  if (clients.length > 0) {
+                    setSelectedClient(clients[0]);
+                  }
+                }}
+                disabled={clients.length === 0}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Öppna vårdadmin
+              </Button>
               <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-green-600 hover:bg-green-700 text-white">
@@ -341,11 +312,11 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
                     >
                       <FormField
                         control={form.control}
-                        name="initials"
+                        name="displayCode"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
-                              Initialer (GDPR-säker identifiering)
+                              Visningskod (GDPR-säker identifiering)
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -360,43 +331,6 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="personalNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Personnummer (frivilligt)</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="YYYYMMDD-XXXX"
-                                {...field}
-                                value={field.value ?? ""}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="notes"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Anteckningar</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ytterligare information..."
-                                {...field}
-                                value={field.value ?? ""}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <div className="flex justify-end gap-2">
                         <Button
@@ -475,7 +409,7 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">
-                        {client.initials}
+                        {client.displayCode}
                       </CardTitle>
                       {getClientStatusBadge(client)}
                     </div>
@@ -505,7 +439,7 @@ export function StaffClientManagement({ staff }: StaffClientManagementProps) {
                           className="flex-1 border-ungdoms-200 text-ungdoms-700 hover:bg-ungdoms-50"
                         >
                           <Eye className="h-4 w-4 mr-1" />
-                          Visa detaljer
+                          Öppna vårdadmin
                         </Button>
                         <div className="relative">
                           <Button
