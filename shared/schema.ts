@@ -28,6 +28,7 @@ export const staff = pgTable("staff", {
   anställningsdatum: varchar("anställningsdatum").default(""),
   roll: varchar("roll").default(""),
   avdelning: varchar("avdelning").default(""),
+  weeklyCapacityHours: integer("weekly_capacity_hours").default(40), // Weekly work capacity in hours
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   deletedAt: timestamp("deleted_at"), // added for soft delete support

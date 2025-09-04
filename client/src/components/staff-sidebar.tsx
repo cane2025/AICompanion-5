@@ -38,6 +38,12 @@ export function StaffSidebar({
     queryFn: () => apiRequest("GET", "/api/staff").then((r) => r.json()),
   });
 
+  // Fetch clients data for workload calculation
+  const { data: clients = [] } = useQuery({
+    queryKey: ["/api/clients/all"],
+    queryFn: () => apiRequest("GET", "/api/clients/all").then((r) => r.json()),
+  });
+
   // Use global search term if provided, otherwise use local filter
   const effectiveSearchTerm = searchTerm || filterTerm;
 
@@ -192,12 +198,17 @@ export function StaffSidebar({
             </div>
           ) : (
             filteredStaff.map((staffMember: any) => {
-              const initials = getInitials(staffMember.name);
-              const isActive = activeView === `staff-${staffMember.id}`;
-              // Simple load heuristic for demo: alternating status by name hash
-              const hash = Array.from(staffMember.name).reduce((a, c) => a + c.charCodeAt(0), 0);
-              const isWorking = hash % 3 !== 0;
-              const isOverloaded = hash % 7 === 0;
+              const initials = getInitials(staffMember?.name || "");
+              const isActive = activeView === `staff-${staffMember?.id}`;
+              // Calculate workload based on actual data
+              const capacity = staffMember?.weeklyCapacityHours || 40;
+              const clientCount = clients?.filter(c => c.staffId === staffMember?.id)?.length || 0;
+              const estimatedHoursPerClient = 8; // Estimated hours per client per week
+              const totalWorkload = clientCount * estimatedHoursPerClient;
+              const workloadPercentage = capacity > 0 ? (totalWorkload / capacity) * 100 : 0;
+              
+              const isWorking = clientCount > 0;
+              const isOverloaded = workloadPercentage > 110; // Over 110% capacity
 
               return (
                 <div key={staffMember.id} className="flex items-center gap-2">
@@ -218,13 +229,19 @@ export function StaffSidebar({
                         {initials}
                       </span>
                     </div>
-                    <span className="font-medium flex-1 text-left">{staffMember.name}</span>
+                    <span className="font-medium flex-1 text-left">{staffMember?.name || "Okänd personal"}</span>
                     {isOverloaded ? (
-                      <AlertTriangle className="h-4 w-4 text-red-500" title="Överbelastad" />
+                      <AlertTriangle 
+                        className="h-4 w-4 text-red-500" 
+                        title={`Överbelastad: ${Math.round(workloadPercentage)}% av kapacitet (${clientCount} klienter, ${capacity}h/vecka)`} 
+                      />
                     ) : isWorking ? (
-                      <CircleDot className="h-4 w-4 text-green-500" title="Arbetar" />
+                      <CircleDot 
+                        className="h-4 w-4 text-green-500" 
+                        title={`Arbetar: ${Math.round(workloadPercentage)}% av kapacitet (${clientCount} klienter)`} 
+                      />
                     ) : (
-                      <Circle className="h-4 w-4 text-gray-400" title="Ledig" />
+                      <Circle className="h-4 w-4 text-gray-400" title="Ledig - inga klienter" />
                     )}
                   </Button>
                   <div className="relative">

@@ -266,6 +266,7 @@ export function StaffManagement() {
   }
 
   return (
+    <>
     <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
       <Card>
         <CardHeader>
@@ -361,5 +362,6 @@ export function StaffManagement() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+    </>
   );
 }
