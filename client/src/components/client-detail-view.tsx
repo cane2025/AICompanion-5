@@ -401,7 +401,7 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
           <EditableImplementationPlan 
             clientId={client.id} 
             clientInitials={client.initials}
-            carePlanDate={carePlan?.staffNotifiedDate}
+            carePlanDate={carePlan?.staffNotifiedDate || undefined}
           />
         </TabsContent>
 

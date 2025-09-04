@@ -210,7 +210,7 @@ export function EnhancedSearch() {
       downloadFile(blob, filename);
     } catch (error) {
       console.error('PDF download error:', error);
-      alert('Fel vid PDF-nedladdning: ' + error.message);
+      alert('Fel vid PDF-nedladdning: ' + (error instanceof Error ? error.message : 'Okänt fel'));
     }
   };
 

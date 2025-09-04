@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import {
   Users,
   FileText,
@@ -255,7 +256,7 @@ export function BulkOperations() {
       });
     } catch (error) {
       console.error('Import error:', error);
-      alert('Fel vid import: ' + error.message);
+      alert('Fel vid import: ' + (error instanceof Error ? error.message : 'Okänt fel'));
     }
   };
 

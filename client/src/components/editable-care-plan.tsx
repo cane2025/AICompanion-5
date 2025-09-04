@@ -408,7 +408,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
                   <p className="text-sm text-blue-800">
                     <strong>GFP ska vara inlämnad senast:</strong>{" "}
                     {new Date(
-                      new Date(form.watch("staffNotifiedDate")).getTime() +
+                      new Date(form.watch("staffNotifiedDate") || "").getTime() +
                         21 * 24 * 60 * 60 * 1000
                     ).toLocaleDateString("sv-SE")}{" "}
                     (3 veckor från tillsägning)
