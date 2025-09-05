@@ -1,5 +1,0 @@
-# Ignore generated webhint reports and local cache artifacts
-hint-report/**
-.local/**
-**/hint-report/**
-**/.local/**
