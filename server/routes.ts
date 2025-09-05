@@ -614,7 +614,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/care-plans/:clientId", async (req, res) => {
     try {
-      const plan = await storage.getCarePlan(req.params.clientId);
+      const plans = await storage.getCarePlansByClient(req.params.clientId);
+      res.json(plans);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta vårdplaner" });
+    }
+  });
+
+  app.get("/api/care-plans/id/:id", async (req, res) => {
+    try {
+      const plan = await storage.getCarePlan(req.params.id);
       if (!plan) {
         return res.status(404).json({ message: "Vårdplan hittades inte" });
       }

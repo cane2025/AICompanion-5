@@ -23,7 +23,7 @@ try {
 } catch {}
 import { StaffClientManagement } from "@/components/staff-client-management";
 import { UngdomsLogo } from "@/components/ungdoms-logo";
-import { LoginForm } from "@/components/login-form";
+import { Login } from "@/components/Login";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import type { Staff, User } from "@shared/schema";
 import * as api from "@/lib/api";
@@ -32,11 +32,44 @@ function MainApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [activeView, setActiveView] = useState("dashboard");
   const [activeStaffId, setActiveStaffId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: staff = [], isLoading } = useQuery<Staff[]>({
+  // Check authentication on app start
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+          const response = await fetch("/api/auth/verify", {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setCurrentUser(data.user);
+            setIsAuthenticated(true);
+          } else {
+            // Token invalid, clear storage
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+          }
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const { data: staff = [], isLoading: staffLoading } = useQuery<Staff[]>({
     queryKey: ["/api/staff"],
     queryFn: api.getStaff,
     enabled: isAuthenticated, // Only fetch when authenticated
@@ -72,11 +105,22 @@ function MainApp() {
     queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    setActiveView("dashboard");
-    setActiveStaffId(null);
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+      setActiveView("dashboard");
+      setActiveStaffId(null);
+    }
   };
 
   const activeStaff = activeStaffId
@@ -108,10 +152,10 @@ function MainApp() {
 
   // Show login form if not authenticated
   if (!isAuthenticated) {
-    return <LoginForm onLoginSuccess={handleLoginSuccess} />;
+    return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  if (isLoading) {
+  if (isAuthLoading || staffLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
