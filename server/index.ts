@@ -3,7 +3,9 @@ import cors from "cors";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { devRoutes } from "./routes/dev";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic } from "./vite.js";
+import { createServer } from "http";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,16 +18,15 @@ app.use(express.json());
 // Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-// dev API
-app.use("/api", devRoutes);
-
-// Serve static files from dist/public (built frontend)
-app.use(express.static(path.join(__dirname, "../dist/public")));
-
-// Serve all other routes to index.html (SPA)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/public/index.html"));
-});
+// Register real API routes and optional websocket
+const httpServer = await registerRoutes(app);
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log("[express] serving on port", PORT));
+
+if (process.env.NODE_ENV === "development") {
+  await setupVite(app, httpServer);
+} else {
+  serveStatic(app);
+}
+
+httpServer.listen(PORT, () => console.log("[express] serving on port", PORT));
