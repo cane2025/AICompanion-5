@@ -202,7 +202,7 @@ export function StaffSidebar({
               const isActive = activeView === `staff-${staffMember?.id}`;
               // Calculate workload based on actual data
               const capacity = staffMember?.weeklyCapacityHours || 40;
-              const clientCount = clients?.filter(c => c.staffId === staffMember?.id)?.length || 0;
+              const clientCount = (clients as Array<{ staffId: string }> | undefined)?.filter((c) => c.staffId === staffMember?.id)?.length || 0;
               const estimatedHoursPerClient = 8; // Estimated hours per client per week
               const totalWorkload = clientCount * estimatedHoursPerClient;
               const workloadPercentage = capacity > 0 ? (totalWorkload / capacity) * 100 : 0;
@@ -231,17 +231,17 @@ export function StaffSidebar({
                     </div>
                     <span className="font-medium flex-1 text-left">{staffMember?.name || "Okänd personal"}</span>
                     {isOverloaded ? (
-                      <AlertTriangle 
-                        className="h-4 w-4 text-red-500" 
-                        title={`Överbelastad: ${Math.round(workloadPercentage)}% av kapacitet (${clientCount} klienter, ${capacity}h/vecka)`} 
-                      />
+                      <span title={`Överbelastad: ${Math.round(workloadPercentage)}% av kapacitet (${clientCount} klienter, ${capacity}h/vecka)`}>
+                        <AlertTriangle className="h-4 w-4 text-red-500" />
+                      </span>
                     ) : isWorking ? (
-                      <CircleDot 
-                        className="h-4 w-4 text-green-500" 
-                        title={`Arbetar: ${Math.round(workloadPercentage)}% av kapacitet (${clientCount} klienter)`} 
-                      />
+                      <span title={`Arbetar: ${Math.round(workloadPercentage)}% av kapacitet (${clientCount} klienter)`}>
+                        <CircleDot className="h-4 w-4 text-green-500" />
+                      </span>
                     ) : (
-                      <Circle className="h-4 w-4 text-gray-400" title="Ledig - inga klienter" />
+                      <span title="Ledig - inga klienter">
+                        <Circle className="h-4 w-4 text-gray-400" />
+                      </span>
                     )}
                   </Button>
                   <div className="relative">

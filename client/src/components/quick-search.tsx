@@ -299,7 +299,7 @@ export function QuickSearch({
           <CardContent className="p-0">
             {searchResults.length > 0 ? (
               <div className="py-2">
-                {searchResults.map((result, index) => (
+                {searchResults.map((result: any, index: number) => (
                   <div
                     key={`${result.type}-${result.id}`}
                     className={`px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors ${

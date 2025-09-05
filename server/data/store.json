@@ -1898,6 +1898,22 @@
       "status": "active",
       "createdAt": "2025-08-27T13:32:12.963Z",
       "updatedAt": "2025-08-27T13:32:12.963Z"
+    },
+    {
+      "id": "c_513b2b70-5768-4ed9-965c-0d9ad08b95e8",
+      "initials": "ST",
+      "staffId": "staff_572ec798-ade0-43f8-9998-a955dfb3c2f8",
+      "status": "active",
+      "createdAt": "2025-09-05T11:02:22.640Z",
+      "updatedAt": "2025-09-05T11:02:22.640Z"
+    },
+    {
+      "id": "c_be00ca27-ee7c-47cf-af49-e95aa5809928",
+      "initials": "ST",
+      "staffId": "staff_572ec798-ade0-43f8-9998-a955dfb3c2f8",
+      "status": "active",
+      "createdAt": "2025-09-05T11:03:09.822Z",
+      "updatedAt": "2025-09-05T11:03:09.822Z"
     }
   ],
   "staff": [
@@ -2662,6 +2678,44 @@
       },
       "createdAt": "2025-08-27T20:13:18.661Z",
       "updatedAt": "2025-08-27T20:13:18.661Z"
+    },
+    {
+      "id": "wd_f1b08cba-3e2b-411c-b44a-e43d94232004",
+      "clientId": "c_513b2b70-5768-4ed9-965c-0d9ad08b95e8",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "Test veckodokumentation",
+      "days": {
+        "mon": true,
+        "tue": false,
+        "wed": true,
+        "thu": false,
+        "fri": true,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-09-05T11:02:22.650Z",
+      "updatedAt": "2025-09-05T11:02:22.650Z"
+    },
+    {
+      "id": "wd_bac0a4e2-bec4-4303-b8a4-cbc9b8eb5334",
+      "clientId": "c_be00ca27-ee7c-47cf-af49-e95aa5809928",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "documentation": "Test veckodokumentation",
+      "days": {
+        "mon": true,
+        "tue": false,
+        "wed": true,
+        "thu": false,
+        "fri": true,
+        "sat": false,
+        "sun": false
+      },
+      "createdAt": "2025-09-05T11:03:09.830Z",
+      "updatedAt": "2025-09-05T11:03:09.830Z"
     }
   ],
   "monthlyReports": [
@@ -3117,6 +3171,32 @@
       "quality": "pending",
       "createdAt": "2025-08-25T11:39:54.177Z",
       "updatedAt": "2025-08-25T11:39:54.177Z"
+    },
+    {
+      "id": "mr_82286a28-de0c-4b6c-bbe6-51cf3c144bd9",
+      "clientId": "c_513b2b70-5768-4ed9-965c-0d9ad08b95e8",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "Updated test månadsrapport",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-09-05T11:02:22.652Z",
+      "updatedAt": "2025-09-05T11:02:22.661Z"
+    },
+    {
+      "id": "mr_b3ca8805-369d-46df-ac69-ceb293c37d56",
+      "clientId": "c_be00ca27-ee7c-47cf-af49-e95aa5809928",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 8,
+      "reportContent": "Updated test månadsrapport",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-09-05T11:03:09.832Z",
+      "updatedAt": "2025-09-05T11:03:09.857Z"
     }
   ],
   "vimsaTime": [
@@ -3461,6 +3541,32 @@
       "comments": "Vimsa tid för vårdplan 2",
       "createdAt": "2025-08-25T11:39:54.184Z",
       "updatedAt": "2025-08-25T11:39:54.184Z"
+    },
+    {
+      "id": "vt_12fa7be6-c4b6-4570-8781-8842348d9bbf",
+      "clientId": "c_513b2b70-5768-4ed9-965c-0d9ad08b95e8",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "hoursWorked": 9,
+      "approved": false,
+      "matchesDocumentation": true,
+      "comments": "Test Vimsa tid",
+      "createdAt": "2025-09-05T11:02:22.655Z",
+      "updatedAt": "2025-09-05T11:02:22.663Z"
+    },
+    {
+      "id": "vt_d6ccf4cb-d6fe-442c-be01-a4b0ee630d38",
+      "clientId": "c_be00ca27-ee7c-47cf-af49-e95aa5809928",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 34,
+      "hoursWorked": 9,
+      "approved": false,
+      "matchesDocumentation": true,
+      "comments": "Test Vimsa tid",
+      "createdAt": "2025-09-05T11:03:09.846Z",
+      "updatedAt": "2025-09-05T11:03:09.862Z"
     }
   ]
 }

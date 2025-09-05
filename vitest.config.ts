@@ -6,6 +6,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
+    include: ['tests/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['AICompanion-5-Export/**', 'uppfoljningssystem/**', 'node_modules/**', 'dist/**'],
   },
   resolve: {
     alias: {

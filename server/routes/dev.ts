@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { store, persist } from "../devStorage";
+import { store, persist } from "../devStorage.js";
 import { randomUUID } from "crypto";
 import {
   sanitizeInput,
@@ -7,7 +7,7 @@ import {
   sanitizeEmail,
   sanitizePhone,
   RateLimiter,
-} from "../security";
+} from "../security.js";
 import {
   db,
   addCarePlan,

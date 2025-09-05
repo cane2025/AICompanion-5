@@ -3,7 +3,7 @@ import cors from "cors";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { devRoutes } from "./routes/dev";
+import { devRoutes } from "./routes/dev.js";
 import authRoutes from "./routes/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,18 +43,18 @@ app.use(express.json());
 // Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-// Auth API
-app.use("/api/auth", authRoutes);
-
-// dev API
+// dev API first to allow permissive dev auth/login in tests
 app.use("/api", devRoutes);
 
+// Auth API (kept after dev to not shadow dev login)
+app.use("/api/auth", authRoutes);
+
 // Serve static files from dist/public (built frontend)
-app.use(express.static(path.join(__dirname, "../dist/public")));
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Serve all other routes to index.html (SPA)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/public/index.html"));
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 const PORT = process.env.PORT || 3001;
