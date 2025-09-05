@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage.js";
 import bcrypt from "bcryptjs";
+import PDFDocument from "pdfkit";
+import nodemailer from "nodemailer";
+import { createEvents } from "ics";
 import {
   insertStaffSchema,
   insertClientSchema,
@@ -183,6 +186,230 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(staff);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch staff" });
+    }
+  });
+
+  // Aliases and compatibility endpoints for frontend expectations
+  // Care plans list alias
+  app.get("/api/care-plans", async (_req, res) => {
+    try {
+      const carePlans = await storage.getAllCarePlans();
+      res.json(carePlans);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta vårdplaner" });
+    }
+  });
+
+  // Implementation plans list alias
+  app.get("/api/implementation-plans", async (_req, res) => {
+    try {
+      const plans = await storage.getAllImplementationPlans();
+      res.json(plans);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta genomförandeplaner" });
+    }
+  });
+
+  // Implementation plan by id alias
+  app.get("/api/implementation-plans/plan/:id", async (req, res) => {
+    try {
+      const plan = await storage.getImplementationPlanById(req.params.id);
+      if (!plan) return res.status(404).json({ message: "Genomförandeplan hittades inte" });
+      res.json(plan);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta genomförandeplan" });
+    }
+  });
+
+  // Weekly documentation list alias
+  app.get("/api/weekly-documentation", async (_req, res) => {
+    try {
+      const docs = await storage.getAllWeeklyDocumentation();
+      res.json(docs);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta veckodokumentation" });
+    }
+  });
+
+  // Monthly reports list alias
+  app.get("/api/monthly-reports", async (_req, res) => {
+    try {
+      const reports = await storage.getAllMonthlyReports();
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta månadsrapporter" });
+    }
+  });
+
+  // Vimsa time list alias
+  app.get("/api/vimsa-time", async (_req, res) => {
+    try {
+      const time = await storage.getAllVimsaTime();
+      res.json(time);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta Vimsa tiddata" });
+    }
+  });
+
+  // Data export endpoint
+  app.get("/api/export", async (_req, res) => {
+    try {
+      const [staff, clients, carePlans, implementationPlans, weeklyDocs, monthlyReports, vimsa] = await Promise.all([
+        storage.getAllStaff(),
+        storage.getAllClients(),
+        storage.getAllCarePlans(),
+        storage.getAllImplementationPlans(),
+        storage.getAllWeeklyDocumentation(),
+        storage.getAllMonthlyReports(),
+        storage.getAllVimsaTime(),
+      ]);
+
+      const payload = {
+        meta: {
+          generatedAt: new Date().toISOString(),
+          version: 1,
+        },
+        staff,
+        clients,
+        carePlans,
+        implementationPlans,
+        weeklyDocumentation: weeklyDocs,
+        monthlyReports,
+        vimsaTime: vimsa,
+      };
+
+      const filename = `export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+      res.status(200).send(JSON.stringify(payload, null, 2));
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte exportera data" });
+    }
+  });
+
+  // PDF generation endpoint for a client's latest monthly report
+  app.get("/api/reports/:clientId/pdf", async (req, res) => {
+    try {
+      const clientId = req.params.clientId;
+      const reports = await storage.getAllMonthlyReports();
+      const clientReports = reports
+        .filter((r) => r.clientId === clientId)
+        .sort((a, b) => (b.updatedAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? 0));
+      const latest = clientReports[0];
+      if (!latest) return res.status(404).json({ message: "Ingen rapport hittades" });
+
+      const doc = new PDFDocument({ margin: 48 });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `inline; filename=rapport-${clientId}.pdf`);
+      doc.pipe(res);
+      doc.fontSize(18).text("Månadsrapport", { align: "center" }).moveDown();
+      doc.fontSize(12).text(`Klient: ${clientId}`);
+      doc.text(`År/Månad: ${latest.year}-${latest.month}`);
+      doc.moveDown();
+      doc.text(latest.reportContent || latest.content || "(tom)");
+      doc.end();
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte generera PDF" });
+    }
+  });
+
+  // Email notification (simple dev transport) - send status update
+  app.post("/api/notify/email", async (req, res) => {
+    try {
+      const { to, subject, text } = req.body || {};
+      if (!to) return res.status(400).json({ message: "Mottagare saknas" });
+      const transporter = nodemailer.createTransport({
+        jsonTransport: true,
+      });
+      const info = await transporter.sendMail({ from: "noreply@ungdoms.se", to, subject: subject || "Notifiering", text: text || "Hej!" });
+      res.json({ ok: true, info });
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte skicka e-post" });
+    }
+  });
+
+  // Calendar integration: return ICS event for a follow-up date on implementation plan
+  app.get("/api/implementation-plans/:id/ics", async (req, res) => {
+    try {
+      const plan = await storage.getImplementationPlanById(req.params.id);
+      if (!plan || !plan.dueDate) return res.status(404).json({ message: "Ingen händelse" });
+      const due = new Date(plan.dueDate as any);
+      const event = {
+        title: "Uppföljning - Genomförandeplan",
+        start: [due.getFullYear(), due.getMonth() + 1, due.getDate(), 9, 0],
+        duration: { hours: 1 },
+        description: plan.planContent || "",
+      } as const;
+      const { error, value } = createEvents([event]);
+      if (error || !value) return res.status(500).json({ message: "Kunde inte skapa ICS" });
+      res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename=plan-${plan.id}.ics`);
+      res.send(value);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte skapa kalenderhändelse" });
+    }
+  });
+
+  // Search and filtering across entities
+  app.get("/api/search", async (req, res) => {
+    try {
+      const q = String(req.query.q || "").toLowerCase();
+      if (!q) return res.json({ staff: [], clients: [], carePlans: [], implementationPlans: [] });
+      const [staffList, clientList, carePlansList, implPlans] = await Promise.all([
+        storage.getAllStaff(),
+        storage.getAllClients(),
+        storage.getAllCarePlans(),
+        storage.getAllImplementationPlans(),
+      ]);
+      const contains = (s: any) => (s || "").toLowerCase().includes(q);
+      res.json({
+        staff: staffList.filter((s) => contains(s.name) || contains(s.initials) || contains(s.epost)),
+        clients: clientList.filter((c) => contains(c.initials) || contains(c.notes) || contains(c.status)),
+        carePlans: carePlansList.filter((cp) => contains(cp.planContent) || contains(cp.status) || contains(cp.comment)),
+        implementationPlans: implPlans.filter((ip) => contains(ip.planContent) || contains(ip.status) || contains(ip.comments)),
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Sökning misslyckades" });
+    }
+  });
+
+  // Bulk operations: delete multiple clients
+  app.post("/api/clients/bulk-delete", async (req, res) => {
+    try {
+      const { ids } = req.body || {};
+      if (!Array.isArray(ids)) return res.status(400).json({ message: "ids krävs" });
+      const results: string[] = [];
+      for (const id of ids) {
+        const ok = await storage.deleteClient(id);
+        if (ok) results.push(id);
+      }
+      res.json({ deleted: results });
+    } catch (error) {
+      res.status(500).json({ message: "Bulk-borttagning misslyckades" });
+    }
+  });
+
+  // Import data (basic merge)
+  app.post("/api/import", async (req, res) => {
+    try {
+      const data = req.body || {};
+      // Minimal import: only support staff and clients creation for safety
+      const created: { staff: number; clients: number } = { staff: 0, clients: 0 };
+      if (Array.isArray(data.staff)) {
+        for (const s of data.staff) {
+          await storage.createStaff({ name: s.name ?? "", initials: s.initials ?? "" } as any);
+          created.staff++;
+        }
+      }
+      if (Array.isArray(data.clients)) {
+        for (const c of data.clients) {
+          await storage.createClient({ initials: c.initials ?? "", staffId: c.staffId ?? "" } as any);
+          created.clients++;
+        }
+      }
+      res.json({ ok: true, created });
+    } catch (error) {
+      res.status(500).json({ message: "Import misslyckades" });
     }
   });
 

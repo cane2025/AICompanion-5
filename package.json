@@ -80,7 +80,10 @@
     "wouter": "^3.3.5",
     "ws": "^8.18.0",
     "zod": "^3.24.2",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^3.4.0",
+    "pdfkit": "^0.15.0",
+    "nodemailer": "^6.9.15",
+    "ics": "^3.7.6"
   },
   "devDependencies": {
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
