@@ -4,7 +4,7 @@ import { Search, User, Users, FileText, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useOptimizedSearch, usePerformanceMonitor } from "@/hooks/use-debounce";
+import { useDebounce } from "@/hooks/use-debounce";
 import type { Staff, Client, CarePlan, ImplementationPlan } from "@shared/schema";
 
 interface QuickSearchProps {
@@ -38,8 +38,8 @@ export function QuickSearch({
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Performance monitoring
-  usePerformanceMonitor('QuickSearch render', [query]);
+  // Debounced query for better performance
+  const debouncedQuery = useDebounce(query, 300);
 
   // Fetch all data
   const { data: staff = [] } = useQuery<Staff[]>({
@@ -172,13 +172,16 @@ export function QuickSearch({
     return items;
   }, [staff, clients, carePlans, implementationPlans]);
 
-  // Optimized search with debounce
-  const searchResults = useOptimizedSearch(
-    searchableItems,
-    query,
-    ['searchText'] as any,
-    300 // 300ms debounce for better UX
-  ).slice(0, 8); // Limit to 8 results
+  // Search results with debounce
+  const searchResults = useMemo(() => {
+    if (!debouncedQuery.trim()) return [];
+    
+    const filtered = searchableItems.filter(item => 
+      item.searchText.toLowerCase().includes(debouncedQuery.toLowerCase())
+    );
+    
+    return filtered.slice(0, 8); // Limit to 8 results
+  }, [searchableItems, debouncedQuery]);
 
   // Helper function for status text
   const getStatusText = (status: string) => {

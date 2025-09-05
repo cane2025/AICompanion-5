@@ -76,7 +76,7 @@ export function EditableImplementationPlan({
   // Fetch implementation plan
   const { data: implementationPlan, isLoading } = useQuery<ImplementationPlan>({
     queryKey: ["/api/implementation-plans", clientId],
-    queryFn: () => api.getImplementationPlan(clientId),
+    queryFn: () => api.getImplementationPlanByClient(clientId),
     retry: false,
   });
 
@@ -105,12 +105,12 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status || "pending") as "pending" | "in_progress" | "completed",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: typeof implementationPlan.dueDate === 'string' ? implementationPlan.dueDate : (implementationPlan.dueDate ? implementationPlan.dueDate.toISOString().split('T')[0] : ""),
+        completedDate: typeof implementationPlan.completedDate === 'string' ? implementationPlan.completedDate : (implementationPlan.completedDate ? implementationPlan.completedDate.toISOString().split('T')[0] : ""),
+        sentDate: typeof implementationPlan.sentDate === 'string' ? implementationPlan.sentDate : (implementationPlan.sentDate ? implementationPlan.sentDate.toISOString().split('T')[0] : ""),
         comments: implementationPlan.comments || "",
       });
     }
@@ -247,12 +247,12 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status || "pending") as "pending" | "in_progress" | "completed",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate: typeof implementationPlan.dueDate === 'string' ? implementationPlan.dueDate : (implementationPlan.dueDate ? implementationPlan.dueDate.toISOString().split('T')[0] : ""),
+        completedDate: typeof implementationPlan.completedDate === 'string' ? implementationPlan.completedDate : (implementationPlan.completedDate ? implementationPlan.completedDate.toISOString().split('T')[0] : ""),
+        sentDate: typeof implementationPlan.sentDate === 'string' ? implementationPlan.sentDate : (implementationPlan.sentDate ? implementationPlan.sentDate.toISOString().split('T')[0] : ""),
         comments: implementationPlan.comments || "",
       });
     }
