@@ -789,10 +789,11 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
                           <>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div>
-                                <label className="text-sm font-medium">
+                                <label htmlFor="hours-worked" className="text-sm font-medium">
                                   Timmar arbetade
                                 </label>
                                 <Input
+                                  id="hours-worked"
                                   type="number"
                                   value={timeData?.hoursWorked || 0}
                                   className="mt-1"

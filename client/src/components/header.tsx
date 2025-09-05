@@ -64,6 +64,9 @@ export function Header({ onSidebarToggle, onExport, searchTerm, onSearchChange }
                 defaultValue={searchTerm}
                 onChange={handleSearchChange}
                 className="w-80 pl-10"
+                aria-label="Sök personal eller data"
+                title="Sök personal eller data"
+                role="searchbox"
               />
               <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>

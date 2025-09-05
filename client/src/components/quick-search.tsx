@@ -291,6 +291,12 @@ export function QuickSearch({
           }}
           onFocus={() => setIsOpen(true)}
           className="pl-10 pr-4"
+          aria-label={placeholder}
+          title={placeholder}
+          role="searchbox"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
         />
       </div>
 
@@ -298,7 +304,7 @@ export function QuickSearch({
         <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-96 overflow-y-auto shadow-lg border border-gray-200">
           <CardContent className="p-0">
             {searchResults.length > 0 ? (
-              <div className="py-2">
+              <div className="py-2" role="listbox" aria-label="Sökresultat">
                 {searchResults.map((result, index) => (
                   <div
                     key={`${result.type}-${result.id}`}
@@ -308,6 +314,9 @@ export function QuickSearch({
                         : 'hover:bg-gray-50'
                     }`}
                     onClick={() => handleSelect(result)}
+                    role="option"
+                    aria-selected={index === selectedIndex}
+                    tabIndex={-1}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex-shrink-0 text-ungdoms-600">
