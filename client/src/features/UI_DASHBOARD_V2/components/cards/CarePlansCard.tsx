@@ -66,7 +66,7 @@ export function CarePlansCard({ filterKey, carePlans, staffById }: Props) {
                   <span className="text-sm text-muted-foreground">Ansvarig: {r.staff}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <StatusChip status={r.status} />
+                  <StatusChip status={r.status as "waiting" | "active" | "overdue" | "completed"} />
                   <Button size="sm" className="bg-blue-600 text-white">Granska</Button>
                 </div>
               </div>

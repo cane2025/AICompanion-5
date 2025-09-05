@@ -74,7 +74,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
   // Fetch care plan
   const { data: carePlan, isLoading } = useQuery<CarePlan>({
     queryKey: ["/api/care-plans", clientId],
-    queryFn: () => api.getCarePlan(clientId),
+    queryFn: () => api.getCarePlanByClient(clientId),
     retry: false,
   });
 
@@ -111,7 +111,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as "received" | "staff_notified" | "in_progress" | "completed") || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -244,7 +244,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as "received" | "staff_notified" | "in_progress" | "completed") || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -408,7 +408,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
                   <p className="text-sm text-blue-800">
                     <strong>GFP ska vara inlämnad senast:</strong>{" "}
                     {new Date(
-                      new Date(form.watch("staffNotifiedDate")).getTime() +
+                      (form.watch("staffNotifiedDate") ? new Date(form.watch("staffNotifiedDate")!).getTime() : 0) +
                         21 * 24 * 60 * 60 * 1000
                     ).toLocaleDateString("sv-SE")}{" "}
                     (3 veckor från tillsägning)

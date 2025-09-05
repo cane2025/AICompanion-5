@@ -174,15 +174,7 @@ export function withErrorBoundary<P extends object>(
   fallback?: React.ComponentType<{ error: Error }>
 ) {
   const WrappedComponent: React.FC<P> = (props) => (
-    <ErrorBoundary
-      fallback={
-        fallback
-          ? React.createElement(fallback, {
-              error: new Error("Component error"),
-            })
-          : undefined
-      }
-    >
+    <ErrorBoundary>
       <Component {...props} />
     </ErrorBoundary>
   );
