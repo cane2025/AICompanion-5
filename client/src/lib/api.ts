@@ -243,6 +243,20 @@ export const createWeeklyDocumentation = (data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
+export const updateWeeklyDocumentation = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/weekly-documentation/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+export const deleteWeeklyDocumentation = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/weekly-documentation/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
 // Monthly Reports API
 export const getMonthlyReports = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/monthly-reports`, { credentials: "include" }).then(
@@ -262,6 +276,25 @@ export const createMonthlyReport = (data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
+export const getMonthlyReportById = (id: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
+
+export const updateMonthlyReport = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+export const deleteMonthlyReport = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
 // Vimsa Time API
 export const getVimsaTime = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/vimsa-time`, { credentials: "include" }).then((res) =>
@@ -280,6 +313,25 @@ export const createVimsaTime = (data: any): Promise<any> =>
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
+
+export const getVimsaTimeById = (id: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
+    credentials: "include",
+  }).then((res) => handleResponse<any>(res));
+
+export const updateVimsaTime = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+
+export const deleteVimsaTime = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
 
 // Staff-specific client endpoints
 export const getClientsByStaff = (staffId: string): Promise<Client[]> =>

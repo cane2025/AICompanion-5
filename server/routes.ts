@@ -576,6 +576,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/monthly-reports/:id", async (req, res) => {
+    try {
+      const report = await storage.getMonthlyReportById(req.params.id);
+      if (!report) {
+        return res.status(404).json({ message: "Monthly report not found" });
+      }
+      res.json(report);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch monthly report" });
+    }
+  });
+
   app.post("/api/monthly-reports", async (req, res) => {
     try {
       const validatedData = insertMonthlyReportSchema.parse(req.body);
@@ -599,6 +611,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(report);
     } catch (error) {
       res.status(400).json({ message: "Invalid monthly report data", error });
+    }
+  });
+
+  app.delete("/api/monthly-reports/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteMonthlyReport(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Monthly report not found" });
+      }
+      res.json({ message: "Monthly report deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete monthly report" });
     }
   });
 
@@ -762,7 +786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const monthlyReports = await storage.getAllMonthlyReports();
       const clientReports = monthlyReports.filter(
-        (report) => report.staffId === req.params.clientId
+        (report) => report.clientId === req.params.clientId
       );
       res.json(clientReports);
     } catch (error) {

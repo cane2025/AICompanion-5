@@ -7,12 +7,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/header";
 import { StaffSidebar } from "@/components/staff-sidebar";
 import { Dashboard } from "@/pages/dashboard";
-// UI_DASHBOARD_V2 feature flag
+// UI_DASHBOARD_V2 feature flag - enabled by default for testing
 const UI_DASHBOARD_V2 =
   (typeof localStorage !== "undefined" &&
     localStorage.getItem("UI_DASHBOARD_V2") === "true") ||
   (typeof window !== "undefined" &&
-    (window as any).UI_DASHBOARD_V2 === true);
+    (window as any).UI_DASHBOARD_V2 === true) ||
+  true; // Enable by default
 let DashboardV2: React.ComponentType | null = null;
 let SidebarV2: React.ComponentType<{ active: string; onChange: (v: string) => void }>| null = null;
 try {

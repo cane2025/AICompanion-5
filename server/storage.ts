@@ -73,11 +73,13 @@ export interface IStorage {
     year: number,
     month: number
   ): Promise<MonthlyReport | undefined>;
+  getMonthlyReportById(id: string): Promise<MonthlyReport | undefined>;
   createMonthlyReport(report: InsertMonthlyReport): Promise<MonthlyReport>;
   updateMonthlyReport(
     id: string,
     updates: UpdateMonthlyReport
   ): Promise<MonthlyReport | undefined>;
+  deleteMonthlyReport(id: string): Promise<boolean>;
 
   // Care plan operations
   getAllCarePlans(): Promise<CarePlan[]>;
@@ -748,6 +750,14 @@ export class MemStorage implements IStorage {
   // Get all monthly reports
   async getAllMonthlyReports(): Promise<MonthlyReport[]> {
     return Array.from(this.monthlyReports.values());
+  }
+
+  async getMonthlyReportById(id: string): Promise<MonthlyReport | undefined> {
+    return this.monthlyReports.get(id);
+  }
+
+  async deleteMonthlyReport(id: string): Promise<boolean> {
+    return this.monthlyReports.delete(id);
   }
 
   // Get all Vimsa time data
