@@ -43,11 +43,11 @@ app.use(express.json());
 // Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-// Auth API
-app.use("/api/auth", authRoutes);
-
 // dev API
 app.use("/api", devRoutes);
+
+// Auth API
+app.use("/api/auth", authRoutes);
 
 // Serve static files from dist/public (built frontend)
 app.use(express.static(path.join(__dirname, "../dist/public")));

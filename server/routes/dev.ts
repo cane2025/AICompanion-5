@@ -212,6 +212,13 @@ devRoutes.get("/implementation-plans/client/:clientId", (req, res) => {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   res.json(rows);
 });
+// Alias to match tests: GET /implementation-plans/:clientId -> list for client
+devRoutes.get("/implementation-plans/:clientId", (req, res) => {
+  const rows = (db.implementationPlans ?? [])
+    .filter((p) => p.clientId === req.params.clientId)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  res.json(rows);
+});
 devRoutes.get("/implementation-plans/staff/:staffId", (req, res) => {
   const list = (store.implementationPlans ?? []).filter(
     (p: any) => p.staffId === req.params.staffId
