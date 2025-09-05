@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "PORT=3001 NODE_ENV=development tsx server/index.ts",
+    "dev": "PORT=3001 NODE_ENV=development npx tsx server/index.ts",
     "dev:build": "vite build",
     "dev:open": "node -e \"require('child_process').exec(process.platform==='darwin'?'open http://127.0.0.1:3001':process.platform==='win32'?'start http://127.0.0.1:3001':'xdg-open http://127.0.0.1:3001')\"",
     "check": "tsc",
