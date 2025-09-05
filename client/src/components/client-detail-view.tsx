@@ -406,7 +406,7 @@ export function ClientDetailView({ client, staffId }: ClientDetailViewProps) {
 
         {/* Dokumentation Tab (V2 day view) */}
         <TabsContent value="documentation">
-          <V2WeeklyDocs clientId={client.id} year={2025} />
+          <V2WeeklyDocs clientId={client.id} year={new Date().getFullYear()} />
         </TabsContent>
 
         {/* Månadsrapporter Tab */}

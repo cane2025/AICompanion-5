@@ -271,7 +271,7 @@ export const v2_createCarePlan = (
   }).then((res) => handleResponse<any>(res));
 
 export const v2_updateCarePlan = (carePlanId: string, data: any) =>
-  fetch(`${API_BASE_URL}/care-plans/${carePlanId}`, {
+  fetch(`${API_BASE_URL}/v2/care-plans/${carePlanId}`, {
     method: "PATCH",
     headers: getAuthHeaders(),
     credentials: "include",
@@ -296,7 +296,7 @@ export const v2_createGfp = (
   }).then((res) => handleResponse<any>(res));
 
 export const v2_updateGfp = (implId: string, data: any) =>
-  fetch(`${API_BASE_URL}/implementation-plans/${implId}`, {
+  fetch(`${API_BASE_URL}/v2/implementation-plans/${implId}`, {
     method: "PATCH",
     headers: getAuthHeaders(),
     credentials: "include",

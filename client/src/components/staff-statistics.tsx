@@ -60,7 +60,7 @@ export function StaffStatistics({ staff }: StaffStatisticsProps) {
   const periodFrom = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10);
   const periodTo = new Date().toISOString().slice(0, 10);
   const { data: v2StaffStats = [] } = useQuery({
-    queryKey: ["/api/v2/stats/staff", periodFrom, periodTo],
+    queryKey: ["stats-staff-v2", periodFrom, periodTo],
     queryFn: () => api.v2_getStaffStats(periodFrom, periodTo),
   });
 

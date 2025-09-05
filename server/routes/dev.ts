@@ -447,8 +447,17 @@ function computeDayDefaults(
 ) {
   const index = dayKeys.indexOf(dayKey);
   const monday = getIsoWeekStartDate(year, week);
-  const dayDate = addDaysUTC(monday, index);
-  const nextMidnight = new Date(Date.UTC(dayDate.getUTCFullYear(), dayDate.getUTCMonth(), dayDate.getUTCDate() + 1));
+  const dayUtc = addDaysUTC(monday, index);
+  // Use local time midnight for the next day (avoids UTC/local mismatches near midnight)
+  const nextMidnight = new Date(
+    dayUtc.getFullYear(),
+    dayUtc.getMonth(),
+    dayUtc.getDate() + 1,
+    0,
+    0,
+    0,
+    0
+  );
 
   const timestamp = partial?.timestamp ? new Date(partial.timestamp) : new Date();
   const hasManualDelayed = typeof partial?.delayed === "boolean";
@@ -551,7 +560,7 @@ devRoutes.post("/clients/:clientId/care-plans", (req, res) => {
   return res.status(201).json({ plan, autoGfp: gfp });
 });
 
-devRoutes.patch("/care-plans/:carePlanId", (req, res) => {
+devRoutes.patch("/v2/care-plans/:carePlanId", (req, res) => {
   const { carePlanId } = req.params;
   const idx = (store.v2CarePlans ?? []).findIndex((p: any) => p.id === carePlanId);
   if (idx === -1) return res.status(404).json({ error: "Care plan not found" });
@@ -607,7 +616,7 @@ devRoutes.post("/clients/:clientId/implementation-plans", (req, res) => {
   return res.status(201).json(plan);
 });
 
-devRoutes.patch("/implementation-plans/:implId", (req, res) => {
+devRoutes.patch("/v2/implementation-plans/:implId", (req, res) => {
   const { implId } = req.params;
   const idx = (store.v2ImplementationPlans ?? []).findIndex((p: any) => p.id === implId);
   if (idx === -1)
