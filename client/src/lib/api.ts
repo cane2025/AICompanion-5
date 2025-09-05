@@ -97,6 +97,56 @@ export const restoreClient = (id: string): Promise<Client> =>
     credentials: "include",
   }).then((res) => handleResponse<Client>(res));
 
+// Care Plan API
+export const getCarePlan = (clientId: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans/${clientId}`, { credentials: "include" }).then(
+    (res) => handleResponse<any>(res)
+  );
+export const createCarePlan = (data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const updateCarePlan = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const deleteCarePlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/care-plans/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
+// Implementation Plan API
+export const getImplementationPlan = (clientId: string): Promise<any> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, { 
+    credentials: "include" 
+  }).then((res) => handleResponse<any>(res));
+export const createImplementationPlan = (data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/implementation-plans`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  }).then((res) => handleResponse<any>(res));
+export const deleteImplementationPlan = (id: string): Promise<{ message: string }> =>
+  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then((res) => handleResponse<{ message: string }>(res));
+
 // Auth API
 export const login = async (data: LoginData): Promise<User> => {
   const headers: Record<string, string> = {
@@ -149,29 +199,7 @@ export const getCarePlanByClient = (clientId: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
-export const createCarePlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const updateCarePlan = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/care-plans/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const deleteCarePlan = (id: string): Promise<void> =>
-  fetch(`${API_BASE_URL}/care-plans/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<void>(res));
-
-// Implementation Plans API
+// Implementation Plans API (additional functions)
 export const getImplementationPlans = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/implementation-plans`, {
     credentials: "include",
@@ -194,28 +222,6 @@ export const getImplementationPlanById = (id: string): Promise<any> =>
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 
-export const createImplementationPlan = (data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const updateImplementationPlan = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const deleteImplementationPlan = (id: string): Promise<void> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<void>(res));
-
 // Weekly Documentation API
 export const getWeeklyDocumentation = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/weekly-documentation`, {
@@ -237,25 +243,6 @@ export const createWeeklyDocumentation = (data: any): Promise<any> =>
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
 
-export const updateWeeklyDocumentation = (
-  id: string,
-  data: any
-): Promise<any> =>
-  fetch(`${API_BASE_URL}/weekly-documentation/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const deleteWeeklyDocumentation = (
-  id: string
-): Promise<{ message: string }> =>
-  fetch(`${API_BASE_URL}/weekly-documentation/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<{ message: string }>(res));
-
 // Monthly Reports API
 export const getMonthlyReports = (): Promise<any[]> =>
   fetch(`${API_BASE_URL}/monthly-reports`, { credentials: "include" }).then(
@@ -267,11 +254,6 @@ export const getMonthlyReportsByClient = (clientId: string): Promise<any[]> =>
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
-export const getMonthlyReportById = (id: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
-    credentials: "include",
-  }).then((res) => handleResponse<any>(res));
-
 export const createMonthlyReport = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/monthly-reports`, {
     method: "POST",
@@ -279,20 +261,6 @@ export const createMonthlyReport = (data: any): Promise<any> =>
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
-
-export const updateMonthlyReport = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const deleteMonthlyReport = (id: string): Promise<void> =>
-  fetch(`${API_BASE_URL}/monthly-reports/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<void>(res));
 
 // Vimsa Time API
 export const getVimsaTime = (): Promise<any[]> =>
@@ -305,11 +273,6 @@ export const getVimsaTimeByClient = (clientId: string): Promise<any[]> =>
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
-export const getVimsaTimeById = (id: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
-    credentials: "include",
-  }).then((res) => handleResponse<any>(res));
-
 export const createVimsaTime = (data: any): Promise<any> =>
   fetch(`${API_BASE_URL}/vimsa-time`, {
     method: "POST",
@@ -317,20 +280,6 @@ export const createVimsaTime = (data: any): Promise<any> =>
     credentials: "include",
     body: JSON.stringify(data),
   }).then((res) => handleResponse<any>(res));
-
-export const updateVimsaTime = (id: string, data: any): Promise<any> =>
-  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    credentials: "include",
-    body: JSON.stringify(data),
-  }).then((res) => handleResponse<any>(res));
-
-export const deleteVimsaTime = (id: string): Promise<void> =>
-  fetch(`${API_BASE_URL}/vimsa-time/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then((res) => handleResponse<void>(res));
 
 // Staff-specific client endpoints
 export const getClientsByStaff = (staffId: string): Promise<Client[]> =>
