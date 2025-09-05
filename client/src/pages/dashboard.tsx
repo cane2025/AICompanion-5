@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardStats } from "@/components/dashboard-stats";
+import { isDashboardV2Enabled } from "@/UI_DASHBOARD_V2/flag";
+import { DashboardV2 } from "@/UI_DASHBOARD_V2/DashboardV2";
 import { CareOverview } from "@/components/care-overview";
 import { StaffStatistics } from "@/components/staff-statistics";
 import { DataOverview } from "@/components/data-overview";
@@ -29,6 +31,9 @@ import {
 import type { Staff } from "@shared/schema";
 
 export function Dashboard() {
+  if (isDashboardV2Enabled()) {
+    return <DashboardV2 />;
+  }
   // Enable real-time synchronization
   useRealtimeSync();
 
