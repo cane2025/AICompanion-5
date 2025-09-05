@@ -245,6 +245,7 @@ export class MemStorage implements IStorage {
       const staff: Staff = {
         id,
         name,
+        fullName: name,
         initials: this.getInitials(name),
         personnummer: null,
         telefon: null,
@@ -253,6 +254,7 @@ export class MemStorage implements IStorage {
         anställningsdatum: null,
         roll: null,
         avdelning: null,
+        weeklyCapacityHours: 40,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -281,6 +283,7 @@ export class MemStorage implements IStorage {
     const staff: Staff = {
       id,
       name: insertStaff.name,
+      fullName: insertStaff.name,
       initials: insertStaff.initials,
       personnummer: insertStaff.personnummer || null,
       telefon: insertStaff.telefon || null,
@@ -289,6 +292,7 @@ export class MemStorage implements IStorage {
       anställningsdatum: insertStaff.anställningsdatum || null,
       roll: insertStaff.roll || null,
       avdelning: insertStaff.avdelning || null,
+      weeklyCapacityHours: 40,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -321,7 +325,7 @@ export class MemStorage implements IStorage {
         const updated = {
           ...client,
           staffId: 'unassigned',
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.clients.set(client.id, updated);
       }
@@ -335,7 +339,7 @@ export class MemStorage implements IStorage {
           ...plan,
           staffId: plan.staffId === id ? 'unassigned' : plan.staffId,
           responsibleId: plan.responsibleId === id ? 'unassigned' : plan.responsibleId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.carePlans.set(plan.id, updated);
       }
@@ -348,7 +352,7 @@ export class MemStorage implements IStorage {
         const updated = {
           ...plan,
           staffId: 'unassigned',
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date()
         };
         this.implementationPlans.set(plan.id, updated);
       }

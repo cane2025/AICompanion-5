@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { generateToken, comparePassword } from "../auth/jwt.js";
-import { store } from "../store.js";
 import { validateLogin } from "../validation.js";
 
 const router = Router();
