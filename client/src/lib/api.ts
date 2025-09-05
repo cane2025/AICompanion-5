@@ -185,7 +185,7 @@ export const checkAuth = (): Promise<User> =>
 
 // Care Plans API
 export const getCarePlans = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/care-plans`, { credentials: "include" }).then((res) =>
+  fetch(`${API_BASE_URL}/care-plans/all`, { credentials: "include" }).then((res) =>
     handleResponse<any[]>(res)
   );
 
@@ -201,7 +201,7 @@ export const getCarePlanByClient = (clientId: string): Promise<any> =>
 
 // Implementation Plans API (additional functions)
 export const getImplementationPlans = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/implementation-plans`, {
+  fetch(`${API_BASE_URL}/implementation-plans/all`, {
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
@@ -224,7 +224,7 @@ export const getImplementationPlanById = (id: string): Promise<any> =>
 
 // Weekly Documentation API
 export const getWeeklyDocumentation = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/weekly-documentation`, {
+  fetch(`${API_BASE_URL}/weekly-documentation/all`, {
     credentials: "include",
   }).then((res) => handleResponse<any[]>(res));
 
@@ -297,7 +297,7 @@ export const deleteMonthlyReport = (id: string): Promise<{ message: string }> =>
 
 // Vimsa Time API
 export const getVimsaTime = (): Promise<any[]> =>
-  fetch(`${API_BASE_URL}/vimsa-time`, { credentials: "include" }).then((res) =>
+  fetch(`${API_BASE_URL}/vimsa-time/all`, { credentials: "include" }).then((res) =>
     handleResponse<any[]>(res)
   );
 
