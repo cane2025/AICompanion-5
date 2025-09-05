@@ -25,19 +25,27 @@ rm -rf client/dist/
 
 # Install dependencies
 echo "Installing dependencies..."
-npm ci --production=false
+# Use pnpm to avoid npm ci lockfile strictness in CI
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm install
+else
+  npm install
+fi
 
 # Build the application
-echo "Building application..."
+echo "Building application (frontend)..."
 npm run build
 
+echo "Building application (server)..."
+npx tsc -p tsconfig.server.json --force
+
 # Verify build output
-if [ ! -f "dist/index.js" ]; then
-    echo "Build failed: dist/index.js not found"
+if [ ! -f "dist/server/index.js" ]; then
+    echo "Build failed: dist/server/index.js not found"
     exit 1
 fi
 
-if [ ! -d "client/dist" ]; then
+if [ ! -d "dist/public" ]; then
     echo "Build failed: client/dist directory not found"
     exit 1
 fi

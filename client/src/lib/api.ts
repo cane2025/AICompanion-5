@@ -213,7 +213,7 @@ export const getImplementationPlansByStaff = (
   }).then((res) => handleResponse<any[]>(res));
 
 export const getImplementationPlanByClient = (clientId: string): Promise<any> =>
-  fetch(`${API_BASE_URL}/implementation-plans/${clientId}`, {
+  fetch(`${API_BASE_URL}/implementation-plans/client/${clientId}`, {
     credentials: "include",
   }).then((res) => handleResponse<any>(res));
 

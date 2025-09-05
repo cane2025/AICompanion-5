@@ -76,7 +76,7 @@ export function EditableImplementationPlan({
   // Fetch implementation plan
   const { data: implementationPlan, isLoading } = useQuery<ImplementationPlan>({
     queryKey: ["/api/implementation-plans", clientId],
-    queryFn: () => api.getImplementationPlan(clientId),
+    queryFn: () => api.getImplementationPlanByClient(clientId),
     retry: false,
   });
 
@@ -105,12 +105,27 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as any) || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate:
+          typeof (implementationPlan as any).dueDate === "string"
+            ? ((implementationPlan as any).dueDate as string)
+            : (implementationPlan as any).dueDate
+            ? new Date((implementationPlan as any).dueDate).toISOString().slice(0, 10)
+            : "",
+        completedDate:
+          typeof (implementationPlan as any).completedDate === "string"
+            ? ((implementationPlan as any).completedDate as string)
+            : (implementationPlan as any).completedDate
+            ? new Date((implementationPlan as any).completedDate).toISOString().slice(0, 10)
+            : "",
+        sentDate:
+          typeof (implementationPlan as any).sentDate === "string"
+            ? ((implementationPlan as any).sentDate as string)
+            : (implementationPlan as any).sentDate
+            ? new Date((implementationPlan as any).sentDate).toISOString().slice(0, 10)
+            : "",
         comments: implementationPlan.comments || "",
       });
     }
@@ -247,12 +262,27 @@ export function EditableImplementationPlan({
         goals: implementationPlan.goals || "",
         activities: implementationPlan.activities || "",
         followUpSchedule: implementationPlan.followUpSchedule || "",
-        status: implementationPlan.status || "pending",
+        status: (implementationPlan.status as any) || "pending",
         followup1: implementationPlan.followup1 || false,
         followup2: implementationPlan.followup2 || false,
-        dueDate: implementationPlan.dueDate || "",
-        completedDate: implementationPlan.completedDate || "",
-        sentDate: implementationPlan.sentDate || "",
+        dueDate:
+          typeof (implementationPlan as any).dueDate === "string"
+            ? ((implementationPlan as any).dueDate as string)
+            : (implementationPlan as any).dueDate
+            ? new Date((implementationPlan as any).dueDate).toISOString().slice(0, 10)
+            : "",
+        completedDate:
+          typeof (implementationPlan as any).completedDate === "string"
+            ? ((implementationPlan as any).completedDate as string)
+            : (implementationPlan as any).completedDate
+            ? new Date((implementationPlan as any).completedDate).toISOString().slice(0, 10)
+            : "",
+        sentDate:
+          typeof (implementationPlan as any).sentDate === "string"
+            ? ((implementationPlan as any).sentDate as string)
+            : (implementationPlan as any).sentDate
+            ? new Date((implementationPlan as any).sentDate).toISOString().slice(0, 10)
+            : "",
         comments: implementationPlan.comments || "",
       });
     }

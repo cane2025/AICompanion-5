@@ -74,7 +74,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
   // Fetch care plan
   const { data: carePlan, isLoading } = useQuery<CarePlan>({
     queryKey: ["/api/care-plans", clientId],
-    queryFn: () => api.getCarePlan(clientId),
+    queryFn: () => api.getCarePlanByClient(clientId),
     retry: false,
   });
 
@@ -111,7 +111,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as any) || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -244,7 +244,7 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
         receivedDate: carePlan.receivedDate || "",
         enteredJournalDate: carePlan.enteredJournalDate || "",
         staffNotifiedDate: carePlan.staffNotifiedDate || "",
-        status: carePlan.status || "received",
+        status: (carePlan.status as any) || "received",
         responsibleId: carePlan.responsibleId || "",
         comment: carePlan.comment || "",
       });
@@ -407,10 +407,12 @@ export function EditableCarePlan({ clientId, clientInitials }: EditableCarePlanP
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
                     <strong>GFP ska vara inlämnad senast:</strong>{" "}
-                    {new Date(
-                      new Date(form.watch("staffNotifiedDate")).getTime() +
-                        21 * 24 * 60 * 60 * 1000
-                    ).toLocaleDateString("sv-SE")}{" "}
+                    {(() => {
+                      const val = form.watch("staffNotifiedDate");
+                      const base = val ? new Date(val) : new Date();
+                      const due = new Date(base.getTime() + 21 * 24 * 60 * 60 * 1000);
+                      return due.toLocaleDateString("sv-SE");
+                    })()} {" "}
                     (3 veckor från tillsägning)
                   </p>
                 </div>

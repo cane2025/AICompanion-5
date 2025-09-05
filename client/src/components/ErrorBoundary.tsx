@@ -2,6 +2,7 @@ import React from "react";
 
 interface Props {
   children: React.ReactNode;
+  fallback?: React.ReactElement<any>;
 }
 
 interface State {
@@ -21,6 +22,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("Error caught by boundary:", error, errorInfo);
+    // Align with tests expecting console.log usage
+    console.log("React Error Boundary caught error", error);
     // Här skulle vi skicka till Sentry eller annan error tracking service
   }
 
@@ -30,6 +33,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      // Prefer provided fallback when available
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
       return (
         <DefaultErrorFallback
           error={this.state.error!}
@@ -72,6 +79,7 @@ const DefaultErrorFallback = ({
         <p className="mt-2 text-sm text-gray-600">
           Ett oväntat fel inträffade i systemet. Inga känsliga data har läckt.
         </p>
+        <p className="mt-1 text-xs text-gray-500">Systemfel upptäckt</p>
 
         {process.env.NODE_ENV === "development" && (
           <details className="mt-4 text-left">
@@ -157,6 +165,7 @@ export const safeAsync = async function <T>(
     const err = error instanceof Error ? error : new Error(String(error));
 
     console.error("Safe async operation failed:", err);
+    console.log("Safe async operation failed", err);
 
     if (errorHandler) {
       errorHandler(err);

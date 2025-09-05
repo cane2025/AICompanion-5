@@ -14,7 +14,7 @@ export function CarePlansCard({ filterKey, carePlans, staffById }: Props) {
   const pageSize = 10;
 
   const filtered = useMemo(() => {
-    const mapStatus = (s: string) => s === "completed" ? "completed" : s === "in_progress" ? "active" : "waiting";
+    const mapStatus = (s: string) => (s === "completed" ? "completed" : s === "in_progress" ? "active" : s === "received" ? "waiting" : (s as any));
     let rows = carePlans.map((p: any, idx: number) => ({
       id: p.id,
       clientId: p.clientId,

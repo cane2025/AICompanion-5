@@ -8,6 +8,8 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
+    "incremental": false,
+    "types": ["node"],
     "noEmit": false,
     "declaration": false,
     "sourceMap": false,
