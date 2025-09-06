@@ -3197,6 +3197,19 @@
       "quality": "pending",
       "createdAt": "2025-09-05T11:03:09.832Z",
       "updatedAt": "2025-09-05T11:03:09.857Z"
+    },
+    {
+      "id": "mr_5e929134-e3f2-4645-88f6-bcbf567dff69",
+      "clientId": "c_cd92f6af-dd9c-4468-bf36-299cee9eeee4",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 9,
+      "reportContent": "Test monthly report for verification",
+      "approved": false,
+      "status": "not_started",
+      "quality": "pending",
+      "createdAt": "2025-09-06T08:09:48.191Z",
+      "updatedAt": "2025-09-06T08:09:48.191Z"
     }
   ],
   "vimsaTime": [
