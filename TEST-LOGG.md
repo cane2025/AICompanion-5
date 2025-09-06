@@ -1,8 +1,35 @@
 # TEST-LOGG – Vårdadministration System
 
-**Datum:** 2025-01-27  
+**Datum:** 2025-09-06  
 **Författare:** AI Assistant  
 **Version:** 2.0 - Dashboard V2 & Monthly Reports Fix  
+**Build Time:** 2025-09-06 08:10:05 UTC  
+**TypeScript:** 0 errors  
+**Tests:** 60 passed (60)
+
+## 🔍 Verification Run Results - 2025-09-06
+
+### Build & Test Results
+- **Clean Install:** ✅ Successfully completed `rm -rf node_modules && npm ci`
+- **Build:** ✅ Successfully completed `npm run build` (5.95s)
+- **TypeScript Check:** ✅ 0 errors with `npm run check`
+- **Tests:** ✅ 60 tests passed using `npx vitest run --reporter=dot`
+
+### V2 Features End-to-End Verification
+- **DashboardV2 Visible:** ✅ DashboardV2 is visible by default (feature flag enabled)
+- **Client Names/Initials:** ⚠️ Partially working - staff names display but client names/initials need client data fetch
+- **Smart Filtering:** ✅ Working - shows waiting/active/overdue filters with "requires" as default
+- **Team Statistics:** ✅ Present with charts and metrics
+- **Monthly Reports:** ✅ Create → store → list → view workflow verified via API
+
+### API Smoke Checks
+- **Care Plans POST:** ✅ `/api/care-plans` endpoint works, creates care plans successfully
+- **Weekly Docs PUT:** ⚠️ Endpoint `/api/clients/:id/weekly-docs/:year/:week (PUT)` not found in current implementation
+- **Staff Stats:** ⚠️ Endpoint `/api/stats/staff?from=&to=` not found in current implementation
+
+### Staff Names Loading
+- **API Loading:** ✅ Staff names load from `/api/staff` endpoint
+- **UI Rendering:** ✅ Staff names render in lists/cards/filters
 
 ## 🎯 DashboardV2 Test Checklista
 
