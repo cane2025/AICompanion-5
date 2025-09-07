@@ -5,7 +5,7 @@ import { FileText, Target, Calendar, FileCheck, Activity } from "lucide-react";
 import { CarePlanList } from "@/features/carePlans/CarePlanList";
 import { ImplementationPlanList } from "@/features/implementationPlans/ImplementationPlanList";
 import { WeeklyDocumentation } from "@/features/weeklyDocs/WeeklyDocumentation";
-// MonthlyReport component not present; remove import and tab content for now
+import { MonthlyReport } from "@/features/monthlyReports/MonthlyReport";
 import { VimsaIntegration } from "@/features/vimsa/VimsaIntegration";
 
 interface ClientDetailViewProps {
@@ -62,7 +62,9 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
           <TabsContent value="weekly-docs" className="mt-6">
             <WeeklyDocumentation clientId={clientId} />
           </TabsContent>
-          {/* Monthly reports feature not available in this build */}
+          <TabsContent value="monthly-reports" className="mt-6">
+            <MonthlyReport clientId={clientId} />
+          </TabsContent>
           <TabsContent value="vimsa" className="mt-6">
             <VimsaIntegration clientId={clientId} />
           </TabsContent>

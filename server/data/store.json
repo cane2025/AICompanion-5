@@ -3568,5 +3568,108 @@
       "createdAt": "2025-09-05T11:03:09.846Z",
       "updatedAt": "2025-09-05T11:03:09.862Z"
     }
+  ],
+  "v2CarePlans": [
+    {
+      "id": "v2cp_8170c6d2-90a2-424c-bf40-00a8aeb090b5",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "name": "V2 Vårdplan - Exempel",
+      "planContent": "Detta är en V2 vårdplan med förbättrad struktur och funktionalitet.",
+      "goals": [
+        "Förbättra klientens vardagliga funktioner",
+        "Öka självständigheten inom personlig vård",
+        "Utveckla sociala färdigheter"
+      ],
+      "interventions": "Regelbunden träning, stöd vid dagliga aktiviteter, social träning",
+      "status": "in_progress",
+      "isActive": true,
+      "comment": "V2 vårdplan med förbättrad struktur",
+      "createdAt": "2025-01-21T13:09:20.703Z",
+      "updatedAt": "2025-01-21T13:09:20.703Z"
+    }
+  ],
+  "v2ImplementationPlans": [
+    {
+      "id": "v2ip_8170c6d2-90a2-424c-bf40-00a8aeb090b5",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "name": "V2 Genomförandeplan - Exempel",
+      "planContent": "Detta är en V2 genomförandeplan med förbättrad struktur och funktionalitet.",
+      "goals": [
+        "Implementera dagliga rutiner",
+        "Utveckla kommunikationsfärdigheter",
+        "Förbättra motoriska färdigheter"
+      ],
+      "interventions": "Daglig träning, kommunikationsträning, motorisk träning",
+      "status": "active",
+      "isActive": true,
+      "comment": "V2 genomförandeplan med förbättrad struktur",
+      "startDate": "2025-01-01",
+      "endDate": "2025-06-30",
+      "priority": "high",
+      "createdAt": "2025-01-21T13:09:20.703Z",
+      "updatedAt": "2025-01-21T13:09:20.703Z"
+    }
+  ],
+  "v2WeeklyDocumentation": [
+    {
+      "id": "v2wd_8170c6d2-90a2-424c-bf40-00a8aeb090b5",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "year": 2025,
+      "week": 3,
+      "content": "V2 veckodokumentation med förbättrad struktur",
+      "mondayStatus": "done",
+      "tuesdayStatus": "done",
+      "wednesdayStatus": "partial",
+      "thursdayStatus": "done",
+      "fridayStatus": "not_done",
+      "saturdayStatus": "not_done",
+      "sundayStatus": "not_done",
+      "mondayDocumented": true,
+      "tuesdayDocumented": true,
+      "wednesdayDocumented": true,
+      "thursdayDocumented": true,
+      "fridayDocumented": false,
+      "saturdayDocumented": false,
+      "sundayDocumented": false,
+      "documentation": "Detaljerad V2 dokumentation av veckans aktiviteter och framsteg.",
+      "approved": false,
+      "comments": "V2 veckodokumentation med förbättrad struktur",
+      "qualityAssessment": "good",
+      "createdAt": "2025-01-21T13:09:20.703Z",
+      "updatedAt": "2025-01-21T13:09:20.703Z"
+    }
+  ],
+  "v2MonthlyReports": [
+    {
+      "id": "v2mr_8170c6d2-90a2-424c-bf40-00a8aeb090b5",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "year": 2025,
+      "month": 1,
+      "content": "V2 månadsrapport med förbättrad struktur",
+      "reportContent": "Detaljerad V2 månadsrapport med omfattande analys av klientens utveckling och framsteg under månaden.",
+      "status": "completed",
+      "comment": "V2 månadsrapport med förbättrad struktur",
+      "quality": "good",
+      "submissionDate": "2025-01-31T15:30:00.000Z",
+      "createdAt": "2025-01-21T13:09:20.703Z",
+      "updatedAt": "2025-01-31T15:30:00.000Z"
+    }
+  ],
+  "v2VimsaTime": [
+    {
+      "id": "v2vt_8170c6d2-90a2-424c-bf40-00a8aeb090b5",
+      "clientId": "c_53807bca-a3fb-4e16-bbc5-8bd1127ff96d",
+      "staffId": "s_demo",
+      "date": "2025-01-21",
+      "hours": 8.5,
+      "activity": "V2 Vimsa tid med förbättrad struktur",
+      "description": "Detaljerad V2 Vimsa tid dokumentation",
+      "createdAt": "2025-01-21T13:09:20.703Z",
+      "updatedAt": "2025-01-21T13:09:20.703Z"
+    }
   ]
 }
