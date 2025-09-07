@@ -773,6 +773,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Monthly reports routes
+  app.get("/api/monthly-reports", async (req, res) => {
+    try {
+      const monthlyReports = await storage.getAllMonthlyReports();
+      res.json(monthlyReports);
+    } catch (error) {
+      res.status(500).json({ message: "Kunde inte hämta månadsrapporter" });
+    }
+  });
+
   app.get("/api/monthly-reports/all", async (req, res) => {
     try {
       const monthlyReports = await storage.getAllMonthlyReports();

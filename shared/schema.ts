@@ -87,7 +87,9 @@ export const monthlyReports = pgTable("monthly_reports", {
   content: text("content").default(""),
   reportContent: text("report_content").default(""),
   status: varchar("status").default("not_started"), // not_started, in_progress, completed
+  approved: boolean("approved").default(false).notNull(), // Healthcare V2: approval status
   comment: text("comment").default(""),
+  comments: text("comments").default(""), // Healthcare V2: additional comments field
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   quality: varchar("quality").default("pending"), // quality evaluation

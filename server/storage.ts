@@ -524,7 +524,9 @@ export class MemStorage implements IStorage {
       content: insertReport.content || null,
       reportContent: insertReport.reportContent || null,
       status: insertReport.status || null,
+      approved: insertReport.approved ?? false, // Healthcare V2: approval status
       comment: insertReport.comment || null,
+      comments: insertReport.comments || null, // Healthcare V2: additional comments
       createdAt: new Date(),
       updatedAt: new Date(),
       quality: insertReport.quality ?? null, // synced: nullable default
