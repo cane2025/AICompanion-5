@@ -76,17 +76,18 @@ Alla följande endpoints fungerar korrekt:
 
 ### 7. Autentisering & Säkerhet
 - **Status**: ✅ FUNGERAR
-- **JWT Tokens**: ✅ Genereras korrekt
-- **Session Management**: ✅ Fungerar
-- **Rate Limiting**: ✅ Implementerat
-- **Input Sanitization**: ✅ Aktiverat
+- **JWT Tokens**: ✅ Genereras korrekt (se `server/auth/jwt.ts`)
+- **Session Management**: ✅ Fungerar (se `server/routes/auth.ts`)
+- **Rate Limiting**: ✅ Implementerat (se `server/security.ts` - 5 försök per 15 min)
+- **Input Sanitization**: ✅ Aktiverat (se `server/security.ts` - sanitizeInput funktioner)
+- **Security Headers**: ✅ Implementerat (se `server/index.ts` - CSP, XSS protection)
 
 ### 8. CRUD Operations Test
 - **Status**: ✅ ALLA FUNGERAR
-- **Create**: ✅ Testat med klienter
-- **Read**: ✅ Testat med alla endpoints
-- **Update**: ✅ Testat med klienter
-- **Delete**: ✅ Testat med klienter
+- **Create**: ✅ Testat med klienter (POST /api/clients - skapade c_a1d2d29f-4e4c-4977-9c7c-d2defcd85841)
+- **Read**: ✅ Testat med alla endpoints (GET /api/clients/all, /api/care-plans/all, etc.)
+- **Update**: ✅ Testat med klienter (PUT /api/clients/c_a1d2d29f-4e4c-4977-9c7c-d2defcd85841)
+- **Delete**: ✅ Testat med klienter (DELETE /api/clients/c_a1d2d29f-4e4c-4977-9c7c-d2defcd85841)
 
 ## 🔧 Fixade Problem
 
@@ -99,7 +100,11 @@ Alla följande endpoints fungerar korrekt:
 - **Problem**: 6 säkerhetsproblem (3 låg, 3 medium)
 - **Lösning**: Körde `npm audit fix`
 - **Status**: ✅ LÖST (4 av 6 problem fixade)
-- **Återstående**: 2 medium problem i dev dependencies (endast utvecklingsserver)
+- **Återstående**: 2 medium problem i dev dependencies:
+  - `esbuild <=0.24.2` - Development server vulnerability (GHSA-67mh-4wv8-2f99)
+  - `vite 0.11.0 - 6.1.6` - Depends on vulnerable esbuild
+  - **Påverkan**: Endast utvecklingsserver, inte produktion
+  - **Rekommendation**: Uppdatera till senaste versioner när tillgängliga
 
 ## 📊 System Status
 
@@ -127,13 +132,52 @@ npm run dev
 npm run dev:client
 ```
 
-**URLs:**
-- Frontend: http://127.0.0.1:5175
-- Backend: http://127.0.0.1:3001
+**URLs (Development Environment):**
+- Frontend: http://127.0.0.1:5175 (konfigurerat i `vite.config.ts`)
+- Backend: http://127.0.0.1:3001 (konfigurerat i `package.json` scripts)
 
-**Demo-konton:**
-- Admin: `admin` / `password123`
-- Staff: `staff` / `password123`
+*Notera: Portar kan konfigureras via miljövariabler i produktion.*
+
+**Demo-konton (Development Mode):**
+- **Alla kombinationer accepteras** i utvecklingsläge
+- Exempel: `admin` / `password123` eller `staff` / `password123`
+- Systemet genererar unika tokens: `s_demo_<timestamp>`
+- **Viktigt**: Endast för utvecklingsmiljö - produktion kräver riktig autentisering
+
+*Se `server/routes/dev.ts` för implementation av dev authentication.*
+
+## 🧪 Test Kommandon Som Kördes
+
+```bash
+# Dependencies och kompilering
+npm install
+npm run check
+
+# Server startup
+npm run dev                    # Backend på port 3001
+npm run dev:client            # Frontend på port 5175
+
+# API endpoint tester
+curl -s http://127.0.0.1:3001/api/health
+curl -s http://127.0.0.1:3001/api/clients/all
+curl -s http://127.0.0.1:3001/api/care-plans/all
+curl -s http://127.0.0.1:3001/api/implementation-plans/all
+curl -s http://127.0.0.1:3001/api/weekly-documentation/all
+curl -s http://127.0.0.1:3001/api/monthly-reports/all
+curl -s http://127.0.0.1:3001/api/vimsa-time/all
+
+# CRUD operation tester
+curl -X POST -H "Content-Type: application/json" -d '{"initials":"TEST","status":"active"}' http://127.0.0.1:3001/api/clients
+curl -X PUT -H "Content-Type: application/json" -d '{"initials":"UPDATED","status":"active"}' http://127.0.0.1:3001/api/clients/{id}
+curl -X DELETE http://127.0.0.1:3001/api/clients/{id}
+
+# Build test
+npm run build
+
+# Security audit
+npm audit
+npm audit fix
+```
 
 ## 📝 Rekommendationer
 
@@ -141,6 +185,7 @@ npm run dev:client
 2. **Säkerhet**: De återstående dev dependency-vulnerabilities påverkar inte produktion
 3. **Monitoring**: Implementera logging för produktion
 4. **Testing**: Lägg till unit tests för kritiska funktioner
+5. **Environment Variables**: Använd miljövariabler för portar och secrets i produktion
 
 ## ✅ Slutsats
 
