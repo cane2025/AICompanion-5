@@ -58,8 +58,11 @@ export function Header({ onSidebarToggle, onExport, searchTerm, onSearchChange }
           <div className="flex items-center space-x-4">
             {/* Search */}
             <div className="hidden md:block relative">
+              <label htmlFor="header-search-input" className="sr-only">Sök</label>
               <Input
+                id="header-search-input"
                 type="text"
+                aria-label="Sök"
                 placeholder="Sök personal eller data..."
                 defaultValue={searchTerm}
                 onChange={handleSearchChange}
